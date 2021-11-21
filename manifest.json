@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Master",
+  "version": "1.0.0",
+	"background": {
+    "service_worker": "backgroundScripts/index.js"
+  },
+	"permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+		"http://*/*",
+		"https://*/*"
+  ],
+	"commands": {
+		"open-tab-master": {
+      "suggested_key": {
+        "default": "Ctrl+K",
+        "mac": "Command+K"
+      },
+      "description": "Open the navigation input"
+    }
+	},
+	"web_accessible_resources": [
+    {
+      "resources": ["pages/index.html", "pages/bundle.js"],
+			"matches": [
+				"http://*/*",
+				"https://*/*"
+			]
+    }
+  ],
+	"content_security_policy": {
+		"extension_pages": "script-src 'self'; object-src 'self'"
+	}
+}

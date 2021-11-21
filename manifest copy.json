@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Master",
+  "version": "1.0.0",
+	"background": {
+    "service_worker": "backgroundScripts/index.js"
+  },
+	"permissions": [
+    "activeTab",
+    "tabs",
+    "scripting",
+		"http://*/",
+		"https://*/"
+  ],
+	"content_scripts": [
+		{ 
+			"js": ["contentScripts/index.js"],
+			"matches": [ "https://*/*", "http://*/"]
+		}
+	],
+	"commands": {
+		"open-tab-master": {
+      "suggested_key": {
+        "default": "Ctrl+K",
+        "mac": "Command+K"
+      },
+      "description": "Open the navigation input"
+    }
+	}
+}
