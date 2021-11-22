@@ -5,6 +5,12 @@
 	"background": {
     "service_worker": "backgroundScripts/index.js"
   },
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["pages/bundle.js", "contentScripts/index.js"]
+		}
+	],
 	"permissions": [
     "activeTab",
     "tabs",
@@ -12,18 +18,9 @@
 		"http://*/*",
 		"https://*/*"
   ],
-	"commands": {
-		"open-tab-master": {
-      "suggested_key": {
-        "default": "Ctrl+K",
-        "mac": "Command+K"
-      },
-      "description": "Open the navigation input"
-    }
-	},
 	"web_accessible_resources": [
     {
-      "resources": ["pages/index.html", "pages/bundle.js"],
+      "resources": ["pages/bundle.js", "contentScripts/index.js"],
 			"matches": [
 				"http://*/*",
 				"https://*/*"
