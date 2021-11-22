@@ -17,3 +17,11 @@
 - React/Main Extension script
   - Build into a single bundle.js
   - That bundle.js used for rendering the extension
+
+
+### How to build and test locally
+- yarn build
+- Go to `chrome://extensions`
+- Enable dev switch
+- Load unpacked
+- Go to any page and press ctrl/cmd + key
