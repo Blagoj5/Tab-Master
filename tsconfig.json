@@ -31,7 +31,7 @@
 		"allowJs": true,
 		"declaration": true,
 		"emitDeclarationOnly": true,
-		"isolatedModules": true
+		"isolatedModules": false
 	},
 	"exclude": [
 		"node_modules"

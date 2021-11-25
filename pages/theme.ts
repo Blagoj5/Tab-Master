@@ -1,9 +1,14 @@
-import { extendTheme, theme as chakraTheme } from '@chakra-ui/react';
+import { extendTheme } from '@chakra-ui/react';
+import { isProduction } from './consts';
 
-const fonts = {
-  heading: `Fira Sans ${chakraTheme.fonts.heading}`,
-  body: `Fira Sans ${chakraTheme.fonts.body}`,
-  mono: `Fira Sans ${chakraTheme.fonts.mono}`,
+const fonts = isProduction ? {
+  heading: 'inherit',
+  body: 'inherit',
+  mono: 'inherit',
+} : {
+  heading: 'inherit',
+  body: 'inherit',
+  mono: 'inherit',
 };
 
 const colors = {
@@ -20,7 +25,16 @@ const colors = {
   },
 };
 
+const global = {
+  body: {
+    background: null,
+  },
+};
+
 const theme = extendTheme({
+  styles: {
+    global,
+  },
   colors,
   fonts,
 });

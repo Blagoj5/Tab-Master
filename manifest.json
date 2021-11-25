@@ -8,7 +8,7 @@
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
-			"js": ["pages/bundle.js", "contentScripts/index.js"]
+			"js": ["pages/bundle.js"]
 		}
 	],
 	"permissions": [
@@ -20,7 +20,7 @@
   ],
 	"web_accessible_resources": [
     {
-      "resources": ["pages/bundle.js", "contentScripts/index.js"],
+      "resources": ["contentScripts/index.js", "pages/bundle.js"],
 			"matches": [
 				"http://*/*",
 				"https://*/*"
@@ -29,5 +29,14 @@
   ],
 	"content_security_policy": {
 		"extension_pages": "script-src 'self'; object-src 'self'"
+	},
+	"commands": {
+		"open-tab-master": {
+      "suggested_key": {
+        "default": "Ctrl+K",
+        "mac": "Command+K"
+      },
+      "description": "Open Tab Master Extension"
+   }
 	}
 }

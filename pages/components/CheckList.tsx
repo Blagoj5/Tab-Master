@@ -11,7 +11,7 @@ function CheckList() {
     >
       <HStack color="white" spacing={10} pb={4}>
         {options.map((option) => (
-          <Checkbox value={option} textTransform="capitalize" isDisabled={option !== 'tabs'}>{option}</Checkbox>
+          <Checkbox key={option} value={option} textTransform="capitalize" isDisabled={option !== 'tabs'}>{option}</Checkbox>
         ))}
       </HStack>
     </CheckboxGroup>

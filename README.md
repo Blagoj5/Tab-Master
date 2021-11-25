@@ -25,3 +25,6 @@
 - Enable dev switch
 - Load unpacked
 - Go to any page and press ctrl/cmd + key
+
+### Similar Project
+- https://github.com/babyman/quick-tabs-chrome-extension/blob/master/quick-tabs/background.js
