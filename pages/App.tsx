@@ -12,7 +12,7 @@ import CheckList from './components/CheckList';
 import { Actions, OpenedTab } from './types';
 import fakeTabs from './devData';
 import useFuzzySearch from './data/hooks';
-import { isProduction, EXTENSION_ID } from './consts';
+import { isProduction } from './consts';
 
 function App() {
   const [showExtension, setShowExtension] = useState(false);
@@ -27,6 +27,9 @@ function App() {
     search,
     clear: clearFilteredOpenedTabs,
   } = useFuzzySearch(openedTabs, { keys: ['title', 'url'] });
+  const pickedTabs = useMemo(() => (
+    filteredOpenedTabs ?? openedTabs
+  ), [openedTabs, filteredOpenedTabs]);
 
   const [selectedTabId, setSelectedTabId] = useState('');
 
@@ -38,33 +41,30 @@ function App() {
 
   useEffect(() => {
     if (isProduction) {
-      const port = chrome.runtime.connect(EXTENSION_ID, { name: 'init' });
+      chrome.runtime.onConnect.addListener((port) => {
+        console.log('****CONNECTED');
+        portRef.current = port;
 
-      portRef.current = port;
-
-      port.onMessage.addListener((message: Actions) => {
-        switch (message.type) {
-          case 'open-tab-master':
-            setShowExtension(true);
-            inputRef.current.focus();
-            break;
-
-          case 'close-tab-master':
-            setShowExtension(false);
-            break;
-
-          case 'open-tabs':
-            setOpenedTabs(
-              message.tabs.map((tab) => ({
+        port.onMessage.addListener((message: Actions) => {
+          switch (message.type) {
+            case 'open-tab-master':
+              console.log('***open');
+              setShowExtension(true);
+              setOpenedTabs(message.tabs.map((tab) => ({
                 ...tab,
                 virtualId: `${tab.id}-opened-tab`,
-              })),
-            );
-            break;
+              })));
+              inputRef.current.focus();
+              break;
 
-          default:
-            break;
-        }
+            case 'close-tab-master':
+              setShowExtension(false);
+              break;
+
+            default:
+              break;
+          }
+        });
       });
     } else {
       setOpenedTabs(fakeTabs);
@@ -100,8 +100,14 @@ function App() {
       }
     });
 
-    // TODO: remove event listener
+    // TODO: remove event listeners
   }, []);
+
+  useEffect(() => {
+    if (showExtension && pickedTabs.length) {
+      setSelectedTabId(pickedTabs[0].virtualId);
+    }
+  }, [showExtension, pickedTabs]);
 
   const handleSwitchTab = (tabId: number) => {
     if (!isProduction) return;
@@ -116,10 +122,6 @@ function App() {
     // close extension
     closeExtension();
   };
-
-  const pickedTabs = useMemo(() => (
-    filteredOpenedTabs ?? openedTabs
-  ), [openedTabs, filteredOpenedTabs]);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     const selectedTabIndex = pickedTabs.findIndex((tab) => tab.virtualId === selectedTabId);
@@ -172,6 +174,8 @@ function App() {
 
   if (!showExtension) return null;
 
+  // TODO: add font-sizes everywhere
+  // TODO: by default always have the first item selected
   return (
     <ChakraProvider theme={theme}>
       <Center

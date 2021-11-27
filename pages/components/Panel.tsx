@@ -21,6 +21,7 @@ function Panel({
   selectedTabId,
   panelId,
 }: PanelProps) {
+  console.log('**selected', selectedTabId);
   return (
     <Box w="full" cursor="pointer">
       <Heading as="h3" p={2} fontSize="md" color="white">{headingTitle}</Heading>
@@ -46,6 +47,7 @@ function Panel({
               textOverflow="ellipsis"
               mr={10}
               fontWeight="500"
+							// TODO: add font-sizes everywhere
             >
               <Text
                 as="span"

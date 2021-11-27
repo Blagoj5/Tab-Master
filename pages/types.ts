@@ -1,13 +1,13 @@
 /* eslint-disable no-undef */
-
 export type Actions =
 {
-  type: 'open-tab-master' | 'close-tab-master',
+  type: 'close-tab-master',
 }
 | {
-  type: 'open-tabs',
+  type: 'open-tab-master',
   tabs: chrome.tabs.Tab[],
-} | {
+}
+| {
   type: 'switch-tab',
   tabId: number,
 }

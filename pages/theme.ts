@@ -28,6 +28,14 @@ const colors = {
 const global = {
   body: {
     background: null,
+    backgroundColor: null,
+    bg: null,
+    color: null,
+    // TODO: add rest
+    // font-family: var(--chakra-fonts-body);
+    // transition-property: background-color;
+    // transition-duration: var(--chakra-transition-duration-normal);
+    // line-height: var(--chakra-lineHeights-base);
   },
 };
 

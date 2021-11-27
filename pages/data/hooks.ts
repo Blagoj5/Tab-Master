@@ -5,6 +5,10 @@ export function useFuzzySearch<T>(items: T[], options: Fuse.IFuseOptions<T>) {
   const [filteredResults, setFilteredResults] = useState<T[]>();
 
   const search = (keyWord: string) => {
+    if (keyWord === '') {
+      setFilteredResults(undefined);
+    }
+
     const fuse = new Fuse(items, options);
     const result = fuse.search(keyWord);
 

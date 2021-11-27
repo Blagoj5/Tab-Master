@@ -10,11 +10,27 @@ const app = (
   </React.StrictMode>
 );
 
+function maxZIndex() {
+  return Array.from(document.querySelectorAll('body *'))
+    .map((a) => parseFloat(window.getComputedStyle(a).zIndex))
+    .filter((a) => !Number.isNaN(a))
+    .sort((a, b) => a - b)
+    .pop();
+}
+
 // This is the content script when running in production
 if (process.env.NODE_ENV === 'production') {
   const div = document.createElement('div');
   div.id = 'tab-master-extension';
   document.body.appendChild(div);
+
+  console.log('max z index', maxZIndex());
+
+  const divAnchor = document.getElementById('tab-master-extension');
+  divAnchor.style.zIndex = String(maxZIndex());
+  // add css for this
+  divAnchor.style.position = 'fixed';
+  divAnchor.style.top = '0';
 
   ReactDOM.render(
     app,
