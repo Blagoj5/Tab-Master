@@ -1,12 +1,13 @@
 /* eslint-disable no-undef */
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
-  Avatar, Box, Flex, Heading, HStack, Icon, Text,
+  Avatar, Flex, HStack, Icon, Text,
 } from '@chakra-ui/react';
-import { OpenedTab } from '../types';
+
+import { OpenedTab } from '../../types';
+import Pane from '../Pane';
 
 type PanelProps = {
-  panelId: string;
   headingTitle: string;
   tabs: OpenedTab[];
   // eslint-disable-next-line no-unused-vars
@@ -14,20 +15,17 @@ type PanelProps = {
   selectedTabId: string;
 }
 
-function Panel({
+function OpenedTabs({
   headingTitle,
   tabs,
   onTabClicked,
   selectedTabId,
-  panelId,
 }: PanelProps) {
-  console.log('**selected', selectedTabId);
   return (
-    <Box w="full" cursor="pointer">
-      <Heading as="h3" p={2} fontSize="md" color="white">{headingTitle}</Heading>
+    <Pane headingTitle={headingTitle}>
       {tabs.map((tab) => (
         <HStack
-          id={`${tab.id}-${panelId}`}
+          id={`${tab.id}-opened-tab`}
           key={tab.id}
           py={2}
           px={2}
@@ -47,7 +45,6 @@ function Panel({
               textOverflow="ellipsis"
               mr={10}
               fontWeight="500"
-							// TODO: add font-sizes everywhere
             >
               <Text
                 as="span"
@@ -78,8 +75,8 @@ function Panel({
 
         </HStack>
       ))}
-    </Box>
+    </Pane>
   );
 }
 
-export default Panel;
+export default OpenedTabs;

@@ -25,5 +25,7 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'import/extensions': 'off',
     'import/no-unresolved': 'off',
+    'no-tabs': 'off',
+    'no-mixed-spaces-and-tabs': 'off',
   },
 };

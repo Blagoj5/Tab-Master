@@ -6,11 +6,18 @@ export type Actions =
 }
 | {
   type: 'open-tab-master',
-  tabs: chrome.tabs.Tab[],
+  tabs: {
+		open: chrome.tabs.Tab[],
+		recent: chrome.history.HistoryItem[],
+	},
 }
 | {
   type: 'switch-tab',
   tabId: number,
+}
+| {
+  type: 'open-tab',
+  newTabUrl: string,
 }
 
 async function getCurrentTab() {
@@ -42,10 +49,39 @@ function getOpenedTabs() {
     chrome.tabs.query({}, (tabs) => res(tabs));
   });
 }
-// IDEA:
-// - Open connection initially on first cmd + k
-// - If cmd + k clicked and connection exists just send message (open-tab-mater)
-// - Use connection to communicate (tabs.connect)
+
+function getMsForADay(day: number) {
+  return day * 24 * 60 * 60 * 1000;
+}
+
+function getRecentlyOpenedTabs(query: chrome.history.HistoryQuery = {
+  endTime: Date.now(),
+  startTime: Date.now() - getMsForADay(10),
+  text: '',
+  maxResults: 10,
+}) {
+  return new Promise<chrome.history.HistoryItem[]>((res) => {
+    chrome.history.search(query, (historyItems) => (
+      res(historyItems)
+    ));
+  });
+}
+
+const listenerHandler = (message: Actions) => {
+  switch (message.type) {
+    case 'switch-tab':
+      chrome.tabs.update(message.tabId, { active: true });
+      break;
+    case 'open-tab':
+      chrome.tabs.create({
+        active: true,
+        url: message.newTabUrl,
+      });
+      break;
+    default:
+      break;
+  }
+};
 
 let port: chrome.runtime.Port;
 chrome.commands.onCommand.addListener(async (command) => {
@@ -60,21 +96,23 @@ chrome.commands.onCommand.addListener(async (command) => {
     }
 
     const openedTabs = await getOpenedTabs();
+    const recentlyOpenedTabs = await getRecentlyOpenedTabs();
 
     const openMessage: Actions = {
       type: 'open-tab-master',
-      tabs: openedTabs,
+      tabs: {
+        open: openedTabs,
+        recent: recentlyOpenedTabs,
+      },
     };
 
     port.postMessage(openMessage);
 
     // Listeners
-    port.onMessage.addListener((message: Actions) => {
-      if (message.type === 'switch-tab') {
-        chrome.tabs.update(message.tabId, { active: true });
-      }
-    });
-    return;
+    const listenerExists = port.onMessage.hasListener(listenerHandler);
+    if (!listenerExists) {
+      port.onMessage.addListener(listenerHandler);
+    }
   }
 
   // TODO: I CAN't FIND ESCAPE FOR chrome.commands, even in chrome://extensions/shortcuts

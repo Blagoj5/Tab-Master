@@ -15,6 +15,7 @@
     "activeTab",
     "tabs",
     "scripting",
+    "history",
 		"http://*/*",
 		"https://*/*"
   ],

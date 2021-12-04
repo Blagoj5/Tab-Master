@@ -7,12 +7,13 @@ import {
   useEffect, useMemo, useRef, useState,
 } from 'react';
 import theme from './theme';
-import Panel from './components/Panel';
+import OpenedTabs from './components/Panels/OpenedTabs';
 import CheckList from './components/CheckList';
-import { Actions, OpenedTab } from './types';
+import { Actions, OpenedTab, RecentOpenedTab } from './types';
 import fakeTabs from './devData';
 import useFuzzySearch from './data/hooks';
 import { isProduction } from './consts';
+import RecentOpenedTabs from './components/Panels/RecentOpenedTabs';
 
 function App() {
   const [showExtension, setShowExtension] = useState(false);
@@ -21,15 +22,25 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState('');
 
+  const [recentOpenedTabs, setRecentOpenedTabs] = useState<RecentOpenedTab[]>([]);
+
   const [openedTabs, setOpenedTabs] = useState<OpenedTab[]>([]);
   const {
     filteredResults: filteredOpenedTabs,
     search,
     clear: clearFilteredOpenedTabs,
   } = useFuzzySearch(openedTabs, { keys: ['title', 'url'] });
-  const pickedTabs = useMemo(() => (
+  const pickedOpenTabs = useMemo(() => (
     filteredOpenedTabs ?? openedTabs
   ), [openedTabs, filteredOpenedTabs]);
+
+  const combinedSelectedTabIds = useMemo(
+    () => [
+      ...pickedOpenTabs.map(({ virtualId }) => virtualId),
+      ...recentOpenedTabs.map(({ id }) => id),
+    ],
+	 [pickedOpenTabs, recentOpenedTabs],
+  );
 
   const [selectedTabId, setSelectedTabId] = useState('');
 
@@ -42,19 +53,18 @@ function App() {
   useEffect(() => {
     if (isProduction) {
       chrome.runtime.onConnect.addListener((port) => {
-        console.log('****CONNECTED');
         portRef.current = port;
 
         port.onMessage.addListener((message: Actions) => {
           switch (message.type) {
             case 'open-tab-master':
-              console.log('***open');
               setShowExtension(true);
-              setOpenedTabs(message.tabs.map((tab) => ({
+              inputRef.current.focus();
+              setOpenedTabs(message.tabs.open.map((tab) => ({
                 ...tab,
                 virtualId: `${tab.id}-opened-tab`,
               })));
-              inputRef.current.focus();
+              setRecentOpenedTabs(message.tabs.recent);
               break;
 
             case 'close-tab-master':
@@ -104,10 +114,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (showExtension && pickedTabs.length) {
-      setSelectedTabId(pickedTabs[0].virtualId);
+    if (showExtension && pickedOpenTabs.length) {
+      setSelectedTabId(pickedOpenTabs[0].virtualId);
     }
-  }, [showExtension, pickedTabs]);
+  }, [showExtension, pickedOpenTabs]);
 
   const handleSwitchTab = (tabId: number) => {
     if (!isProduction) return;
@@ -123,16 +133,42 @@ function App() {
     closeExtension();
   };
 
+  const handleOpenTab = (tabUrl: string) => {
+    if (!isProduction) return;
+
+    console.log('open tab', tabUrl);
+
+    const payload: Actions = {
+      type: 'open-tab',
+      newTabUrl: tabUrl,
+    };
+
+    portRef.current.postMessage(payload);
+
+    // close extension
+    closeExtension();
+  };
+
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-    const selectedTabIndex = pickedTabs.findIndex((tab) => tab.virtualId === selectedTabId);
+    const selectedTabIndex = combinedSelectedTabIds.findIndex((id) => id === selectedTabId);
 
     // on enter
     if (e.code === 'Enter' && selectedTabId) {
       e.preventDefault();
 
-      const tabId = pickedTabs[selectedTabIndex].id;
+      const pickedId = combinedSelectedTabIds[selectedTabIndex];
 
-      handleSwitchTab(tabId);
+      // Switch to open tab
+      const openTab = pickedOpenTabs.find(({ virtualId }) => virtualId === pickedId);
+      if (openTab) {
+        handleSwitchTab(openTab.id);
+      }
+
+      // Open NEW tab from history url
+      const recentOpenTab = recentOpenedTabs.find(({ id }) => id === pickedId);
+      if (recentOpenTab) {
+        handleOpenTab(recentOpenTab.url);
+      }
 
       return;
     }
@@ -144,25 +180,22 @@ function App() {
       const nextSuggestionOrder = selectedTabIndex - 1;
       // if the suggestion order goes bellow zero, start over again
       const order = nextSuggestionOrder < 0
-        ? pickedTabs.length - 1
+        ? combinedSelectedTabIds.length - 1
         : nextSuggestionOrder;
 
-      // eslint-disable-next-line max-len
-      const prevTabId = pickedTabs[order].virtualId;
+      const prevTabId = combinedSelectedTabIds[order];
 
       document.getElementById(prevTabId).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
       setSelectedTabId(prevTabId);
     } else if (e.code === 'ArrowDown') {
       const prevSuggestionOrder = selectedTabIndex + 1;
-      // suggesion goes above the upper limit
-      const order = prevSuggestionOrder > pickedTabs.length - 1
+      // suggestion goes above the upper limit
+      const order = prevSuggestionOrder > combinedSelectedTabIds.length - 1
         ? 0
         : prevSuggestionOrder;
 
-      // eslint-disable-next-line max-len
-      // autoCompleteItems?.[validOrderNumber]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-      const nextTabId = pickedTabs[order].virtualId;
+      const nextTabId = combinedSelectedTabIds[order];
 
       document.getElementById(nextTabId).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
@@ -233,41 +266,39 @@ function App() {
             }}
           />
           <VStack align="flex-start" spacing={3} flex={1} overflowY="auto">
-            <Panel
-              panelId="opened-tab"
+            <OpenedTabs
               headingTitle="OPEN TABS"
-              tabs={pickedTabs}
+              tabs={pickedOpenTabs}
               onTabClicked={handleSwitchTab}
               selectedTabId={selectedTabId}
             />
-            <Panel
-              panelId="recently-opened-tab"
-              headingTitle="PREVIOUSLY OPENED TABS (SOON)"
-              tabs={[]}
-              onTabClicked={handleSwitchTab}
+            <RecentOpenedTabs
+              headingTitle="PREVIOUSLY OPENED TABS"
+              tabs={recentOpenedTabs}
+              onTabClicked={handleOpenTab}
               selectedTabId={selectedTabId}
             />
-            <Panel
+            {/* <OpenedTabs
               panelId="common-opened-tab"
               headingTitle="COMMON USED TABS (SOON)"
               tabs={[]}
               onTabClicked={handleSwitchTab}
               selectedTabId={selectedTabId}
             />
-            <Panel
+            <OpenedTabs
               panelId="bookmark"
               headingTitle="BOOKMARK (SOON)"
               tabs={[]}
               onTabClicked={handleSwitchTab}
               selectedTabId={selectedTabId}
             />
-            <Panel
+            <OpenedTabs
               panelId="history"
               headingTitle="HISTORY (SOON)"
               tabs={[]}
               onTabClicked={handleSwitchTab}
               selectedTabId={selectedTabId}
-            />
+            /> */}
           </VStack>
         </Box>
       </Center>

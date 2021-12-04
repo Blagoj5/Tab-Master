@@ -5,11 +5,18 @@ export type Actions =
 }
 | {
   type: 'open-tab-master',
-  tabs: chrome.tabs.Tab[],
+  tabs: {
+		open: chrome.tabs.Tab[],
+		recent: chrome.history.HistoryItem[],
+	},
 }
 | {
   type: 'switch-tab',
   tabId: number,
+}
+| {
+  type: 'open-tab',
+  newTabUrl: string,
 }
 
 // type ChromeTabWithoutId = Omit<chrome.tabs.Tab, 'id'>;
@@ -17,3 +24,5 @@ export type Actions =
 export type OpenedTab = chrome.tabs.Tab & {
   virtualId: string;
 }
+
+export type RecentOpenedTab = chrome.history.HistoryItem;
