@@ -15,8 +15,8 @@
   - Used for creating and injecting the react script to the previously created div with a specific id
 
 - React/Main Extension script
-  - Build into a single bundle.js
-  - That bundle.js used for rendering the extension
+  - Build into a single js file
+  - That js file used for rendering the extension
 
 
 ### How to build and test locally
@@ -25,6 +25,14 @@
 - Enable dev switch
 - Load unpacked
 - Go to any page and press ctrl/cmd + key
+
+### Project Structure
+- src
+	- backgroundScript
+  - contentScript (all the pages: config page, search modal etc...)
+  - common (used for types etc...)
+- scripts
+  - setup.js - used for copying all the needed files (manifest.json, etc..)
 
 ### Similar Project
 - https://github.com/babyman/quick-tabs-chrome-extension/blob/master/quick-tabs/background.js

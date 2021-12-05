@@ -37,15 +37,15 @@
   },
   "scripts": {
     "type-check": "tsc --noEmit --pretty",
-    "copy-files": "ncp manifest.json dist/manifest.json",
-    "dev:scripts": "nodemon dist/index.js --verbose --ignore dist/manifest.json",
-    "dev:pages": "webpack serve",
-		"dev": "concurrently \"yarn watch\" \"yarn dev:scripts\" \"yarn dev:pages\"",
-    "start": "node dist/index.js --ignore 'src/*'",
-    "watch": "yarn copy-files && babel --watch --copy-files src --out-dir dist --extensions .ts,.tsx",
-    "build:scripts": "yarn copy-files && babel src --copy-files --out-dir dist --extensions .ts,.tsx",
-    "build:pages": "NODE_ENV=production webpack",
-    "build": "yarn build:pages && yarn build:scripts"
+    "copy-files": "ncp manifest.json build/manifest.json",
+    "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
+    "watch:backgroundScript": "yarn copy-files && babel src/backgroundScript --watch --copy-files --out-dir build/backgroundScript --extensions .ts,.tsx",
+    "watch": "concurrently \"yarn watch:manifest\" \"yarn watch:backgroundScript\"",
+    "dev:contentScript": "webpack serve",
+		"dev": "concurrently \"yarn watch\" \"yarn dev:contentScript\"",
+    "build:backgroundScript": "yarn copy-files && babel src/backgroundScript --copy-files --out-dir build/backgroundScript --extensions .ts,.tsx",
+    "build:contentScript": "NODE_ENV=production webpack",
+    "build": "yarn build:contentScript && yarn build:backgroundScript"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",

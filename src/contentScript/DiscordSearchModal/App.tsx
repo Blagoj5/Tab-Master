@@ -2,18 +2,18 @@
 import {
   Box, Center, ChakraProvider, Input, VStack,
 } from '@chakra-ui/react';
-
 import {
   useEffect, useMemo, useRef, useState,
 } from 'react';
+
 import theme from './theme';
-import OpenedTabs from './components/Panels/OpenedTabs';
-import CheckList from './components/CheckList';
-import { Actions, OpenedTab, RecentOpenedTab } from './types';
 import fakeTabs from './devData';
 import useFuzzySearch from './data/hooks';
 import { isProduction } from './consts';
+import { RecentOpenedTab, OpenedTab, Actions } from '../../common';
+import OpenedTabs from './components/Panels/OpenedTabs';
 import RecentOpenedTabs from './components/Panels/RecentOpenedTabs';
+import CheckList from './components/CheckList';
 
 function App() {
   const [showExtension, setShowExtension] = useState(false);
@@ -59,7 +59,7 @@ function App() {
           switch (message.type) {
             case 'open-tab-master':
               setShowExtension(true);
-              inputRef.current.focus();
+              inputRef.current?.focus();
               setOpenedTabs(message.tabs.open.map((tab) => ({
                 ...tab,
                 virtualId: `${tab.id}-opened-tab`,
@@ -88,7 +88,7 @@ function App() {
       // for Windows and MacOS
       if (!isProduction && (ctrlKey || metaKey) && key === 'k') {
         setShowExtension(true);
-        inputRef.current.focus();
+        inputRef.current?.focus();
       }
 
       // (function () {
@@ -127,7 +127,7 @@ function App() {
       tabId,
     };
 
-    portRef.current.postMessage(payload);
+    portRef.current?.postMessage(payload);
 
     // close extension
     closeExtension();
@@ -136,14 +136,12 @@ function App() {
   const handleOpenTab = (tabUrl: string) => {
     if (!isProduction) return;
 
-    console.log('open tab', tabUrl);
-
     const payload: Actions = {
       type: 'open-tab',
       newTabUrl: tabUrl,
     };
 
-    portRef.current.postMessage(payload);
+    portRef.current?.postMessage(payload);
 
     // close extension
     closeExtension();
@@ -160,13 +158,13 @@ function App() {
 
       // Switch to open tab
       const openTab = pickedOpenTabs.find(({ virtualId }) => virtualId === pickedId);
-      if (openTab) {
+      if (openTab?.id) {
         handleSwitchTab(openTab.id);
       }
 
       // Open NEW tab from history url
       const recentOpenTab = recentOpenedTabs.find(({ id }) => id === pickedId);
-      if (recentOpenTab) {
+      if (recentOpenTab?.url) {
         handleOpenTab(recentOpenTab.url);
       }
 
@@ -185,7 +183,7 @@ function App() {
 
       const prevTabId = combinedSelectedTabIds[order];
 
-      document.getElementById(prevTabId).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      document.getElementById(prevTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
       setSelectedTabId(prevTabId);
     } else if (e.code === 'ArrowDown') {
@@ -197,7 +195,7 @@ function App() {
 
       const nextTabId = combinedSelectedTabIds[order];
 
-      document.getElementById(nextTabId).scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      document.getElementById(nextTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
       setSelectedTabId(nextTabId);
     } else {

@@ -24,8 +24,6 @@ if (process.env.NODE_ENV === 'production') {
   div.id = 'tab-master-extension';
   document.body.appendChild(div);
 
-  console.log('max z index', maxZIndex());
-
   const divAnchor = document.getElementById('tab-master-extension');
   divAnchor.style.zIndex = String(maxZIndex());
   // add css for this
