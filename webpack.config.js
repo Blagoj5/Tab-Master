@@ -5,7 +5,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 	mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  entry: path.join(__dirname, "pages", "index.tsx"),
+  entry: path.join(__dirname, "src", 'contentScript', 'DiscordSearchModal', "index.tsx"),
 	devtool: 'inline-source-map',
   module: {
     rules: [
@@ -32,12 +32,13 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js', '.jsx'],
   },
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist/pages'),
+    filename: 'discordSearchModal.js',
+    path: path.resolve(__dirname, 'build/contentScript'),
   },
-	plugins: [
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "pages", "discord-search.html"),
-    }),
-  ],
+	// TODO: not used because we inject directly to the DOM
+	// plugins: [
+  //   new HtmlWebpackPlugin({
+  //     template: path.join(__dirname, "pages", "discord-search.html"),
+  //   }),
+  // ],
 };

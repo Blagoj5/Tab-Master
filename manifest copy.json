@@ -3,7 +3,7 @@
   "name": "Tab Master",
   "version": "1.0.0",
 	"background": {
-    "service_worker": "backgroundScripts/index.js"
+    "service_worker": "backgroundScript/index.js"
   },
 	"permissions": [
     "activeTab",
@@ -14,7 +14,7 @@
   ],
 	"content_scripts": [
 		{ 
-			"js": ["contentScripts/index.js"],
+			"js": ["contentScript/index.js"],
 			"matches": [ "https://*/*", "http://*/"]
 		}
 	],

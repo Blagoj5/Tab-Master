@@ -9,7 +9,8 @@ const presets = [
 		}
 	]
 ];
-const ignore = ['./src/.eslintrc.js'];
+
+const ignore = ['./src/backgroundScript/.eslintrc.js'];
 
 module.exports = { 
 	presets,
