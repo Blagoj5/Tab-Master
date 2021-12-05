@@ -35,10 +35,9 @@ module.exports = {
     filename: 'discordSearchModal.js',
     path: path.resolve(__dirname, 'build/contentScript'),
   },
-	// TODO: not used because we inject directly to the DOM
-	// plugins: [
-  //   new HtmlWebpackPlugin({
-  //     template: path.join(__dirname, "pages", "discord-search.html"),
-  //   }),
-  // ],
+	plugins: [
+    new HtmlWebpackPlugin({
+      template: path.join(__dirname, "build", 'contentScript', "discord-search.html"),
+    }),
+  ],
 };
