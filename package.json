@@ -18,6 +18,7 @@
     "@typescript-eslint/parser": "^5.4.0",
     "babel-loader": "^8.2.3",
     "concurrently": "^6.4.0",
+    "copy-webpack-plugin": "^10.0.0",
     "css-loader": "^6.5.1",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^19.0.0",
@@ -41,11 +42,13 @@
     "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
     "watch:backgroundScript": "yarn copy-files && babel src/backgroundScript --watch --copy-files --out-dir build/backgroundScript --extensions .ts,.tsx",
     "watch": "concurrently \"yarn watch:manifest\" \"yarn watch:backgroundScript\"",
-    "dev:contentScript": "webpack serve",
-		"dev": "concurrently \"yarn watch\" \"yarn dev:contentScript\"",
+    "dev:configPage": "webpack serve --config configPage.config.js",
+    "dev:discordSearchModal": "webpack serve --config discordSearchModal.config.js",
+    "dev": "concurrently \"yarn dev:configPage\" \"yarn dev:discordSearchModal\" \"yarn watch\"",
     "build:backgroundScript": "yarn copy-files && babel src/backgroundScript --copy-files --out-dir build/backgroundScript --extensions .ts,.tsx",
-    "build:contentScript": "NODE_ENV=production webpack",
-    "build": "yarn build:contentScript && yarn build:backgroundScript"
+    "build:configPage": "NODE_ENV=production webpack --config configPage.config.js",
+    "build:discordSearchModal": "NODE_ENV=production webpack --config discordSearchModal.config.js",
+    "build": "yarn build:configPage && yarn build:discordSearchModal"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
