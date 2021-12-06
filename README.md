@@ -26,6 +26,12 @@
 - Load unpacked
 - Go to any page and press ctrl/cmd + key
 
+### How to use it for dev
+- yarn dev
+- Config page is on: localhost:8080/config-page.html
+- Discord Search Modal does not currently exist
+- Background scrips are watched and will be built on save
+
 ### Project Structure
 - src
 	- backgroundScript

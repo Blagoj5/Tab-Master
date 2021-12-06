@@ -42,13 +42,10 @@
     "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
     "watch:backgroundScript": "yarn copy-files && babel src/backgroundScript --watch --copy-files --out-dir build/backgroundScript --extensions .ts,.tsx",
     "watch": "concurrently \"yarn watch:manifest\" \"yarn watch:backgroundScript\"",
-    "dev:configPage": "webpack serve --config configPage.config.js",
-    "dev:discordSearchModal": "webpack serve --config discordSearchModal.config.js",
-    "dev": "concurrently \"yarn dev:configPage\" \"yarn dev:discordSearchModal\" \"yarn watch\"",
+    "dev:contentScript": "webpack serve",
+    "dev": "concurrently \"yarn dev:contentScript\" \"yarn watch\"",
     "build:backgroundScript": "yarn copy-files && babel src/backgroundScript --copy-files --out-dir build/backgroundScript --extensions .ts,.tsx",
-    "build:configPage": "NODE_ENV=production webpack --config configPage.config.js",
-    "build:discordSearchModal": "NODE_ENV=production webpack --config discordSearchModal.config.js",
-    "build": "yarn build:configPage && yarn build:discordSearchModal"
+    "build": "NODE_ENV=production webpack && yarn build:backgroundScript"
   },
   "dependencies": {
     "@chakra-ui/icons": "^1.1.1",
