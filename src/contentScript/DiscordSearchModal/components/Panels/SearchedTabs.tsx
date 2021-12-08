@@ -1,41 +1,50 @@
 /* eslint-disable no-undef */
 import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
-  Avatar, Flex, HStack, Icon, Text,
+  Avatar, Box, Flex, HStack, Icon, Text,
 } from '@chakra-ui/react';
-import { OpenedTab } from '../../../../common';
+import { CommonTab } from '../../../../common';
 
-import Pane from '../Pane';
+type ExtractKeys<T, Z> = {
+  [K in keyof T]: T[K] extends Z ? K : never;
+}[keyof T];
 
-type PanelProps = {
-  headingTitle: string;
-  tabs: OpenedTab[];
+type PanelProps<T> = {
+  tabs: T[];
+	clickCallbackField: ExtractKeys<T, string>;
   // eslint-disable-next-line no-unused-vars
-  onTabClicked: (tabId: number) => void;
+  onTabClicked: (tabId: string) => void;
   selectedTabId: string;
 }
 
-function OpenedTabs({
-  headingTitle,
+function SearchedTabs<T extends CommonTab>({
   tabs,
   onTabClicked,
   selectedTabId,
-}: PanelProps) {
+  clickCallbackField,
+}: PanelProps<T>) {
   return (
-    <Pane headingTitle={headingTitle}>
+    <Box
+      w="full"
+      align="flex-start"
+      spacing={3}
+      flex={1}
+      overflowY="auto"
+    >
+
       {tabs.map((tab) => (
         <HStack
-          id={`${tab.id}-opened-tab`}
+          id={`${tab.id}`}
           key={tab.id}
           py={2}
           px={2}
-          bg={selectedTabId === tab.virtualId ? 'input.300' : 'auto'}
+          bg={selectedTabId === (tab[clickCallbackField] as unknown as string) ? 'input.300' : 'auto'}
           _hover={{ bg: 'input.300' }}
           rounded="md"
           userSelect="none"
-          onClick={() => tab.id && onTabClicked(tab.id)}
+          onClick={() => onTabClicked(clickCallbackField as unknown as string)}
         >
-          <Avatar name={tab.title} bg="transparent" src={tab.favIconUrl} w="20px" h="20px" />
+          <Avatar name={tab.title} bg="transparent" src={tab.faviconUrl} w="20px" h="20px" />
           <Flex alignItems="center" justify="space-between" flex={1} w="0">
             <Text
               flex={1}
@@ -75,8 +84,8 @@ function OpenedTabs({
 
         </HStack>
       ))}
-    </Pane>
+    </Box>
   );
 }
 
-export default OpenedTabs;
+export default SearchedTabs;

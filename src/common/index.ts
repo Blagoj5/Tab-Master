@@ -19,10 +19,18 @@ export type Actions =
   newTabUrl: string,
 }
 
+export type CommonTab = {
+	id: string;
+	url: string;
+	title: string;
+	faviconUrl: string;
+};
 // type ChromeTabWithoutId = Omit<chrome.tabs.Tab, 'id'>;
 
 export type OpenedTab = chrome.tabs.Tab & {
   virtualId: string;
 }
 
-export type RecentOpenedTab = chrome.history.HistoryItem;
+export type RecentOpenedTab = chrome.history.HistoryItem & {
+	faviconUrl: string;
+};

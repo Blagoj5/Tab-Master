@@ -23,7 +23,8 @@
 		"noUnusedLocals": true,
 		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
-		"removeComments": true
+		"removeComments": true,
+		"resolveJsonModule": true
 	},
 	"exclude": [
 		"node_modules",

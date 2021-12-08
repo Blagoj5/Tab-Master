@@ -24,11 +24,14 @@ if (process.env.NODE_ENV === 'production') {
   div.id = 'tab-master-extension';
   document.body.appendChild(div);
 
+  // TODO: switch from div to dialog
   const divAnchor = document.getElementById('tab-master-extension');
-  divAnchor.style.zIndex = String(maxZIndex());
-  // add css for this
-  divAnchor.style.position = 'fixed';
-  divAnchor.style.top = '0';
+  if (divAnchor) {
+    divAnchor.style.zIndex = String(maxZIndex());
+    // add css for this
+    divAnchor.style.position = 'fixed';
+    divAnchor.style.top = '0';
+  }
 
   ReactDOM.render(
     app,

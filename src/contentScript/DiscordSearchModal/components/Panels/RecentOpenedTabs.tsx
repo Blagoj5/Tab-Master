@@ -3,8 +3,8 @@ import { ChevronDownIcon } from '@chakra-ui/icons';
 import {
   Avatar, Flex, HStack, Icon, Text,
 } from '@chakra-ui/react';
+import { RecentOpenedTab } from '../../../../common';
 
-import { RecentOpenedTab } from '../../types';
 import Pane from '../Pane';
 
 type PanelProps = {
@@ -33,9 +33,9 @@ function RecentOpenedTabs({
           _hover={{ bg: 'input.300' }}
           rounded="md"
           userSelect="none"
-          onClick={() => onTabClicked(tab.url)}
+          onClick={() => tab.url && onTabClicked(tab.url)}
         >
-          <Avatar name="Dan Abrahmov" bg="transparent" src={tab.url} w="20px" h="20px" />
+          <Avatar name={tab.title} bg="transparent" src={tab.faviconUrl} w="20px" h="20px" />
           <Flex alignItems="center" justify="space-between" flex={1} w="0">
             <Text
               flex={1}

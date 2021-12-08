@@ -2,18 +2,23 @@
 import {
   Box, Center, ChakraProvider, Input, VStack,
 } from '@chakra-ui/react';
-import {
+import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
 
 import theme from './theme';
-import fakeTabs from './devData';
-import useFuzzySearch from './data/hooks';
 import { isProduction } from './consts';
-import { RecentOpenedTab, OpenedTab, Actions } from '../../common';
+import {
+  RecentOpenedTab, OpenedTab, Actions, CommonTab,
+} from '../../common';
 import OpenedTabs from './components/Panels/OpenedTabs';
 import RecentOpenedTabs from './components/Panels/RecentOpenedTabs';
 import CheckList from './components/CheckList';
+import SearchedTabs from './components/Panels/SearchedTabs';
+import { fuzzySearch, getFavicon, removeDuplicates } from './utils';
+// TODO: make this lazy imports only for dev
+import fakeTabs from './devData';
+import recentTabs from './devData/recent-tabs.json';
 
 function App() {
   const [showExtension, setShowExtension] = useState(false);
@@ -23,23 +28,51 @@ function App() {
   const [inputValue, setInputValue] = useState('');
 
   const [recentOpenedTabs, setRecentOpenedTabs] = useState<RecentOpenedTab[]>([]);
-
   const [openedTabs, setOpenedTabs] = useState<OpenedTab[]>([]);
-  const {
-    filteredResults: filteredOpenedTabs,
-    search,
-    clear: clearFilteredOpenedTabs,
-  } = useFuzzySearch(openedTabs, { keys: ['title', 'url'] });
-  const pickedOpenTabs = useMemo(() => (
-    filteredOpenedTabs ?? openedTabs
-  ), [openedTabs, filteredOpenedTabs]);
 
+  const combinedSelectedTabs = useMemo(
+    () => {
+      const combinedTabs = [
+      // flat map is used for filtering + mapping
+        ...openedTabs.flatMap<CommonTab>((tab) => {
+          if (
+            !tab.url
+					|| !tab.title
+					|| !tab.favIconUrl
+          ) return [];
+
+          return [{
+            faviconUrl: tab.favIconUrl,
+            id: tab.virtualId,
+            title: tab.title,
+            url: tab.url,
+          }];
+        }),
+        ...recentOpenedTabs.flatMap<CommonTab>((tab) => {
+          if (
+            !tab.url
+					|| !tab.title
+					|| !tab.url
+          ) return [];
+
+          return [{
+            faviconUrl: getFavicon(tab.url),
+            id: tab.id,
+            title: tab.title,
+            url: tab.url,
+          }];
+        }),
+      ];
+
+      const filteredCombinedTabs = fuzzySearch(combinedTabs, { keys: ['title', 'url'] }, inputValue);
+
+      return removeDuplicates(filteredCombinedTabs);
+    },
+	 [openedTabs, recentOpenedTabs, inputValue],
+  );
   const combinedSelectedTabIds = useMemo(
-    () => [
-      ...pickedOpenTabs.map(({ virtualId }) => virtualId),
-      ...recentOpenedTabs.map(({ id }) => id),
-    ],
-	 [pickedOpenTabs, recentOpenedTabs],
+    () => combinedSelectedTabs.map(({ id }) => id),
+	 [combinedSelectedTabs],
   );
 
   const [selectedTabId, setSelectedTabId] = useState('');
@@ -47,7 +80,6 @@ function App() {
   const closeExtension = () => {
     setShowExtension(false);
     setInputValue('');
-    clearFilteredOpenedTabs();
   };
 
   useEffect(() => {
@@ -64,7 +96,10 @@ function App() {
                 ...tab,
                 virtualId: `${tab.id}-opened-tab`,
               })));
-              setRecentOpenedTabs(message.tabs.recent);
+              setRecentOpenedTabs(message.tabs.recent.map((tab) => ({
+                ...tab,
+                faviconUrl: getFavicon(tab.url || ''),
+              })));
               break;
 
             case 'close-tab-master':
@@ -78,6 +113,10 @@ function App() {
       });
     } else {
       setOpenedTabs(fakeTabs);
+      setRecentOpenedTabs(recentTabs.map((tab) => ({
+        ...tab,
+        faviconUrl: getFavicon(tab.url),
+      })));
     }
 
     document.addEventListener('keydown', ({
@@ -114,10 +153,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (showExtension && pickedOpenTabs.length) {
-      setSelectedTabId(pickedOpenTabs[0].virtualId);
+    if (showExtension && combinedSelectedTabs.length) {
+      setSelectedTabId(combinedSelectedTabs[0].id);
     }
-  }, [showExtension, pickedOpenTabs]);
+  }, [showExtension, combinedSelectedTabs]);
 
   const handleSwitchTab = (tabId: number) => {
     if (!isProduction) return;
@@ -147,27 +186,31 @@ function App() {
     closeExtension();
   };
 
+  const handleTabSelect = () => {
+    const selectedTabIndex = combinedSelectedTabIds.findIndex((id) => id === selectedTabId);
+
+    const pickedId = combinedSelectedTabIds[selectedTabIndex];
+
+    // OPENED TABS
+    const openTab = openedTabs.find(({ virtualId }) => virtualId === pickedId);
+    if (openTab?.id) {
+      handleSwitchTab(openTab.id);
+    }
+
+    // RECENT OPENED TABS
+    const recentOpenTab = recentOpenedTabs.find(({ id }) => id === pickedId);
+    if (recentOpenTab?.url) {
+      handleOpenTab(recentOpenTab.url);
+    }
+  };
+
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     const selectedTabIndex = combinedSelectedTabIds.findIndex((id) => id === selectedTabId);
 
     // on enter
     if (e.code === 'Enter' && selectedTabId) {
       e.preventDefault();
-
-      const pickedId = combinedSelectedTabIds[selectedTabIndex];
-
-      // Switch to open tab
-      const openTab = pickedOpenTabs.find(({ virtualId }) => virtualId === pickedId);
-      if (openTab?.id) {
-        handleSwitchTab(openTab.id);
-      }
-
-      // Open NEW tab from history url
-      const recentOpenTab = recentOpenedTabs.find(({ id }) => id === pickedId);
-      if (recentOpenTab?.url) {
-        handleOpenTab(recentOpenTab.url);
-      }
-
+      handleTabSelect();
       return;
     }
 
@@ -183,6 +226,7 @@ function App() {
 
       const prevTabId = combinedSelectedTabIds[order];
 
+      // TODO: THIS IS NOT WORKING FOR combinedTABs, add better handling of ids
       document.getElementById(prevTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
       setSelectedTabId(prevTabId);
@@ -206,7 +250,9 @@ function App() {
   if (!showExtension) return null;
 
   // TODO: add font-sizes everywhere
-  // TODO: by default always have the first item selected
+  // TODO: add icons for different tabs:
+  // TODO:  - Recent Tabs EXTERNAL LINK ICON
+  // TODO:  - OPEN Tabs SWITCH ICON
   return (
     <ChakraProvider theme={theme}>
       <Center
@@ -259,24 +305,33 @@ function App() {
             value={inputValue}
             onKeyDown={handleKeyDown}
             onChange={(e) => {
-              search(e.target.value);
               setInputValue(e.target.value);
             }}
           />
-          <VStack align="flex-start" spacing={3} flex={1} overflowY="auto">
-            <OpenedTabs
-              headingTitle="OPEN TABS"
-              tabs={pickedOpenTabs}
-              onTabClicked={handleSwitchTab}
-              selectedTabId={selectedTabId}
-            />
-            <RecentOpenedTabs
-              headingTitle="PREVIOUSLY OPENED TABS"
-              tabs={recentOpenedTabs}
-              onTabClicked={handleOpenTab}
-              selectedTabId={selectedTabId}
-            />
-            {/* <OpenedTabs
+          {inputValue
+            ? (
+              <SearchedTabs
+                tabs={combinedSelectedTabs}
+                clickCallbackField="id"
+                selectedTabId={selectedTabId}
+                onTabClicked={handleTabSelect}
+              />
+            )
+            : (
+              <VStack align="flex-start" spacing={3} flex={1} overflowY="auto">
+                <OpenedTabs
+                  headingTitle="OPEN TABS"
+                  tabs={openedTabs}
+                  onTabClicked={handleSwitchTab}
+                  selectedTabId={selectedTabId}
+                />
+                <RecentOpenedTabs
+                  headingTitle="PREVIOUSLY OPENED TABS"
+                  tabs={recentOpenedTabs}
+                  onTabClicked={handleOpenTab}
+                  selectedTabId={selectedTabId}
+                />
+                {/* <OpenedTabs
               panelId="common-opened-tab"
               headingTitle="COMMON USED TABS (SOON)"
               tabs={[]}
@@ -297,7 +352,8 @@ function App() {
               onTabClicked={handleSwitchTab}
               selectedTabId={selectedTabId}
             /> */}
-          </VStack>
+              </VStack>
+            )}
         </Box>
       </Center>
     </ChakraProvider>
