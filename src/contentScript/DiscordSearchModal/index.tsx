@@ -20,17 +20,17 @@ function maxZIndex() {
 
 // This is the content script when running in production
 if (process.env.NODE_ENV === 'production') {
-  const div = document.createElement('div');
-  div.id = 'tab-master-extension';
-  document.body.appendChild(div);
+  const dialog = document.createElement('dialog');
+  dialog.id = 'tab-master-extension';
+  document.body.appendChild(dialog);
 
-  // TODO: switch from div to dialog
-  const divAnchor = document.getElementById('tab-master-extension');
-  if (divAnchor) {
-    divAnchor.style.zIndex = String(maxZIndex());
+  dialog.open = true;
+  const dialogAnchor = document.getElementById('tab-master-extension');
+  if (dialogAnchor) {
+    dialogAnchor.style.zIndex = String(maxZIndex());
     // add css for this
-    divAnchor.style.position = 'fixed';
-    divAnchor.style.top = '0';
+    dialogAnchor.style.position = 'fixed';
+    dialogAnchor.style.top = '0';
   }
 
   ReactDOM.render(

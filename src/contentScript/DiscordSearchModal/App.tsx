@@ -13,7 +13,6 @@ import {
 } from '../../common';
 import OpenedTabs from './components/Panels/OpenedTabs';
 import RecentOpenedTabs from './components/Panels/RecentOpenedTabs';
-import CheckList from './components/CheckList';
 import SearchedTabs from './components/Panels/SearchedTabs';
 import { fuzzySearch, getFavicon, removeDuplicates } from './utils';
 // TODO: make this lazy imports only for dev
@@ -273,7 +272,7 @@ function App() {
           bottom={0}
           zIndex={1}
           onClick={() => setShowExtension(false)}
-          bg="hsl(0deg 0% 0% / 28%)"
+          bg="hsl(0deg 0% 0% / 70%)"
         />
 
         <Box
@@ -287,7 +286,6 @@ function App() {
           d="flex"
           flexDirection="column"
         >
-          <CheckList />
           <Input
             ref={inputRef}
             bg="input.400"
