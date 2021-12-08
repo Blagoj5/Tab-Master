@@ -57,7 +57,7 @@ function getMsForADay(day: number) {
 function getRecentlyOpenedTabs(query: chrome.history.HistoryQuery = {
   endTime: Date.now(),
   startTime: Date.now() - getMsForADay(10),
-  text: '',
+  text: '', // todo: use this from the front end actually;
   maxResults: 10,
 }) {
   return new Promise<chrome.history.HistoryItem[]>((res) => {

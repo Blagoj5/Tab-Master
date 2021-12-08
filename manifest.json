@@ -1,6 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Master",
+	"options_page": "contentScript/config-page.html",
   "version": "1.0.0",
 	"background": {
     "service_worker": "backgroundScript/index.js"

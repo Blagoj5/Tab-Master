@@ -1,14 +1,9 @@
 import { extendTheme } from '@chakra-ui/react';
-import { isProduction } from './consts';
 
-const fonts = isProduction ? {
-  heading: 'inherit',
-  body: 'inherit',
-  mono: 'inherit',
-} : {
-  heading: 'inherit',
-  body: 'inherit',
-  mono: 'inherit',
+const fonts = {
+  heading: "'Roboto', sans-serif",
+  body: "'Roboto', sans-serif",
+  mono: "'Roboto', sans-serif",
 };
 
 const colors = {
@@ -30,26 +25,7 @@ const colors = {
   },
 };
 
-const global = {
-  body: {
-    background: null,
-    backgroundColor: null,
-    bg: null,
-    color: null,
-    fontFamily: null,
-    lineHeight: null,
-    // TODO: add rest
-    // font-family: var(--chakra-fonts-body);
-    // transition-property: background-color;
-    // transition-duration: var(--chakra-transition-duration-normal);
-    // line-height: var(--chakra-lineHeights-base);
-  },
-};
-
 const theme = extendTheme({
-  styles: {
-    global,
-  },
   colors,
   fonts,
 });
