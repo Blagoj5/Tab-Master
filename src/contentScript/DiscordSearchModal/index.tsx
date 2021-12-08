@@ -28,9 +28,6 @@ if (process.env.NODE_ENV === 'production') {
   const dialogAnchor = document.getElementById('tab-master-extension');
   if (dialogAnchor) {
     dialogAnchor.style.zIndex = String(maxZIndex());
-    // add css for this
-    dialogAnchor.style.position = 'fixed';
-    dialogAnchor.style.top = '0';
   }
 
   ReactDOM.render(
