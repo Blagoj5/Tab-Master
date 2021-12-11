@@ -24,6 +24,7 @@ export type CommonTab = {
 	url: string;
 	title: string;
 	faviconUrl: string;
+	action: 'open' | 'switch';
 };
 // type ChromeTabWithoutId = Omit<chrome.tabs.Tab, 'id'>;
 

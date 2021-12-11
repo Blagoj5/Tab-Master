@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle, css } from 'styled-components';
 // TODO: fix the Uni Sans issue, you need to add public folder to config
 
 export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
@@ -146,3 +146,19 @@ export const EllipsisText = ({ children, ...rest }: {children: string}) => (
 			</span>
 		</EllipsisTextStyle>
 );
+
+export const scrollbarStyle = css`
+	::-webkit-scrollbar {
+			width: 10px;
+	}
+
+  ::-webkit-scrollbar-track {
+		background: #292B2F;
+		border-radius: 10px;
+	}
+
+	::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+		background: #202225;
+	}
+`;

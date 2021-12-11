@@ -14,13 +14,14 @@ import { fuzzySearch, getFavicon, removeDuplicates } from './utils';
 import fakeTabs from './devData';
 import recentTabs from './devData/recent-tabs.json';
 import {
-  Backdrop, Center, GlobalStyle, Input, Pane, VStack,
+  Backdrop, Center, GlobalStyle, Input, Pane, scrollbarStyle, VStack,
 } from '../../common/styles';
-import SearchedTabs from './components/Panels/SearchedTabs';
+import Tabs from './components/Tabs';
 
 const TabsContainer = styled((props) => <VStack {...props} spacing="8px" />)`
- flex: 1;
- overflow-y: auto;
+	flex: 1;
+	overflow-y: auto;
+	${scrollbarStyle}
 `;
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
       id: tab.virtualId,
       title: tab.title,
       url: tab.url,
+      action: 'switch',
     }];
   }), [openedTabs]);
 
@@ -61,6 +63,7 @@ function App() {
       id: tab.id,
       title: tab.title,
       url: tab.url,
+      action: 'open',
     }];
   }), [recentOpenedTabs]);
 
@@ -264,9 +267,6 @@ function App() {
   if (!showExtension) return null;
 
   // TODO: add font-sizes everywhere
-  // TODO: add icons for different tabs:
-  // TODO:  - Recent Tabs EXTERNAL LINK ICON
-  // TODO:  - OPEN Tabs SWITCH ICON
   return (
     <>
       <GlobalStyle extensionId={isProduction ? ROOT_ID : undefined} />
@@ -286,7 +286,7 @@ function App() {
           />
           {inputValue
             ? (
-              <SearchedTabs
+              <Tabs
                 tabs={combinedSelectedTabs}
                 clickCallbackField="id"
                 selectedTabId={selectedTabId}
@@ -296,7 +296,7 @@ function App() {
             : (
               <TabsContainer>
                 {/* OPENED TABS */}
-                <SearchedTabs
+                <Tabs
                   headingTitle="OPENED TABS"
                   tabs={transformedOpenedTabs}
                   clickCallbackField="id"
@@ -304,7 +304,7 @@ function App() {
                   onTabClicked={handleTabSelect}
                 />
                 {/* RECENTLY TABS */}
-                <SearchedTabs
+                <Tabs
                   headingTitle="RECENT TABS"
                   tabs={transformedRecentOpenedTabs}
                   clickCallbackField="id"
