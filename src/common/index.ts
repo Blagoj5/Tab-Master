@@ -18,6 +18,14 @@ export type Actions =
   type: 'open-tab',
   newTabUrl: string,
 }
+| {
+  type: 'search-history',
+  keyword: string,
+}
+| {
+  type: 'send-recent-tabs',
+  tabs: chrome.history.HistoryItem[],
+};
 
 export type CommonTab = {
 	id: string;

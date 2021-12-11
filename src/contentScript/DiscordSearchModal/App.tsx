@@ -100,34 +100,43 @@ function App() {
   };
 
   useEffect(() => {
-    if (isProduction) {
-      chrome.runtime.onConnect.addListener((port) => {
-        portRef.current = port;
+    const onConnect = (port: chrome.runtime.Port) => {
+      portRef.current = port;
 
-        port.onMessage.addListener((message: Actions) => {
-          switch (message.type) {
-            case 'open-tab-master':
-              setShowExtension(true);
-              inputRef.current?.focus();
-              setOpenedTabs(message.tabs.open.map((tab) => ({
-                ...tab,
-                virtualId: `${tab.id}-opened-tab`,
-              })));
-              setRecentOpenedTabs(message.tabs.recent.map((tab) => ({
-                ...tab,
-                faviconUrl: getFavicon(tab.url || ''),
-              })));
-              break;
+      port.onMessage.addListener((message: Actions) => {
+        switch (message.type) {
+          case 'open-tab-master':
+            setShowExtension(true);
+            inputRef.current?.focus();
+            setOpenedTabs(message.tabs.open.map((tab) => ({
+              ...tab,
+              virtualId: `${tab.id}-opened-tab`,
+            })));
+            setRecentOpenedTabs(message.tabs.recent.map((tab) => ({
+              ...tab,
+              faviconUrl: getFavicon(tab.url || ''),
+            })));
+            break;
 
-            case 'close-tab-master':
-              setShowExtension(false);
-              break;
+          case 'send-recent-tabs':
+            setRecentOpenedTabs(message.tabs.map((tab) => ({
+              ...tab,
+              faviconUrl: getFavicon(tab.url || ''),
+            })));
+            break;
 
-            default:
-              break;
-          }
-        });
+          case 'close-tab-master':
+            setShowExtension(false);
+            break;
+
+          default:
+            break;
+        }
       });
+    };
+
+    if (isProduction) {
+      chrome.runtime.onConnect.addListener(onConnect);
     } else {
       setOpenedTabs(fakeTabs);
       setRecentOpenedTabs(recentTabs.map((tab) => ({
@@ -136,9 +145,9 @@ function App() {
       })));
     }
 
-    document.addEventListener('keydown', ({
+    const onKeyDown = ({
       repeat, key, ctrlKey, metaKey,
-    }) => {
+    }: KeyboardEvent) => {
       if (repeat) return;
 
       // for Windows and MacOS
@@ -164,9 +173,14 @@ function App() {
       if (key === 'Escape') {
         closeExtension();
       }
-    });
+    };
 
-    // TODO: remove event listeners
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      chrome.runtime.onConnect.removeListener(onConnect);
+    };
   }, []);
 
   useEffect(() => {
@@ -264,6 +278,17 @@ function App() {
     }
   };
 
+  const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setInputValue(e.target.value);
+    if (e.target.value) {
+      const payload: Actions = {
+        type: 'search-history',
+        keyword: e.target.value,
+      };
+      portRef.current?.postMessage(payload);
+    }
+  };
+
   if (!showExtension) return null;
 
   // TODO: add font-sizes everywhere
@@ -280,9 +305,7 @@ function App() {
             placeholder="Where would you like to go?"
             value={inputValue}
             onKeyDown={handleKeyDown}
-            onChange={(e) => {
-              setInputValue(e.target.value);
-            }}
+            onChange={handleOnChange}
           />
           {inputValue
             ? (

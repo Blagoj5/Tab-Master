@@ -1,27 +1,16 @@
 /* eslint-disable no-undef */
 
-export type Actions =
-{
-  type: 'close-tab-master',
-}
-| {
-  type: 'open-tab-master',
-  tabs: {
-		open: chrome.tabs.Tab[],
-		recent: chrome.history.HistoryItem[],
-	},
-}
-| {
-  type: 'switch-tab',
-  tabId: number,
-}
-| {
-  type: 'open-tab',
-  newTabUrl: string,
-}
+/* eslint-disable import/no-unresolved */
+// eslint-disable-next-line import/extensions
+import { Actions } from '../common/index';
 
 async function getCurrentTab() {
-  const queryOptions: chrome.tabs.QueryInfo = { active: true, currentWindow: true };
+  const queryOptions: chrome.tabs.QueryInfo = {
+    active: true,
+    currentWindow: true,
+    // title: '', // TODO: add in future
+    // url: '', // TODO: add in future
+  };
   const [tab] = await chrome.tabs.query(queryOptions);
   return tab;
 }
@@ -57,8 +46,8 @@ function getMsForADay(day: number) {
 function getRecentlyOpenedTabs(query: chrome.history.HistoryQuery = {
   endTime: Date.now(),
   startTime: Date.now() - getMsForADay(10),
-  text: '', // todo: use this from the front end actually;
-  maxResults: 50,
+  text: '',
+  maxResults: 20,
 }) {
   return new Promise<chrome.history.HistoryItem[]>((res) => {
     chrome.history.search(query, (historyItems) => (
@@ -67,10 +56,21 @@ function getRecentlyOpenedTabs(query: chrome.history.HistoryQuery = {
   });
 }
 
-const listenerHandler = (message: Actions) => {
+const listenerHandler = (message: Actions, port: chrome.runtime.Port) => {
   switch (message.type) {
     case 'switch-tab':
       chrome.tabs.update(message.tabId, { active: true });
+      break;
+    case 'search-history':
+      getRecentlyOpenedTabs({
+        text: message.keyword,
+      }).then((recentTabs) => {
+        const payload: Actions = {
+          type: 'send-recent-tabs',
+          tabs: recentTabs,
+        };
+        port.postMessage(payload);
+      });
       break;
     case 'open-tab':
       chrome.tabs.create({
