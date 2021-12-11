@@ -1,6 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+console.log('dev serv: ', path.join(__dirname, 'src/common/fonts'));
+
 module.exports = {
 	mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   entry: {
@@ -17,6 +19,9 @@ module.exports = {
     port: 8080,
 		hot: true,
 		watchFiles: ['src/contentScript/**'],
+		static: {
+			directory: path.join(__dirname, 'src/common/fonts'),
+		}
   },
   module: {
     rules: [
@@ -29,7 +34,14 @@ module.exports = {
             presets: [
 							'@babel/preset-env', 
 							['@babel/preset-react', {"runtime": "automatic"}]
-						]
+						],
+						plugins: [
+							["babel-plugin-styled-components", {
+								pure: true,
+								"minify": false,
+								"transpileTemplateLiterals": false
+							}]
+						],
           }
         }
       },
@@ -37,6 +49,10 @@ module.exports = {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"],
       },
+			{    
+				test: /\.(woff|woff2|eot|ttf|otf)$/,
+				loader: "file-loader"
+			},
     ],
   },
   resolve: {

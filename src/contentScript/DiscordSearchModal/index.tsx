@@ -3,6 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import App from './App';
+import { ROOT_ID } from './consts';
 
 const app = (
   <React.StrictMode>
@@ -25,18 +26,18 @@ if (process.env.NODE_ENV === 'production') {
   document.body.appendChild(dialog);
 
   dialog.open = true;
-  const dialogAnchor = document.getElementById('tab-master-extension');
+  const dialogAnchor = document.getElementById(ROOT_ID);
   if (dialogAnchor) {
     dialogAnchor.style.zIndex = String(maxZIndex());
   }
 
   ReactDOM.render(
     app,
-    document.getElementById('tab-master-extension'),
+    document.getElementById(ROOT_ID),
   );
 } else {
   ReactDOM.render(
     app,
-    document.getElementById('root'),
+    document.getElementById(ROOT_ID),
   );
 }

@@ -1,5 +1,3 @@
-import { Flex, Checkbox, Text } from '@chakra-ui/react';
-
 type Props = {
 	name: string;
 	isChecked: boolean;
@@ -8,21 +6,22 @@ type Props = {
 };
 
 function Option({ isChecked, name, onChecked }: Props) {
-  return (
-    <Flex
-      w="full"
-      justify="space-between"
-      px={4}
-      py={2}
-      cursor="pointer"
-      _hover={{ bg: 'background.200' }}
-      rounded="sm"
-      onClick={() => onChecked(!isChecked)}
-    >
-      <Text color="white" textTransform="capitalize">{name}</Text>
-      <Checkbox isChecked={isChecked} />
-    </Flex>
-  );
+  return null;
+  // return (
+  //   <Flex
+  //     w="full"
+  //     justify="space-between"
+  //     px={4}
+  //     py={2}
+  //     cursor="pointer"
+  //     _hover={{ bg: 'background.200' }}
+  //     rounded="sm"
+  //     onClick={() => onChecked(!isChecked)}
+  //   >
+  //     <Text color="white" textTransform="capitalize">{name}</Text>
+  //     <Checkbox isChecked={isChecked} />
+  //   </Flex>
+  // );
 }
 
 export default Option;

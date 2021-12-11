@@ -1,23 +1,27 @@
 /* eslint-disable no-undef */
-import {
-  Box, Center, ChakraProvider, Input, VStack,
-} from '@chakra-ui/react';
 import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
+// import root from 'react-shadow';
 
-import theme from './theme';
-import { isProduction } from './consts';
+import styled from 'styled-components';
+import { isProduction, ROOT_ID } from './consts';
 import {
   RecentOpenedTab, OpenedTab, Actions, CommonTab,
 } from '../../common';
-import OpenedTabs from './components/Panels/OpenedTabs';
-import RecentOpenedTabs from './components/Panels/RecentOpenedTabs';
-import SearchedTabs from './components/Panels/SearchedTabs';
 import { fuzzySearch, getFavicon, removeDuplicates } from './utils';
 // TODO: make this lazy imports only for dev
 import fakeTabs from './devData';
 import recentTabs from './devData/recent-tabs.json';
+import {
+  Backdrop, Center, GlobalStyle, Input, Pane, VStack,
+} from '../../common/styles';
+import SearchedTabs from './components/Panels/SearchedTabs';
+
+const TabsContainer = styled((props) => <VStack {...props} spacing="8px" />)`
+ flex: 1;
+ overflow-y: auto;
+`;
 
 function App() {
   const [showExtension, setShowExtension] = useState(false);
@@ -29,46 +33,57 @@ function App() {
   const [recentOpenedTabs, setRecentOpenedTabs] = useState<RecentOpenedTab[]>([]);
   const [openedTabs, setOpenedTabs] = useState<OpenedTab[]>([]);
 
-  const combinedSelectedTabs = useMemo(
-    () => {
-      const combinedTabs = [
-      // flat map is used for filtering + mapping
-        ...openedTabs.flatMap<CommonTab>((tab) => {
-          if (
-            !tab.url
-					|| !tab.title
-					|| !tab.favIconUrl
-          ) return [];
+  // flat map is used for filtering + mapping
+  const transformedOpenedTabs = useMemo(() => openedTabs.flatMap<CommonTab>((tab) => {
+    if (
+      !tab.url
+						|| !tab.title
+						|| !tab.favIconUrl
+    ) return [];
 
-          return [{
-            faviconUrl: tab.favIconUrl,
-            id: tab.virtualId,
-            title: tab.title,
-            url: tab.url,
-          }];
-        }),
-        ...recentOpenedTabs.flatMap<CommonTab>((tab) => {
-          if (
-            !tab.url
+    return [{
+      faviconUrl: tab.favIconUrl,
+      id: tab.virtualId,
+      title: tab.title,
+      url: tab.url,
+    }];
+  }), [openedTabs]);
+
+  const transformedRecentOpenedTabs = useMemo(() => recentOpenedTabs.flatMap<CommonTab>((tab) => {
+    if (
+      !tab.url
 					|| !tab.title
 					|| !tab.url
-          ) return [];
+    ) return [];
 
-          return [{
-            faviconUrl: getFavicon(tab.url),
-            id: tab.id,
-            title: tab.title,
-            url: tab.url,
-          }];
-        }),
+    return [{
+      faviconUrl: getFavicon(tab.url),
+      id: tab.id,
+      title: tab.title,
+      url: tab.url,
+    }];
+  }), [recentOpenedTabs]);
+
+  const [combinedSelectedTabs] = useMemo(
+    () => {
+      const combinedTabs = [
+        ...transformedOpenedTabs,
+        ...transformedRecentOpenedTabs,
       ];
 
       const filteredCombinedTabs = fuzzySearch(combinedTabs, { keys: ['title', 'url'] }, inputValue);
 
-      return removeDuplicates(filteredCombinedTabs);
+      return [
+        removeDuplicates(filteredCombinedTabs),
+        {
+          transformedOpenedTabs,
+          transformedRecentOpenedTabs,
+        },
+      ];
     },
-	 [openedTabs, recentOpenedTabs, inputValue],
+	 [transformedRecentOpenedTabs, transformedOpenedTabs, inputValue],
   );
+
   const combinedSelectedTabIds = useMemo(
     () => combinedSelectedTabs.map(({ id }) => id),
 	 [combinedSelectedTabs],
@@ -253,53 +268,16 @@ function App() {
   // TODO:  - Recent Tabs EXTERNAL LINK ICON
   // TODO:  - OPEN Tabs SWITCH ICON
   return (
-    <ChakraProvider theme={theme}>
-      <Center
-        h="100vh"
-        position="fixed"
-        top={0}
-        left={0}
-        right={0}
-        bottom={0}
-        // fontFamily="Fira Sans"
-      >
-        {/* Backdrop */}
-        <Box
-          position="fixed"
-          top={0}
-          left={0}
-          right={0}
-          bottom={0}
-          zIndex={1}
-          onClick={() => setShowExtension(false)}
-          bg="hsl(0deg 0% 0% / 70%)"
-        />
+    <>
+      <GlobalStyle extensionId={isProduction ? ROOT_ID : undefined} />
 
-        <Box
-          bg="primary.400"
-          p={6}
-          w="650px"
-          zIndex={1000}
-          h="400px"
-          overflow="hidden"
-          rounded="lg"
-          d="flex"
-          flexDirection="column"
-        >
+      <Center>
+        <Backdrop onClick={() => setShowExtension(false)} />
+
+        <Pane>
           <Input
             ref={inputRef}
-            bg="input.400"
-            color="white"
             placeholder="Where would you like to go?"
-            _placeholder={{
-              color: 'input.100',
-            }}
-            border="none"
-            fontSize="1.3rem"
-            py={8}
-            mb={4}
-            _focus={{}}
-            shadow="xl"
             value={inputValue}
             onKeyDown={handleKeyDown}
             onChange={(e) => {
@@ -316,45 +294,28 @@ function App() {
               />
             )
             : (
-              <VStack align="flex-start" spacing={3} flex={1} overflowY="auto">
-                <OpenedTabs
-                  headingTitle="OPEN TABS"
-                  tabs={openedTabs}
-                  onTabClicked={handleSwitchTab}
+              <TabsContainer>
+                {/* OPENED TABS */}
+                <SearchedTabs
+                  headingTitle="OPENED TABS"
+                  tabs={transformedOpenedTabs}
+                  clickCallbackField="id"
                   selectedTabId={selectedTabId}
+                  onTabClicked={handleTabSelect}
                 />
-                <RecentOpenedTabs
-                  headingTitle="PREVIOUSLY OPENED TABS"
-                  tabs={recentOpenedTabs}
-                  onTabClicked={handleOpenTab}
+                {/* RECENTLY TABS */}
+                <SearchedTabs
+                  headingTitle="RECENT TABS"
+                  tabs={transformedRecentOpenedTabs}
+                  clickCallbackField="id"
                   selectedTabId={selectedTabId}
+                  onTabClicked={handleTabSelect}
                 />
-                {/* <OpenedTabs
-              panelId="common-opened-tab"
-              headingTitle="COMMON USED TABS (SOON)"
-              tabs={[]}
-              onTabClicked={handleSwitchTab}
-              selectedTabId={selectedTabId}
-            />
-            <OpenedTabs
-              panelId="bookmark"
-              headingTitle="BOOKMARK (SOON)"
-              tabs={[]}
-              onTabClicked={handleSwitchTab}
-              selectedTabId={selectedTabId}
-            />
-            <OpenedTabs
-              panelId="history"
-              headingTitle="HISTORY (SOON)"
-              tabs={[]}
-              onTabClicked={handleSwitchTab}
-              selectedTabId={selectedTabId}
-            /> */}
-              </VStack>
+              </TabsContainer>
             )}
-        </Box>
+        </Pane>
       </Center>
-    </ChakraProvider>
+    </>
   );
 }
 

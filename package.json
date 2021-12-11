@@ -14,9 +14,11 @@
     "@types/node": "^16.11.9",
     "@types/react": "^17.0.35",
     "@types/react-dom": "^17.0.11",
+    "@types/styled-components": "^5.1.17",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "babel-loader": "^8.2.3",
+    "babel-plugin-styled-components": "^2.0.2",
     "concurrently": "^6.4.0",
     "copy-webpack-plugin": "^10.0.0",
     "css-loader": "^6.5.1",
@@ -27,6 +29,7 @@
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.27.1",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "json-loader": "^0.5.7",
     "ncp": "^2.0.0",
@@ -49,13 +52,13 @@
     "build": "NODE_ENV=production webpack && yarn build:backgroundScript"
   },
   "dependencies": {
-    "@chakra-ui/icons": "^1.1.1",
-    "@chakra-ui/react": "^1.7.2",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "framer-motion": "^4",
     "fuse.js": "^6.4.6",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "react-shadow": "^19.0.2",
+    "styled-components": "^5.3.3"
   }
 }

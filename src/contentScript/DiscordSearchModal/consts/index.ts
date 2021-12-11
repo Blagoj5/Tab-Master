@@ -2,3 +2,4 @@
 
 export const isProduction = process.env.NODE_ENV === 'production';
 export const EXTENSION_ID = 'ppngoninecbjfmdapjcohianklhpcnlc';
+export const ROOT_ID = isProduction ? 'tab-master-extension' : 'root';
