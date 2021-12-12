@@ -12,22 +12,14 @@
 			"js": ["contentScript/discordSearchModal.js"]
 		}
 	],
+	"host_permissions": [
+		"<all_urls>"
+  ],
 	"permissions": [
     "activeTab",
     "tabs",
     "scripting",
-    "history",
-		"http://*/*",
-		"https://*/*"
-  ],
-	"web_accessible_resources": [
-    {
-      "resources": ["contentScript/discordSearchModal.js"],
-			"matches": [
-				"http://*/*",
-				"https://*/*"
-			]
-    }
+    "history"
   ],
 	"content_security_policy": {
 		"extension_pages": "script-src 'self'; object-src 'self'"
