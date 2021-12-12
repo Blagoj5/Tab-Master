@@ -1,4 +1,7 @@
-import React, { RefObject, useEffect } from 'react';
+import React, {
+  useEffect,
+  useMemo, useRef, useState,
+} from 'react';
 import styled from 'styled-components';
 import { useFrame } from 'react-frame-component';
 
@@ -8,6 +11,7 @@ import {
   Input, scrollbarStyle, VStack,
 } from '../../../common/styles';
 import Tabs from './Tabs';
+import { fuzzySearch, removeDuplicates } from '../utils';
 
 const ModalStyle = styled.div`
 	width: auto;
@@ -28,40 +32,114 @@ const TabsContainer = styled((props) => <VStack {...props} spacing="8px" />)`
 `;
 
 type Props = {
-	handleKeyDown: React.KeyboardEventHandler<HTMLInputElement>;
-	handleOnChange: React.ChangeEventHandler<HTMLInputElement>;
-	inputValue: string;
-	inputRef: RefObject<HTMLInputElement>;
-	combinedSelectedTabs: CommonTab[];
-	selectedTabId: string;
-	handleTabSelect: () => void;
 	// eslint-disable-next-line no-unused-vars
-	onTabHover: (tabId: string) => void;
+	onChange: (value: string) => void;
+	// eslint-disable-next-line no-unused-vars
+	handleTabSelect: (selectedTabId: string) => void;
+	closeExtension: () => void;
 	transformedOpenedTabs: CommonTab[];
 	transformedRecentOpenedTabs: CommonTab[];
 }
 // IFRAME COMPONENT
 function Modal({
-  handleOnChange,
-  inputRef,
-  inputValue,
-  combinedSelectedTabs,
-  onTabHover,
+  onChange,
   handleTabSelect,
-  selectedTabId,
   transformedOpenedTabs,
   transformedRecentOpenedTabs,
-  handleKeyDown,
+  closeExtension,
 }: Props) {
   const { document: iFrameDocument } = useFrame();
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [inputValue, setInputValue] = useState('');
+
+  const [selectedTabId, setSelectedTabId] = useState('');
+
+  const [combinedSelectedTabs] = useMemo(
+    () => {
+      const combinedTabs = [
+        ...transformedOpenedTabs,
+        ...transformedRecentOpenedTabs,
+      ];
+
+      const filteredCombinedTabs = fuzzySearch(combinedTabs, { keys: ['title', 'url'] }, inputValue);
+
+      return [
+        removeDuplicates(filteredCombinedTabs),
+        {
+          transformedOpenedTabs,
+          transformedRecentOpenedTabs,
+        },
+      ];
+    },
+	 [transformedRecentOpenedTabs, transformedOpenedTabs, inputValue],
+  );
+
+  const combinedSelectedTabIds = useMemo(
+    () => combinedSelectedTabs.map(({ id }) => id),
+	 [combinedSelectedTabs],
+  );
+
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  // effect for scrolling the selected tab id into view, this will be fixed when refactor happens
+  // on new filter always select the firs tab first
   useEffect(() => {
-    iFrameDocument?.getElementById(selectedTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-  }, [selectedTabId]);
+    setSelectedTabId(combinedSelectedTabIds[0]);
+  }, [combinedSelectedTabIds]);
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    const selectedTabIndex = combinedSelectedTabIds.findIndex((id) => id === selectedTabId);
+
+    if (e.key === 'Escape') {
+      closeExtension();
+      return;
+    }
+
+    // on enter
+    if (e.code === 'Enter' && selectedTabId) {
+      e.preventDefault();
+      handleTabSelect(selectedTabId);
+      return;
+    }
+
+    // arrow up/down button should select next/previous list element
+    if (e.code === 'ArrowUp') {
+      e.preventDefault();
+
+      const nextSuggestionOrder = selectedTabIndex - 1;
+      // if the suggestion order goes bellow zero, start over again
+      const order = nextSuggestionOrder < 0
+        ? combinedSelectedTabIds.length - 1
+        : nextSuggestionOrder;
+
+      const prevTabId = combinedSelectedTabIds[order];
+
+      iFrameDocument.getElementById(prevTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+
+      setSelectedTabId(prevTabId);
+    } else if (e.code === 'ArrowDown') {
+      const prevSuggestionOrder = selectedTabIndex + 1;
+      // suggestion goes above the upper limit
+      const order = prevSuggestionOrder > combinedSelectedTabIds.length - 1
+        ? 0
+        : prevSuggestionOrder;
+
+      const nextTabId = combinedSelectedTabIds[order];
+
+      iFrameDocument.getElementById(nextTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+
+      setSelectedTabId(nextTabId);
+    } else {
+      setSelectedTabId('');
+    }
+  };
+
+  const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    setInputValue(e.target.value);
+    onChange(e.target.value);
+  };
 
   return (
     <>
@@ -81,7 +159,7 @@ function Modal({
               clickCallbackField="id"
               selectedTabId={selectedTabId}
               onTabClicked={handleTabSelect}
-              onTabHover={onTabHover}
+              onTabHover={setSelectedTabId}
             />
           )
           : (
@@ -93,7 +171,7 @@ function Modal({
                 clickCallbackField="id"
                 selectedTabId={selectedTabId}
                 onTabClicked={handleTabSelect}
-                onTabHover={onTabHover}
+                onTabHover={setSelectedTabId}
               />
               {/* RECENTLY TABS */}
               <Tabs
@@ -102,7 +180,7 @@ function Modal({
                 clickCallbackField="id"
                 selectedTabId={selectedTabId}
                 onTabClicked={handleTabSelect}
-                onTabHover={onTabHover}
+                onTabHover={setSelectedTabId}
               />
             </TabsContainer>
           )}

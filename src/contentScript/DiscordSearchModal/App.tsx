@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, {
+import {
   useEffect, useMemo, useRef, useState,
 } from 'react';
 import Frame, { FrameContextConsumer } from 'react-frame-component';
@@ -9,7 +9,7 @@ import { isProduction } from './consts';
 import {
   RecentOpenedTab, OpenedTab, Actions, CommonTab,
 } from '../../common';
-import { fuzzySearch, getFavicon, removeDuplicates } from './utils';
+import { getFavicon } from './utils';
 import fakeTabs from './devData';
 import recentTabs from './devData/recent-tabs.json';
 import {
@@ -30,9 +30,6 @@ const ModalFrame = styled(Frame)`
 function App() {
   const [showExtension, setShowExtension] = useState(false);
   const portRef = useRef<chrome.runtime.Port>();
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [inputValue, setInputValue] = useState('');
 
   const [recentOpenedTabs, setRecentOpenedTabs] = useState<RecentOpenedTab[]>([]);
   const [openedTabs, setOpenedTabs] = useState<OpenedTab[]>([]);
@@ -70,38 +67,11 @@ function App() {
     }];
   }), [recentOpenedTabs]);
 
-  const [combinedSelectedTabs] = useMemo(
-    () => {
-      const combinedTabs = [
-        ...transformedOpenedTabs,
-        ...transformedRecentOpenedTabs,
-      ];
-
-      const filteredCombinedTabs = fuzzySearch(combinedTabs, { keys: ['title', 'url'] }, inputValue);
-
-      return [
-        removeDuplicates(filteredCombinedTabs),
-        {
-          transformedOpenedTabs,
-          transformedRecentOpenedTabs,
-        },
-      ];
-    },
-	 [transformedRecentOpenedTabs, transformedOpenedTabs, inputValue],
-  );
-
-  const combinedSelectedTabIds = useMemo(
-    () => combinedSelectedTabs.map(({ id }) => id),
-	 [combinedSelectedTabs],
-  );
-
-  const [selectedTabId, setSelectedTabId] = useState('');
-
   const closeExtension = () => {
     setShowExtension(false);
-    setInputValue('');
   };
 
+  // TODO: move all event keydown listener to the background script
   useEffect(() => {
     const onConnect = (port: chrome.runtime.Port) => {
       portRef.current = port;
@@ -110,7 +80,6 @@ function App() {
         switch (message.type) {
           case 'open-tab-master':
             setShowExtension(true);
-            inputRef.current?.focus();
             setOpenedTabs(message.tabs.open.map((tab) => ({
               ...tab,
               virtualId: `${tab.id}-opened-tab`,
@@ -156,7 +125,7 @@ function App() {
       // for Windows and MacOS
       if (!isProduction && (ctrlKey || metaKey) && key === 'k') {
         setShowExtension(true);
-        inputRef.current?.focus();
+        // inputRef.current?.focus(); // TODO: address
       }
 
       // (function () {
@@ -186,12 +155,6 @@ function App() {
     };
   }, []);
 
-  useEffect(() => {
-    if (showExtension && combinedSelectedTabs.length) {
-      setSelectedTabId(combinedSelectedTabs[0].id);
-    }
-  }, [showExtension, combinedSelectedTabs]);
-
   const handleSwitchTab = (tabId: number) => {
     if (!isProduction) return;
 
@@ -220,81 +183,29 @@ function App() {
     closeExtension();
   };
 
-  const handleTabSelect = () => {
-    const selectedTabIndex = combinedSelectedTabIds.findIndex((id) => id === selectedTabId);
-
-    const pickedId = combinedSelectedTabIds[selectedTabIndex];
-
+  const handleTabSelect = (selectedTabId: string) => {
     // OPENED TABS
-    const openTab = openedTabs.find(({ virtualId }) => virtualId === pickedId);
+    const openTab = openedTabs.find(({ virtualId }) => virtualId === selectedTabId);
     if (openTab?.id) {
       handleSwitchTab(openTab.id);
     }
 
     // RECENT OPENED TABS
-    const recentOpenTab = recentOpenedTabs.find(({ id }) => id === pickedId);
+    const recentOpenTab = recentOpenedTabs.find(({ id }) => id === selectedTabId);
     if (recentOpenTab?.url) {
       handleOpenTab(recentOpenTab.url);
     }
   };
 
-  const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-    const selectedTabIndex = combinedSelectedTabIds.findIndex((id) => id === selectedTabId);
+  const handleOnChange = (value: string) => {
+    if (!value) return;
 
-    if (e.key === 'Escape') {
-      closeExtension();
-      return;
-    }
+    const payload: Actions = {
+      type: 'search-history',
+      keyword: value,
+    };
 
-    // on enter
-    if (e.code === 'Enter' && selectedTabId) {
-      e.preventDefault();
-      handleTabSelect();
-      return;
-    }
-
-    // arrow up/down button should select next/previous list element
-    if (e.code === 'ArrowUp') {
-      e.preventDefault();
-
-      const nextSuggestionOrder = selectedTabIndex - 1;
-      // if the suggestion order goes bellow zero, start over again
-      const order = nextSuggestionOrder < 0
-        ? combinedSelectedTabIds.length - 1
-        : nextSuggestionOrder;
-
-      const prevTabId = combinedSelectedTabIds[order];
-
-      // TODO: THIS IS NOT WORKING FOR combinedTABs, add better handling of ids
-      document.getElementById(prevTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-
-      setSelectedTabId(prevTabId);
-    } else if (e.code === 'ArrowDown') {
-      const prevSuggestionOrder = selectedTabIndex + 1;
-      // suggestion goes above the upper limit
-      const order = prevSuggestionOrder > combinedSelectedTabIds.length - 1
-        ? 0
-        : prevSuggestionOrder;
-
-      const nextTabId = combinedSelectedTabIds[order];
-
-      document.getElementById(nextTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
-
-      setSelectedTabId(nextTabId);
-    } else {
-      setSelectedTabId('');
-    }
-  };
-
-  const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    setInputValue(e.target.value);
-    if (e.target.value) {
-      const payload: Actions = {
-        type: 'search-history',
-        keyword: e.target.value,
-      };
-      portRef.current?.postMessage(payload);
-    }
+    portRef.current?.postMessage(payload);
   };
 
   if (!showExtension) return null;
@@ -308,16 +219,11 @@ function App() {
           {(frameContext: any) => (
             <StyleSheetManager target={frameContext.document.head}>
               <Modal
-                combinedSelectedTabs={combinedSelectedTabs}
-                handleKeyDown={handleKeyDown}
-                handleOnChange={handleOnChange}
+                onChange={handleOnChange}
                 handleTabSelect={handleTabSelect}
-                onTabHover={setSelectedTabId}
-                inputRef={inputRef}
-                inputValue={inputValue}
-                selectedTabId={selectedTabId}
                 transformedOpenedTabs={transformedOpenedTabs}
                 transformedRecentOpenedTabs={transformedRecentOpenedTabs}
+                closeExtension={closeExtension}
               />
             </StyleSheetManager>
           )}
