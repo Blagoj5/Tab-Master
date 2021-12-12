@@ -2,26 +2,29 @@
 import React, {
   useEffect, useMemo, useRef, useState,
 } from 'react';
-// import root from 'react-shadow';
+import Frame, { FrameContextConsumer } from 'react-frame-component';
 
-import styled from 'styled-components';
-import { isProduction, ROOT_ID } from './consts';
+import styled, { StyleSheetManager } from 'styled-components';
+import { isProduction } from './consts';
 import {
   RecentOpenedTab, OpenedTab, Actions, CommonTab,
 } from '../../common';
 import { fuzzySearch, getFavicon, removeDuplicates } from './utils';
-// TODO: make this lazy imports only for dev
 import fakeTabs from './devData';
 import recentTabs from './devData/recent-tabs.json';
 import {
-  Backdrop, Center, GlobalStyle, Input, Pane, scrollbarStyle, VStack,
+  Backdrop, Center,
 } from '../../common/styles';
-import Tabs from './components/Tabs';
+import Modal from './components/Modal';
 
-const TabsContainer = styled((props) => <VStack {...props} spacing="8px" />)`
-	flex: 1;
-	overflow-y: auto;
-	${scrollbarStyle}
+const ModalFrame = styled(Frame)`
+	width: 650px;
+	height: 432px;
+	z-index: 1000;
+	padding: 0;
+	border: 0;
+	overflow: hidden;
+	border-radius: 0.625rem;
 `;
 
 function App() {
@@ -238,6 +241,11 @@ function App() {
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     const selectedTabIndex = combinedSelectedTabIds.findIndex((id) => id === selectedTabId);
 
+    if (e.key === 'Escape') {
+      closeExtension();
+      return;
+    }
+
     // on enter
     if (e.code === 'Enter' && selectedTabId) {
       e.preventDefault();
@@ -293,52 +301,29 @@ function App() {
 
   // TODO: add font-sizes everywhere
   return (
-    <>
-      <GlobalStyle extensionId={isProduction ? ROOT_ID : undefined} />
-
-      <Center>
-        <Backdrop onClick={() => setShowExtension(false)} />
-
-        <Pane>
-          <Input
-            ref={inputRef}
-            placeholder="Where would you like to go?"
-            value={inputValue}
-            onKeyDown={handleKeyDown}
-            onChange={handleOnChange}
-          />
-          {inputValue
-            ? (
-              <Tabs
-                tabs={combinedSelectedTabs}
-                clickCallbackField="id"
+    <Center>
+      <Backdrop onClick={() => setShowExtension(false)} />
+      <ModalFrame>
+        <FrameContextConsumer>
+          {(frameContext: any) => (
+            <StyleSheetManager target={frameContext.document.head}>
+              <Modal
+                combinedSelectedTabs={combinedSelectedTabs}
+                handleKeyDown={handleKeyDown}
+                handleOnChange={handleOnChange}
+                handleTabSelect={handleTabSelect}
+                onTabHover={setSelectedTabId}
+                inputRef={inputRef}
+                inputValue={inputValue}
                 selectedTabId={selectedTabId}
-                onTabClicked={handleTabSelect}
+                transformedOpenedTabs={transformedOpenedTabs}
+                transformedRecentOpenedTabs={transformedRecentOpenedTabs}
               />
-            )
-            : (
-              <TabsContainer>
-                {/* OPENED TABS */}
-                <Tabs
-                  headingTitle="OPENED TABS"
-                  tabs={transformedOpenedTabs}
-                  clickCallbackField="id"
-                  selectedTabId={selectedTabId}
-                  onTabClicked={handleTabSelect}
-                />
-                {/* RECENTLY TABS */}
-                <Tabs
-                  headingTitle="RECENT TABS"
-                  tabs={transformedRecentOpenedTabs}
-                  clickCallbackField="id"
-                  selectedTabId={selectedTabId}
-                  onTabClicked={handleTabSelect}
-                />
-              </TabsContainer>
-            )}
-        </Pane>
-      </Center>
-    </>
+            </StyleSheetManager>
+          )}
+        </FrameContextConsumer>
+      </ModalFrame>
+    </Center>
   );
 }
 

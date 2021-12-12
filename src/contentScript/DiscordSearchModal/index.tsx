@@ -29,6 +29,10 @@ if (process.env.NODE_ENV === 'production') {
   const dialogAnchor = document.getElementById(ROOT_ID);
   if (dialogAnchor) {
     dialogAnchor.style.zIndex = String(maxZIndex());
+    dialogAnchor.style.border = '0';
+    dialogAnchor.style.padding = '0';
+    dialogAnchor.style.height = 'auto';
+    dialogAnchor.style.width = 'auto';
   }
 
   ReactDOM.render(

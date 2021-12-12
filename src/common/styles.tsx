@@ -11,6 +11,7 @@ export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
 		--input-primary-extra-light: hsl(222.85714285714292, 3.7037037037037055%, 62.94117647058823%); 
 	}
 
+
 	@font-face {
 		font-family: 'Uni Sans';
 		src: url('src/common/fonts/uni-sans.heavy-caps.otf') format('opentype');
@@ -25,8 +26,13 @@ export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
 		font-weight: 400;
 	}
 
-  ${(props) => (props.extensionId ? `#${props.extensionId}` : 'body')} {
+	body {
+		margin: 0;
 		font-family:  'Uni Sans', Arial, sans-serif;
+	}
+
+	.frame-content, .frame-root, body {
+		overflow: hidden;
 	}
 `;
 

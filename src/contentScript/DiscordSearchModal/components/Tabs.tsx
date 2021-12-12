@@ -57,6 +57,8 @@ type PanelProps<T> = {
 	clickCallbackField: ExtractKeys<T, string>;
   // eslint-disable-next-line no-unused-vars
   onTabClicked: (tabId: string) => void;
+  // eslint-disable-next-line no-unused-vars
+  onTabHover: (tabId: string) => void;
   selectedTabId: string;
 	headingTitle?: string;
 }
@@ -67,16 +69,18 @@ function Tabs<T extends CommonTab>({
   selectedTabId,
   clickCallbackField,
   headingTitle,
+  onTabHover,
 }: PanelProps<T>) {
   return (
     <Container isScrollable={!headingTitle}>
       {headingTitle && (<Title>{headingTitle}</Title>)}
       {tabs.map((tab) => (
         <SearchedTab
-          id={`${tab.id}`}
+          id={tab.id}
           key={tab.id}
           isSelected={selectedTabId === (tab[clickCallbackField] as unknown as string)}
-          onClick={() => onTabClicked(clickCallbackField as unknown as string)}
+          onClick={() => onTabClicked(tab[clickCallbackField as unknown as string])}
+          onMouseEnter={() => onTabHover(tab[clickCallbackField as unknown as string])}
         >
           <Favicon src={tab.faviconUrl} alt="" />
           <CustomFlex>
