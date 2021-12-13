@@ -125,23 +125,8 @@ function App() {
       // for Windows and MacOS
       if (!isProduction && (ctrlKey || metaKey) && key === 'k') {
         setShowExtension(true);
-        // inputRef.current?.focus(); // TODO: address
       }
 
-      // (function () {
-      //   let useVimLikeEscape = true;
-      //   Utils.monitorChromeStorage('useVimLikeEscape', (value) => useVimLikeEscape = value);
-
-      //   return function (event) {
-      // <c-[> is mapped to Escape in Vim by default.
-      // Escape with a keyCode 229 means that this event comes from IME,
-      // and should not be treated as a
-      // direct/normal Escape event.  IME will handle the event, not vimium.
-      // See https://lists.w3.org/Archives/Public/www-dom/2010JulSep/att-0182/keyCode-spec.html
-      //     return ((event.key === 'Escape') && (event.keyCode !== 229))
-      // || (useVimLikeEscape && (this.getKeyCharString(event) === '<c-[>'));
-      //   };
-      // }());
       if (key === 'Escape') {
         closeExtension();
       }

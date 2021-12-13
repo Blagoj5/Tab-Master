@@ -44,12 +44,11 @@
     "type-check": "tsc --noEmit --pretty",
     "copy-files": "ncp manifest.json build/manifest.json",
     "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
-    "watch:backgroundScript": "yarn copy-files && babel src/backgroundScript --watch --copy-files --out-dir build/backgroundScript --extensions .ts,.tsx",
+    "watch:backgroundScript": "yarn copy-files && webpack watch --config ./webpack.background.config.js",
     "watch": "concurrently \"yarn watch:manifest\" \"yarn watch:backgroundScript\"",
     "dev:contentScript": "webpack serve",
     "dev": "concurrently \"yarn dev:contentScript\" \"yarn watch\"",
-    "build:backgroundScript": "yarn copy-files && babel src/backgroundScript --copy-files --out-dir build/backgroundScript --extensions .ts,.tsx",
-    "build": "NODE_ENV=production webpack && yarn build:backgroundScript"
+    "build": "NODE_ENV=production webpack && webpack build --config ./webpack.background.config.js"
   },
   "dependencies": {
     "@emotion/react": "^11",
@@ -59,7 +58,6 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-frame-component": "^5.2.1",
-    "react-shadow": "^19.0.2",
     "styled-components": "^5.3.3"
   }
 }
