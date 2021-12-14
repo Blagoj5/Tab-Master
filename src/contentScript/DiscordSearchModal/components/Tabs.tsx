@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import { CommonTab } from '../../../common';
 import {
   SearchedTab,
-  Avatar,
   EllipsisText,
   HStack,
   scrollbarStyle,
 } from '../../../common/styles';
+import Avatar from './Avatar';
 import RandomIcon from '../../../common/assets/RandomIcon';
 import ExternalIcon from '../../../common/assets/ExternalIcon';
 
@@ -25,6 +25,7 @@ export const IconContainer = styled.div`
 
 export const Favicon = styled(Avatar)`
 	margin-right: 1.5rem;
+	color: white;
 `;
 
 export const CustomFlex = styled(HStack)`
@@ -82,7 +83,7 @@ function Tabs<T extends CommonTab>({
           onClick={() => onTabClicked(tab[clickCallbackField as unknown as string])}
           onMouseEnter={() => onTabHover(tab[clickCallbackField as unknown as string])}
         >
-          <Favicon src={tab.faviconUrl} alt="" />
+          <Favicon src={tab.faviconUrl} name={tab.title} />
           <CustomFlex>
             <Text>
               {tab.title}

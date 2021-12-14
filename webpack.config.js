@@ -31,14 +31,18 @@ module.exports = {
 					options: {
             presets: [
 							'@babel/preset-env', 
-							['@babel/preset-react', {"runtime": "automatic"}]
+							'@babel/preset-typescript', 
+							['@babel/preset-react', {
+								"runtime": "automatic"
+							}]
 						],
 						plugins: [
 							["babel-plugin-styled-components", {
 								pure: true,
 								"minify": false,
 								"transpileTemplateLiterals": false
-							}]
+							}],
+							["@babel/plugin-transform-runtime"]
 						],
           }
         }

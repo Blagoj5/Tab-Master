@@ -6,6 +6,7 @@
   "devDependencies": {
     "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.0",
+    "@babel/plugin-transform-runtime": "^7.16.5",
     "@babel/preset-env": "^7.16.4",
     "@babel/preset-react": "^7.16.0",
     "@babel/preset-typescript": "^7.16.0",
@@ -46,11 +47,12 @@
     "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
     "watch:backgroundScript": "yarn copy-files && webpack watch --config ./webpack.background.config.js",
     "watch": "concurrently \"yarn watch:manifest\" \"yarn watch:backgroundScript\"",
-    "dev:contentScript": "webpack serve",
+    "dev:contentScript": "webpack serve --config ./webpack.config.js",
     "dev": "concurrently \"yarn dev:contentScript\" \"yarn watch\"",
     "build": "NODE_ENV=production webpack && webpack build --config ./webpack.background.config.js"
   },
   "dependencies": {
+    "@babel/runtime": "^7.16.5",
     "@emotion/react": "^11",
     "@emotion/styled": "^11",
     "framer-motion": "^4",
