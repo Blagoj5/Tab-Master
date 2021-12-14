@@ -43,14 +43,20 @@ function getMsForADay(day: number) {
   return day * 24 * 60 * 60 * 1000;
 }
 
-function getRecentlyOpenedTabs(query: chrome.history.HistoryQuery = {
-  endTime: Date.now(),
-  startTime: Date.now() - getMsForADay(10),
-  text: '',
-  maxResults: 20,
-}) {
+function getRecentlyOpenedTabs(query: chrome.history.HistoryQuery = { text: '' }) {
+  const {
+    text = '',
+    endTime = Date.now(),
+    startTime = Date.now() - getMsForADay(50),
+    maxResults = 20,
+  } = query;
   return new Promise<chrome.history.HistoryItem[]>((res) => {
-    chrome.history.search(query, (historyItems) => (
+    chrome.history.search({
+      text,
+      endTime,
+      startTime,
+      maxResults,
+    }, (historyItems) => (
       res(historyItems)
     ));
   });
