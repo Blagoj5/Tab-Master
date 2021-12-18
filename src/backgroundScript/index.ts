@@ -89,7 +89,7 @@ const listenerHandler = (message: Actions, port: chrome.runtime.Port) => {
   }
 };
 
-let port: chrome.runtime.Port;
+let port: chrome.runtime.Port | undefined;
 chrome.commands.onCommand.addListener(async (command) => {
   // CMD + K
   if (command === 'open-tab-master') {
@@ -114,6 +114,11 @@ chrome.commands.onCommand.addListener(async (command) => {
 
     port.postMessage(openMessage);
 
+    // clean port on disconnect
+    port.onDisconnect.addListener(() => {
+      port = undefined;
+    });
+
     // Listeners
     const listenerExists = port.onMessage.hasListener(listenerHandler);
     if (!listenerExists) {
@@ -127,6 +132,6 @@ chrome.commands.onCommand.addListener(async (command) => {
     const message: Actions = {
       type: 'close-tab-master',
     };
-    port.postMessage(message);
+    port?.postMessage(message);
   }
 });
