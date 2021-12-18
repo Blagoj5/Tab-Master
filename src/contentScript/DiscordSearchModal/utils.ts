@@ -6,11 +6,27 @@ export function fuzzySearch<T>(
   items: T[],
   options: Fuse.IFuseOptions<T>,
   keyWord: string,
+  // eslint-disable-next-line no-unused-vars
+  onSearchDone?: (result: Fuse.FuseResult<T>[]) => Fuse.FuseResult<T>[],
 ): T[] {
   if (keyWord === '') return items;
 
   const fuse = new Fuse(items, options);
-  const result = fuse.search(keyWord);
+  let result = fuse.search(keyWord);
+
+  if (onSearchDone) {
+    result = onSearchDone(result);
+    result = result.sort(
+      (a, b) => {
+        if (a.score === undefined || b.score === undefined) return 0;
+        if (a.score === b.score) {
+          return a.refIndex < b.refIndex ? -1 : 1;
+        }
+
+        return a.score < b.score ? -1 : 1;
+      },
+    );
+  }
 
   return result.map(({ item }) => item);
 }

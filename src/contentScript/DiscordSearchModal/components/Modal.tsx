@@ -62,7 +62,16 @@ function Modal({
         ...transformedRecentOpenedTabs,
       ];
 
-      const filteredCombinedTabs = fuzzySearch(combinedTabs, { keys: ['title', 'url'] }, inputValue);
+      // TODO: INTO THE SEARCH THE WEIGHT SHOULD BE AFFECTED BY 2 PARAMS, THE TYPE AND VISIT COUNT
+      const filteredCombinedTabs = fuzzySearch(
+        combinedTabs,
+        { keys: ['title', 'url'], includeScore: true },
+        inputValue,
+        (result) => result.map((res) => ({
+          ...res,
+          score: res.item.action === 'switch' && res.score ? Math.max(res.score - 0.01, 0) : res.score,
+        })),
+      );
 
       return [
         removeDuplicates(filteredCombinedTabs),
