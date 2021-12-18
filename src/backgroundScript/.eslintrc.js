@@ -15,6 +15,9 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
-    'no-tabs': 'off',
+    'import/extensions': 'off',
+  },
+  globals: {
+    chrome: true,
   },
 };
