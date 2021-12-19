@@ -1,15 +1,19 @@
 {
   "manifest_version": 3,
   "name": "Tab Master",
-	"options_page": "contentScript/config-page.html",
   "version": "1.0.0",
+	"icons": {  
+		"16": "icon16.png",
+		"48": "icon48.png",
+		"128": "icon128.png" 
+	},
 	"background": {
-    "service_worker": "backgroundScript/index.js"
+    "service_worker": "background/index.js"
   },
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
-			"js": ["contentScript/discordSearchModal.js"]
+			"js": ["content/modal.js"]
 		}
 	],
 	"host_permissions": [

@@ -17,7 +17,7 @@ module.exports = {
   rules: {
     'import/extensions': 'off',
   },
-  globals: {
-    chrome: true,
-  },
+  extends: [
+    'plugin:import/typescript',
+  ],
 };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Avatar as AvatarStyle } from '../../../common/styles';
+import { Avatar as AvatarStyle } from '../styles';
 
 async function imageExists(src: string) {
   return new Promise<boolean>((res) => {

@@ -6,9 +6,9 @@ export type Actions =
 | {
   type: 'open-tab-master',
   tabs: {
-		open: chrome.tabs.Tab[],
-		recent: chrome.history.HistoryItem[],
-	},
+    open: chrome.tabs.Tab[],
+    recent: chrome.history.HistoryItem[],
+  },
 }
 | {
   type: 'switch-tab',
@@ -28,11 +28,11 @@ export type Actions =
 };
 
 export type CommonTab = {
-	id: string;
-	url: string;
-	title: string;
-	faviconUrl: string;
-	action: 'open' | 'switch';
+  id: string;
+  url: string;
+  title: string;
+  faviconUrl: string;
+  action: 'open' | 'switch';
 };
 // type ChromeTabWithoutId = Omit<chrome.tabs.Tab, 'id'>;
 
@@ -41,5 +41,5 @@ export type OpenedTab = chrome.tabs.Tab & {
 }
 
 export type RecentOpenedTab = chrome.history.HistoryItem & {
-	faviconUrl: string;
+  faviconUrl: string;
 };

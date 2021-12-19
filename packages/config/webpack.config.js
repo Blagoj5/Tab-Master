@@ -3,23 +3,17 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
 	mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
-  entry: {
-    configPage: path.join(__dirname, 'src', 'contentScript', 'ConfigPage', 'index.tsx'),
-		discordSearchModal: path.join(__dirname, 'src', 'contentScript', 'DiscordSearchModal', 'index.tsx'),
-	},
+  entry: path.join(__dirname, 'src', 'index.tsx'),
   output: {
-    filename: '[name].js',
-    path: path.resolve(__dirname, 'build/contentScript'),
+    filename: 'index.js',
+    path: path.resolve(__dirname, 'build'),
   },
-	devtool: 'inline-source-map',
+	devtool: process.env.NODE_ENV === 'production' ? undefined : 'inline-source-map',
   devServer: {
     compress: true,
     port: 8080,
 		hot: true,
-		watchFiles: ['src/contentScript/**'],
-		static: {
-			directory: path.join(__dirname, 'src/common/fonts'),
-		}
+		watchFiles: ['src/**'],
   },
   module: {
     rules: [
@@ -60,7 +54,6 @@ module.exports = {
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.jsx'],
   },
-	// only html page needed is for config page
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(__dirname, 'src', 'contentScript', 'ConfigPage', 'config-page.html'),
@@ -70,16 +63,6 @@ module.exports = {
 			},
 			inject: false,
 			filename: 'config-page.html'
-    }),
-		// TODO: remove this, only used for dev, this page is not needed
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'contentScript', 'DiscordSearchModal', 'discord-search.html'),
-			// inject only the needed script, not all scripts in this file
-			templateParameters: {
-				scriptInjection: '<script defer="defer" src="discordSearchModal.js"></script>'
-			},
-			inject: false,
-			filename: 'discord-search.html'
     }),
   ],
 };
