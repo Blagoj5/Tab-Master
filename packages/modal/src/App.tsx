@@ -3,18 +3,16 @@ import {
   useEffect, useMemo, useRef, useState,
 } from 'react';
 import Frame, { FrameContextConsumer } from 'react-frame-component';
-
 import styled, { StyleSheetManager } from 'styled-components';
+import { CommonTab, Actions, OpenedTab, RecentOpenedTab } from '@tab-master/common';
+
 import { isProduction } from './consts';
-import {
-  RecentOpenedTab, OpenedTab, Actions, CommonTab,
-} from '../../common';
 import { getFavicon } from './utils';
 import fakeTabs from './devData';
 import recentTabs from './devData/recent-tabs.json';
 import {
   Backdrop, Center,
-} from '../../common/styles';
+} from './styles';
 import Modal from './components/Modal';
 
 const ModalFrame = styled(Frame)`

@@ -1,0 +1,18 @@
+{
+  "name": "@tab-master/common",
+  "version": "1.0.0",
+  "main": "build/index.js",
+	"types": "build/types.d.ts",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.16.5",
+    "@babel/preset-env": "^7.16.5",
+    "@babel/preset-typescript": "^7.16.5",
+    "typescript": "^4.5.4"
+  },
+  "scripts": {
+    "watch": "babel --watch src ---out-dir build --extensions '.ts,.tsx' && tsc",
+		"build": "babel src --out-dir build --extensions '.ts,.tsx' && tsc"
+  }
+}

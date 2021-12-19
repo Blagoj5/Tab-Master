@@ -4,12 +4,12 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import { useFrame } from 'react-frame-component';
+import { CommonTab } from '@tab-master/common';
 
-import { CommonTab } from '../../../common';
 import {
   GlobalStyle,
   Input, scrollbarStyle, VStack,
-} from '../../../common/styles';
+} from '../styles';
 import Tabs from './Tabs';
 import { fuzzySearch, removeDuplicates } from '../utils';
 

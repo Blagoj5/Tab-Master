@@ -1,16 +1,16 @@
 /* eslint-disable react/require-default-props */
 import styled from 'styled-components';
+import { CommonTab } from '@tab-master/common';
 
-import { CommonTab } from '../../../common';
 import {
   SearchedTab,
   EllipsisText,
   HStack,
   scrollbarStyle,
-} from '../../../common/styles';
+} from '../styles';
 import Avatar from './Avatar';
-import RandomIcon from '../../../common/assets/RandomIcon';
-import ExternalIcon from '../../../common/assets/ExternalIcon';
+import RandomIcon from '../assets/RandomIcon';
+import ExternalIcon from '../assets/ExternalIcon';
 
 export const Text = styled(EllipsisText)<{textAlign?: string, isUrl?: boolean}>`
 	flex: 1;

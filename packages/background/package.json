@@ -1,5 +1,5 @@
 {
-  "name": "tab-master-ts",
+  "name": "@tab-master/background",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -44,15 +44,8 @@
   },
   "scripts": {
     "type-check": "tsc --noEmit --pretty",
-    "copy-files": "ncp assets/manifest.json build/manifest.json",
-    "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
-    "watch:backgroundScript": "yarn copy-files && webpack watch --config ./webpack.background.config.js",
-    "watch": "concurrently \"yarn watch:manifest\" \"yarn watch:backgroundScript\"",
-    "dev:contentScript": "webpack serve --config ./webpack.config.js",
-    "dev": "concurrently \"yarn dev:contentScript\" \"yarn watch\"",
-    "build:packages": "NODE_ENV=production yarn workspace @tab-master/background build & yarn workspace @tab-master/common build & yarn workspace @tab-master/modal build",
-    "build:watch": "nodemon scripts/build.js --verbose --watch packages",
-    "build": "NODE_ENV=production node scripts/build.js"
+    "dev": "webpack serve --config ./webpack.config.js",
+    "build": "NODE_ENV=production webpack"
   },
   "dependencies": {
     "@babel/runtime": "^7.16.5",
@@ -64,9 +57,5 @@
     "react-dom": "^17.0.2",
     "react-frame-component": "^5.2.1",
     "styled-components": "^5.3.3"
-  },
-	"workspaces": { 
-		"packages": ["packages/*"],
-		"nohoist": ["@rollup", "@rollup/**"]
-	 }
+  }
 }
