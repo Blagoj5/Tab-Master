@@ -32,7 +32,7 @@ class DomHelper {
 
   static getOpenedTabs() {
     return new Promise<chrome.tabs.Tab[]>((res) => {
-      chrome.tabs.query({}, (tabs) => res(tabs));
+      chrome.tabs.query({ currentWindow: true }, (tabs) => res(tabs));
     });
   }
 

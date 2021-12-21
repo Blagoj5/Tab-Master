@@ -65,7 +65,18 @@ function Modal({
       // TODO: INTO THE SEARCH THE WEIGHT SHOULD BE AFFECTED BY 2 PARAMS, THE TYPE AND VISIT COUNT
       const filteredCombinedTabs = fuzzySearch(
         combinedTabs,
-        { keys: ['title', 'url'], includeScore: true },
+        {
+          keys: [
+            {
+              name: 'title',
+              weight: 0.6,
+            },
+            {
+              name: 'url',
+              weight: 0.4,
+            }],
+          includeScore: true,
+        },
         inputValue,
         (result) => result.map((res) => ({
           ...res,
