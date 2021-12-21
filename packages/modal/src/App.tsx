@@ -4,9 +4,11 @@ import {
 } from 'react';
 import Frame, { FrameContextConsumer } from 'react-frame-component';
 import styled, { StyleSheetManager } from 'styled-components';
-import { CommonTab, Actions, OpenedTab, RecentOpenedTab } from '@tab-master/common';
+import {
+  CommonTab, Actions, OpenedTab, RecentOpenedTab,
+} from '@tab-master/common';
 
-import { isProduction } from './consts';
+import { EXTENSION_ID, isProduction } from './consts';
 import { getFavicon } from './utils';
 import fakeTabs from './devData';
 import recentTabs from './devData/recent-tabs.json';
@@ -106,6 +108,7 @@ function App() {
     };
 
     if (isProduction) {
+      chrome.runtime.sendMessage(EXTENSION_ID, 'READY');
       chrome.runtime.onConnect.addListener(onConnect);
     } else {
       setOpenedTabs(fakeTabs);

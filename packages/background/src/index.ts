@@ -29,6 +29,8 @@ const messageListener = (message: Actions, port: chrome.runtime.Port) => {
   }
 };
 
+DomHelper.listenTabStatus();
+
 const tabMaster = new TabMaster(messageListener);
 
 tabMaster.init();

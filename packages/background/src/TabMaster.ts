@@ -2,7 +2,7 @@ import { Actions } from '@tab-master/common';
 import DomHelper from './DomHelper';
 
 class TabMaster {
-   port: chrome.runtime.Port | undefined;
+   private currentTabId: number = -1;
 
    // eslint-disable-next-line no-unused-vars
    private onMessageListener: (message: Actions, port: chrome.runtime.Port) => void;
@@ -16,12 +16,13 @@ class TabMaster {
        // CMD + K
        if (command === 'open-tab-master') {
          const currentTab = await DomHelper.getCurrentTab();
-
          if (!currentTab.id) return;
+         this.currentTabId = currentTab.id;
 
-         if (!this.port || !this.port.name.includes(String(currentTab.id))) {
-           this.port = await DomHelper.connectToContentScript();
-         }
+         await DomHelper.connectToContentScript();
+
+         const port = DomHelper.activePorts[currentTab.id];
+         if (!port) return;
 
          const openedTabs = await DomHelper.getOpenedTabs();
          const recentlyOpenedTabs = await DomHelper.getRecentlyOpenedTabs();
@@ -34,17 +35,11 @@ class TabMaster {
            },
          };
 
-         try {
-           this.port.postMessage(openMessage);
+         port.postMessage(openMessage);
 
-           // Listeners
-           this.onDisconnect();
-           this.onMessage();
-         } catch (error) {
-           // eslint-disable-next-line no-console
-           console.error('handled err: ', error);
-           this.port = undefined;
-         }
+         // Listeners
+         //  this.onDisconnect();
+         this.onMessage();
        }
 
        // TODO: I CAN't FIND ESCAPE FOR chrome.commands, even in chrome://extensions/shortcuts
@@ -53,29 +48,35 @@ class TabMaster {
          const message: Actions = {
            type: 'close-tab-master',
          };
-         this.port?.postMessage(message);
+         const port = DomHelper.activePorts[this.currentTabId];
+         if (port) { port.postMessage(message); }
        }
      });
    }
 
    private onMessage() {
-     const listenerExists = this.port?.onMessage.hasListener(this.onMessageListener);
+     const port = DomHelper.activePorts[this.currentTabId];
+
+     const listenerExists = port?.onMessage.hasListener(this.onMessageListener);
      if (!listenerExists) {
-       this.port?.onMessage.addListener(this.onMessageListener);
+       port?.onMessage.addListener(this.onMessageListener);
      }
    }
 
-   private onDisconnect() {
-     const cleanup = () => {
-       this.port?.onMessage.removeListener(this.onMessageListener);
-       this.port = undefined;
-     };
+  //  TODO: implement this logic better
+  //  private onDisconnect() {
+  //    const port = DomHelper.activePorts[this.currentTabId];
 
-     const listenerExists = this.port?.onDisconnect.hasListener(cleanup);
-     if (!listenerExists) {
-       this.port?.onDisconnect.addListener(cleanup);
-     }
-   }
+  //    const cleanup = () => {
+  //      port?.onMessage.removeListener(this.onMessageListener);
+  //      // port = undefined;
+  //    };
+
+  //    const listenerExists = this.port?.onDisconnect.hasListener(cleanup);
+  //    if (!listenerExists) {
+  //      this.port?.onDisconnect.addListener(cleanup);
+  //    }
+  //  }
 }
 
 export default TabMaster;
