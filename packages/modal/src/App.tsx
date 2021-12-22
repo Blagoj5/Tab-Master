@@ -17,7 +17,7 @@ import {
 } from './styles';
 import Modal from './components/Modal';
 
-const ModalFrame = styled(Frame)`
+const ModalFrame = styled(Frame)<{ isVisible: boolean }>`
 	width: 650px;
 	height: 432px;
 	z-index: 1000;
@@ -25,6 +25,10 @@ const ModalFrame = styled(Frame)`
 	border: 0;
 	overflow: hidden;
 	border-radius: 0.625rem;
+`;
+
+const Container = styled(Center)<{ isVisible: boolean }>`
+	display: ${(props) => (props.isVisible ? 'flex' : 'none')};
 `;
 
 function App() {
@@ -194,12 +198,11 @@ function App() {
     portRef.current?.postMessage(payload);
   };
 
-  if (!showExtension) return null;
-
   // TODO: add font-sizes everywhere
   return (
-    <Center>
+    <Container isVisible={showExtension}>
       <Backdrop onClick={() => setShowExtension(false)} />
+
       <ModalFrame>
         <FrameContextConsumer>
           {(frameContext: any) => (
@@ -210,12 +213,13 @@ function App() {
                 transformedOpenedTabs={transformedOpenedTabs}
                 transformedRecentOpenedTabs={transformedRecentOpenedTabs}
                 closeExtension={closeExtension}
+                showExtension={showExtension}
               />
             </StyleSheetManager>
           )}
         </FrameContextConsumer>
       </ModalFrame>
-    </Center>
+    </Container>
   );
 }
 

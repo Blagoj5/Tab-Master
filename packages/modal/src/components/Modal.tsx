@@ -39,6 +39,7 @@ type Props = {
 	closeExtension: () => void;
 	transformedOpenedTabs: CommonTab[];
 	transformedRecentOpenedTabs: CommonTab[];
+	showExtension: boolean;
 }
 // IFRAME COMPONENT
 function Modal({
@@ -47,6 +48,7 @@ function Modal({
   transformedOpenedTabs,
   transformedRecentOpenedTabs,
   closeExtension,
+  showExtension,
 }: Props) {
   const { document: iFrameDocument } = useFrame();
 
@@ -102,7 +104,7 @@ function Modal({
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, []);
+  }, [showExtension]);
 
   // on new filter always select the firs tab first
   useEffect(() => {
