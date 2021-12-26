@@ -1,7 +1,9 @@
 import { getMsForADay } from './utils';
 
 class DomHelper {
-  static loadedTabs: { [tabId: string]: boolean } = {};
+  static currentTabId = -1;
+
+  static loadedTabs: { [tabId: string]: chrome.tabs.Tab } = {};
 
   static activePorts: { [tabId: string ]: chrome.runtime.Port } = {};
 
@@ -15,7 +17,7 @@ class DomHelper {
     const onContentScriptLoaded = (status: unknown, sender: chrome.runtime.MessageSender) => {
       if (typeof status === 'string' && status === 'READY') {
         if (sender.tab?.id) {
-          this.loadedTabs[sender.tab.id] = true;
+          this.loadedTabs[sender.tab.id] = sender.tab;
         }
       }
     };
@@ -26,6 +28,19 @@ class DomHelper {
     }
   }
 
+  static async tabIsLoaded(tabId: number) {
+    return new Promise<boolean>((res) => {
+      try {
+        chrome.tabs.get(tabId, (tab) => {
+          if (tab.status === 'complete') return res(true);
+          return res(false);
+        });
+      } catch (error) {
+        res(false);
+      }
+    });
+  }
+
   static async getCurrentTab() {
     const queryOptions: chrome.tabs.QueryInfo = {
       active: true,
@@ -34,6 +49,7 @@ class DomHelper {
       // url: '', // TODO: add in future
     };
     const [tab] = await chrome.tabs.query(queryOptions);
+    this.currentTabId = tab.id ?? -1;
     return tab;
   }
 
@@ -47,13 +63,16 @@ class DomHelper {
         return;
       }
 
-      if (this.loadedTabs[currentTab.id]) {
+      if (this.loadedTabs[currentTab.id] || await this.tabIsLoaded(currentTab.id)) {
         const existingPort = this.activePorts[currentTab.id];
         if (existingPort) {
           res(existingPort);
         } else {
           const port = chrome.tabs.connect(currentTab.id, {
             name: `init-${currentTab.id}`,
+          });
+          port.onDisconnect.addListener(() => {
+            delete this.activePorts[currentTab.id as number];
           });
           this.activePorts[currentTab.id] = port;
           res(port);

@@ -2,7 +2,7 @@ import { Actions } from '@tab-master/common';
 import DomHelper from './DomHelper';
 
 class TabMaster {
-   private currentTabId: number = -1;
+   private port: chrome.runtime.Port | undefined;
 
    // eslint-disable-next-line no-unused-vars
    private onMessageListener: (message: Actions, port: chrome.runtime.Port) => void;
@@ -15,14 +15,13 @@ class TabMaster {
      chrome.commands.onCommand.addListener(async (command) => {
        // CMD + K
        if (command === 'open-tab-master') {
-         const currentTab = await DomHelper.getCurrentTab();
-         if (!currentTab.id) return;
-         this.currentTabId = currentTab.id;
-
          await DomHelper.connectToContentScript();
 
-         const port = DomHelper.activePorts[currentTab.id];
-         if (!port) return;
+         this.port = DomHelper.activePorts[DomHelper.currentTabId];
+         if (!this.port) return;
+
+         //  console.log('***usedPort', this.port);
+         //  console.log('***allPorts', DomHelper.activePorts);
 
          const openedTabs = await DomHelper.getOpenedTabs();
          const recentlyOpenedTabs = await DomHelper.getRecentlyOpenedTabs();
@@ -35,10 +34,10 @@ class TabMaster {
            },
          };
 
-         port.postMessage(openMessage);
+         this.port.postMessage(openMessage);
 
          // Listeners
-         //  this.onDisconnect();
+         // this.onDisconnect();
          this.onMessage();
        }
 
@@ -48,18 +47,16 @@ class TabMaster {
          const message: Actions = {
            type: 'close-tab-master',
          };
-         const port = DomHelper.activePorts[this.currentTabId];
+         const port = DomHelper.activePorts[DomHelper.currentTabId];
          if (port) { port.postMessage(message); }
        }
      });
    }
 
    private onMessage() {
-     const port = DomHelper.activePorts[this.currentTabId];
-
-     const listenerExists = port?.onMessage.hasListener(this.onMessageListener);
+     const listenerExists = this.port?.onMessage.hasListener(this.onMessageListener);
      if (!listenerExists) {
-       port?.onMessage.addListener(this.onMessageListener);
+       this.port?.onMessage.addListener(this.onMessageListener);
      }
    }
 
