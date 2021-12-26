@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === 'production') {
   dialog.open = true;
   const dialogAnchor = document.getElementById(ROOT_ID);
   if (dialogAnchor) {
-    dialogAnchor.style.zIndex = String(maxZIndex());
+    dialogAnchor.style.zIndex = String(maxZIndex()) ?? 9999;
     dialogAnchor.style.border = '0';
     dialogAnchor.style.padding = '0';
     dialogAnchor.style.height = 'auto';

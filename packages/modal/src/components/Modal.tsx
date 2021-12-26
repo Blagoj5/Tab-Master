@@ -116,6 +116,7 @@ function Modal({
 
     if (e.key === 'Escape') {
       closeExtension();
+      setInputValue('');
       return;
     }
 
@@ -123,6 +124,7 @@ function Modal({
     if (e.code === 'Enter' && selectedTabId) {
       e.preventDefault();
       handleTabSelect(selectedTabId);
+      setInputValue('');
       return;
     }
 
