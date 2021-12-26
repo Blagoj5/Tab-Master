@@ -6,18 +6,13 @@
 ## Architecture
 
 - Background script/worker
-  - Used for commands on top of the event listener by the react script/content script (not yet added)
-  - Used for sending tabs, history, bookmarks and etc... to the react script which is injected from the content script
+  - Used for listening to initial command for opening and staring the modal 
+  - Used for sending tabs, history and bookmarks to the content/react script
 
-- Content script
+- Content script (modal)
   - Statically injected (all time available), and not programmatically
-  - Used for creating the div with specific id that react script will use to re-render
-  - Used for creating and injecting the react script to the previously created div with a specific id
-
-- React/Main Extension script
-  - Build into a single js file
-  - That js file used for rendering the extension
-
+  - Used for creating the dialog with specific id that react script will use
+  - Used for creating and injecting the react script to the previously created dialog with a specific ID
 
 ### How to build and test locally
 - yarn build
@@ -27,18 +22,27 @@
 - Go to any page and press ctrl/cmd + key
 
 ### How to use it for dev
-- yarn dev
-- Config page is on: localhost:8080/config-page.html
-- Discord Search Modal does not currently exist
-- Background scrips are watched and will be built on save
+- yarn build:watch
+- Go to `chrome://extensions`
+- Enable dev switch
+- Load unpacked
+- Go to any page and press ctrl/cmd + key
+- If you do any changes it will automatically build the extension with all the changes, you only have to press on the refresh icon of the extension
+
+### How to use it for dev, individually each package
+- Go to the package you want to run and do `yarn`, followed by `yarn dev`
+- `yarn build` used from inside the package, it will only build that package in the current folder
 
 ### Project Structure
-- src
-	- backgroundScript
-  - contentScript (all the pages: config page, search modal etc...)
-  - common (used for types etc...)
+MONOREPO, using yarn workspaces:
+- packages
+	- modal
+  - common (used for types and utilities that are shared between background script and content script/s)
+  - popup (currently being build, will be the actual config page)
+  - config (the actual config page, full screen version of popup)
 - scripts
   - setup.js - used for copying all the needed files (manifest.json, etc..)
+  - build.js - used for building the extension itself
 
 ### Similar Project
 - https://github.com/babyman/quick-tabs-chrome-extension/blob/master/quick-tabs/background.js

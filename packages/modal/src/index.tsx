@@ -22,7 +22,7 @@ function maxZIndex() {
 // This is the content script when running in production
 if (process.env.NODE_ENV === 'production') {
   const dialog = document.createElement('dialog');
-  dialog.id = 'tab-master-extension';
+  dialog.id = ROOT_ID;
   document.body.appendChild(dialog);
 
   dialog.open = true;
