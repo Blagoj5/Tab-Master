@@ -26,6 +26,8 @@ export const IconContainer = styled.div`
 export const Favicon = styled(Avatar)`
 	margin-right: 1.5rem;
 	color: white;
+	width: 20px;
+	height: 20px;
 `;
 
 export const CustomFlex = styled(HStack)`
