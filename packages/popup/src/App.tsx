@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
+import { defaultStorageConfig } from '@tab-master/common';
+import { StorageConfig } from '@tab-master/common/build/types';
 
 import Switch from './components/CheckBox';
 import DateField from './components/DateField';
@@ -35,34 +37,6 @@ const ButtonLink = styled.button`
 	border: none;
 	cursor: pointer;
 `;
-
-// MOVE THIS TO COMMON
-const defaultStorageConfig: StorageConfig = {
-  extensionEnabled: true,
-  openTabsEnabled: true,
-  recentTabsEnabled: true,
-  history: {
-    from: -1,
-    to: -1,
-    maxResults: 20,
-  },
-  windowSwitchEnabled: false,
-  view: 'standard',
-};
-
-// MOVE THIS TO COMMON
-type StorageConfig = {
-	extensionEnabled: boolean;
-	openTabsEnabled: boolean;
-	recentTabsEnabled: boolean;
-	history?: {
-		from: number;
-		to: number;
-		maxResults: number;
-	};
-	windowSwitchEnabled: boolean;
-	view: 'minimal' | 'standard';
-};
 
 function App() {
   const [extensionEnabled, setExtensionEnabled] = useState(defaultStorageConfig.extensionEnabled);
