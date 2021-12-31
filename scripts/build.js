@@ -24,6 +24,16 @@ const config = [
 			files: ['index.js']
 		},
 	},
+	{
+		source: {
+			path: path.resolve(__dirname, '../packages/popup/build'),
+			files: ['index.js', 'index.html']
+		},
+		dest: {
+			path: path.resolve(__dirname, '../build/popup'),
+			files: ['popup.js', 'popup.html']
+		},
+	},
 ]
 
 const build = () => {
@@ -49,9 +59,23 @@ const build = () => {
 		});
 
 		files.forEach((file, index) => {
+
 			const destination = destFiles[index];
 			ncp(file, destination, (err) => {
 				if (err) rej(err);
+
+				// change the injection name
+				if (path.extname(file) === '.html') {
+					const jsFile = destFiles.find((f) => path.extname(f) === '.js');
+					if (jsFile ) {
+						const fileName = path.basename(jsFile);
+						const htmlContent = fs.readFileSync(file, {
+							encoding: 'utf8'
+						});
+						const correctlyInjectedHtmlContent = htmlContent.replace('index.js', fileName);
+						fs.writeFileSync(destination, correctlyInjectedHtmlContent)
+					}
+				};
 
 				res(true)
 			})

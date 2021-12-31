@@ -38,4 +38,5 @@ module.exports = {
     JSX: true,
     React: true,
   },
+  ignorePatterns: ['webpack.config.js'],
 };

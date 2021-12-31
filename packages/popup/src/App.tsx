@@ -28,6 +28,14 @@ const MultiOption = styled.div`
 	color: white;
 `;
 
+const ButtonLink = styled.button`
+	color: #0084ff;
+	background: transparent;
+  outline: unset;
+	border: none;
+	cursor: pointer;
+`;
+
 // MOVE THIS TO COMMON
 const defaultStorageConfig: StorageConfig = {
   extensionEnabled: true,
@@ -194,7 +202,7 @@ function App() {
         <SubTitle>
           Options page:
           {' '}
-          <a href="/">chrome://extensions/tab-master</a>
+          <ButtonLink onClick={() => chrome.runtime.openOptionsPage()}>Full Screen</ButtonLink>
         </SubTitle>
       </Container>
     </div>
