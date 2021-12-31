@@ -2,6 +2,22 @@
 import styled, { createGlobalStyle, css } from 'styled-components';
 // TODO: fix the Uni Sans issue, you need to add public folder to config
 
+export const scrollbarStyle = css`
+	::-webkit-scrollbar {
+			width: 10px;
+	}
+
+  ::-webkit-scrollbar-track {
+		background: #292B2F;
+		border-radius: 10px;
+	}
+
+	::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+		background: #202225;
+	}
+`;
+
 export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
   :root {
 		--primary-color: hsl(216, 10.204081632653061%, 19.215686274509803%);
@@ -31,6 +47,7 @@ export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
 		padding: 1rem;
 		font-family:  'Uni Sans', Arial, sans-serif;
 		background: var(--primary-color);
+		${scrollbarStyle}
 	}
 
 	.frame-content, .frame-root, body {
@@ -139,19 +156,3 @@ export const EllipsisText = ({ children, ...rest }: {children: string}) => (
     </span>
   </EllipsisTextStyle>
 );
-
-export const scrollbarStyle = css`
-	::-webkit-scrollbar {
-			width: 10px;
-	}
-
-  ::-webkit-scrollbar-track {
-		background: #292B2F;
-		border-radius: 10px;
-	}
-
-	::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-		background: #202225;
-	}
-`;
