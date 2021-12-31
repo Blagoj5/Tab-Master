@@ -24,7 +24,8 @@
     "activeTab",
     "tabs",
     "scripting",
-    "history"
+    "history",
+    "storage"
   ],
 	"content_security_policy": {
 		"extension_pages": "script-src 'self'; object-src 'self'"
@@ -37,5 +38,9 @@
       },
       "description": "Open Tab Master Extension"
    }
-	}
+	},
+	"action": {
+		"default_popup": "popup/popup.html"
+	},
+	"options_page": "popup/popup.html"
 }
