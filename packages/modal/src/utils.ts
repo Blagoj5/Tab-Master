@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import Fuse from 'fuse.js';
-import { CommonTab } from '@tab-master/common';
+import { CommonTab } from '@tab-master/common/build/types';
 
 export function fuzzySearch<T>(
   items: T[],

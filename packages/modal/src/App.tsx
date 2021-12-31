@@ -6,7 +6,7 @@ import Frame, { FrameContextConsumer } from 'react-frame-component';
 import styled, { StyleSheetManager } from 'styled-components';
 import {
   CommonTab, Actions, OpenedTab, RecentOpenedTab,
-} from '@tab-master/common';
+} from '@tab-master/common/build/types';
 
 import { isProduction } from './consts';
 import { getFavicon } from './utils';

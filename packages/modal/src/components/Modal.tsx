@@ -4,7 +4,7 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import { useFrame } from 'react-frame-component';
-import { CommonTab } from '@tab-master/common';
+import { CommonTab } from '@tab-master/common/build/types';
 
 import {
   GlobalStyle,

@@ -1,6 +1,6 @@
 /* eslint-disable react/require-default-props */
 import styled from 'styled-components';
-import { CommonTab } from '@tab-master/common';
+import { CommonTab } from '@tab-master/common/build/types';
 
 import {
   SearchedTab,
