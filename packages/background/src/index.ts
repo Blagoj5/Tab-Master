@@ -1,4 +1,4 @@
-import { Actions } from '@tab-master/common';
+import { Actions } from '@tab-master/common/build/types';
 import DomHelper from './DomHelper';
 import TabMaster from './TabMaster';
 

@@ -1,4 +1,4 @@
-import { Actions } from '@tab-master/common';
+import { Actions } from '@tab-master/common/build/types';
 import DomHelper from './DomHelper';
 
 class TabMaster {
@@ -19,9 +19,6 @@ class TabMaster {
 
          this.port = DomHelper.activePorts[DomHelper.currentTabId];
          if (!this.port) return;
-
-         //  console.log('***usedPort', this.port);
-         //  console.log('***allPorts', DomHelper.activePorts);
 
          const openedTabs = await DomHelper.getOpenedTabs();
          const recentlyOpenedTabs = await DomHelper.getRecentlyOpenedTabs();
