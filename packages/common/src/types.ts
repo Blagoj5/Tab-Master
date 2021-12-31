@@ -43,3 +43,16 @@ export type OpenedTab = chrome.tabs.Tab & {
 export type RecentOpenedTab = chrome.history.HistoryItem & {
   faviconUrl: string;
 };
+
+export type StorageConfig = {
+	extensionEnabled: boolean;
+	openTabsEnabled: boolean;
+	recentTabsEnabled: boolean;
+	history?: {
+		from: number;
+		to: number;
+		maxResults: number;
+	};
+	windowSwitchEnabled: boolean;
+	view: 'minimal' | 'standard';
+};

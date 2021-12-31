@@ -2,7 +2,6 @@
   "name": "@tab-master/common",
   "version": "1.0.0",
   "main": "build/index.js",
-	"types": "build/types.d.ts",
   "license": "MIT",
   "devDependencies": {
     "@babel/cli": "^7.16.0",
