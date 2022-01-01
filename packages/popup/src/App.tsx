@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { defaultStorageConfig } from '@tab-master/common';
 import { StorageConfig } from '@tab-master/common/build/types';
@@ -47,6 +47,20 @@ function App() {
   ] = useState(defaultStorageConfig.recentTabsEnabled);
   const [historyOptions, setHistoryOptions] = useState(defaultStorageConfig.history);
   const [view, setView] = useState(defaultStorageConfig.view);
+
+  useEffect(() => {
+    const setInitialSettings = async () => {
+      const settings: Partial<StorageConfig> = await chrome.storage.sync.get(null);
+      if (settings.extensionEnabled !== undefined) setExtensionEnabled(settings.extensionEnabled);
+      if (settings.openTabsEnabled !== undefined) setOpenTabsEnabled(settings.openTabsEnabled);
+      if (settings.recentTabsEnabled !== undefined) {
+        setRecentTabsEnabled(settings.recentTabsEnabled);
+      }
+      if (settings.history) setHistoryOptions(settings.history);
+      if (settings.view !== undefined) setView(settings.view);
+    };
+    setInitialSettings();
+  }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setChromeStorage = (items: {[key: string]: any}) => {
@@ -106,19 +120,19 @@ function App() {
       <GlobalStyle />
       <Container>
         <Option
-          input={<Switch defaultCheck={extensionEnabled} onCheck={handleExtensionEnabledToggle} />}
+          input={<Switch isChecked={extensionEnabled} onCheck={handleExtensionEnabledToggle} />}
           title="Tab Master Active"
           subContent="Option for turning on and off tab-master. Also can be turned off with key: (<custom key>)</custom>"
         />
         <Option
-          input={<Switch defaultCheck={openTabsEnabled} onCheck={handleOpenTabsEnabledToggle} />}
+          input={<Switch isChecked={openTabsEnabled} onCheck={handleOpenTabsEnabledToggle} />}
           title="Opened Tabs"
           subContent="Whenever to include opened tabs when using tab master. The main action is switch"
         />
         <Option
           input={(
             <Switch
-              defaultCheck={recentTabsEnabled}
+              isChecked={recentTabsEnabled}
               onCheck={handleRecentTabsEnabledToggle}
             />
 					)}
@@ -130,7 +144,7 @@ function App() {
           input={(
             <Switch
               onCheck={handleHistoryOptionsToggle}
-              defaultCheck={Boolean(historyOptions)}
+              isChecked={Boolean(historyOptions)}
             />
           )}
           title="History Options"
@@ -150,7 +164,7 @@ function App() {
 				)}
         />
         <Option
-          input={<Switch isDisabled defaultCheck={false} />}
+          input={<Switch isDisabled isChecked={false} />}
           title="Enable navigation trough windows (SOON)"
           subContent="If opened tab is in different window it should show and when you click on it it will navigate you to that window"
         />
@@ -169,7 +183,7 @@ function App() {
 						    description: 'With this option enabled the tab will be block, which means on top the title will exist and beneath the title the url will be present',
 						  },
             ]}
-            defaultOptionChecked={view}
+            optionChecked={view}
             onChange={handleViewChange}
           />
         </MultiOption>

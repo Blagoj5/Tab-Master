@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import RadioCheck from './RadioCheck';
 
@@ -10,20 +10,27 @@ type Option = {
 
 type Props<T extends Option> = {
 	options: T[];
-	defaultOptionChecked: string;
+	optionChecked: T['id'];
 	// eslint-disable-next-line no-unused-vars
 	onChange?: (optionId: T['id']) => void;
 }
 
-function RadioCheckGroup<T extends Option>({ options, defaultOptionChecked, onChange }: Props<T>) {
+function RadioCheckGroup<T extends Option>({ options, optionChecked, onChange }: Props<T>) {
   const initialOptionsMap = useMemo(() => options.reduce((mappedOptions, option) => ({
     ...mappedOptions,
     [option.id]: false,
   }), {} as Record<T['id'], boolean>), []);
   const [checkedState, setCheckedState] = useState({
     ...initialOptionsMap,
-    [defaultOptionChecked]: true,
+    [optionChecked]: true,
   });
+
+  useEffect(() => {
+    setCheckedState({
+      ...initialOptionsMap,
+      [optionChecked]: true,
+    });
+  }, [optionChecked]);
 
   const handleCheck = (optionId: T['id']) => {
     setCheckedState({

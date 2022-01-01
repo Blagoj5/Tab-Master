@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 
 const CheckBoxWrapper = styled.div`
@@ -49,17 +48,14 @@ const CheckBoxInput = styled.input`
 
 type Props = {
 	isDisabled?: boolean;
-	defaultCheck?: boolean;
+	isChecked?: boolean;
 	onCheck?: (isChecked: boolean) => void;
 }
 
-function Switch({ isDisabled, onCheck, defaultCheck = true }: Props) {
-  const [isChecked, setIsChecked] = useState(defaultCheck);
-
+function Switch({ isDisabled, onCheck, isChecked = true }: Props) {
   const handleCheck = () => {
     if (isDisabled) return;
 
-    setIsChecked(!isChecked);
     onCheck?.(!isChecked);
   };
 
