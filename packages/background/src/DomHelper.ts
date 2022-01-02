@@ -1,3 +1,5 @@
+import { defaultStorageConfig } from '@tab-master/common';
+import { StorageConfig } from '@tab-master/common/build/types';
 import { getMsForADay } from './utils';
 
 class DomHelper {
@@ -6,6 +8,33 @@ class DomHelper {
   static loadedTabs: { [tabId: string]: chrome.tabs.Tab } = {};
 
   static activePorts: { [tabId: string ]: chrome.runtime.Port } = {};
+
+  static settings: StorageConfig = defaultStorageConfig;
+
+  static setSettings(newSettings: Partial<StorageConfig>) {
+    this.settings = {
+      ...this.settings,
+      ...newSettings,
+    };
+  }
+
+  static async loadSettings(onOptionsChanged: () => void) {
+    const storageChangeListener = (changes: Record<string, any>, areaName: string) => {
+      if (areaName === 'sync') {
+        const parsedObject = Object.keys(changes).reduce((obj, change) => ({
+          ...obj,
+          [change]: changes[change].newValue,
+        }), {});
+        this.setSettings(parsedObject);
+        onOptionsChanged();
+      }
+    };
+
+    chrome.storage.onChanged.addListener(storageChangeListener);
+
+    const persistedSettings: Partial<StorageConfig> = await chrome.storage.sync.get(null);
+    if (persistedSettings) this.setSettings(persistedSettings);
+  }
 
   static listenTabStatus() {
     const onTabClosed = (tabId: number) => {
@@ -45,8 +74,8 @@ class DomHelper {
     const queryOptions: chrome.tabs.QueryInfo = {
       active: true,
       currentWindow: true,
-      // title: '', // TODO: add in future
-      // url: '', // TODO: add in future
+      // title: '',
+      // url: '',
     };
     const [tab] = await chrome.tabs.query(queryOptions);
     this.currentTabId = tab.id ?? -1;
@@ -86,19 +115,32 @@ class DomHelper {
   }
 
   static getOpenedTabs() {
-    return new Promise<chrome.tabs.Tab[]>((res) => {
+    return new Promise<chrome.tabs.Tab[] | null>((res) => {
+      if (!this.settings.openTabsEnabled) {
+        res(null);
+        return;
+      }
       chrome.tabs.query({ currentWindow: true }, (tabs) => res(tabs));
     });
   }
 
-  static getRecentlyOpenedTabs(query: chrome.history.HistoryQuery = { text: '' }) {
-    const {
-      text = '',
-      endTime = Date.now(),
-      startTime = Date.now() - getMsForADay(50),
-      maxResults = 20,
-    } = query;
-    return new Promise<chrome.history.HistoryItem[]>((res) => {
+  static getRecentlyOpenedTabs(text = '') {
+    const historyOptionsEnabled = this.settings.historyEnabled;
+    const endTime = historyOptionsEnabled && this.settings.history.to
+      ? this.settings.history.to
+      : Date.now();
+    const startTime = historyOptionsEnabled && this.settings.history.from
+      ? this.settings.history.from
+      : Date.now() - getMsForADay(50);
+    const maxResults = historyOptionsEnabled
+      ? this.settings.history.maxResults
+      : 20;
+    return new Promise<chrome.history.HistoryItem[] | null>((res) => {
+      if (!this.settings.recentTabsEnabled) {
+        res(null);
+        return;
+      }
+
       chrome.history.search({
         text,
         endTime,

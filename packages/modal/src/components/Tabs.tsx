@@ -11,23 +11,30 @@ import {
 import Avatar from './Avatar';
 import RandomIcon from '../assets/RandomIcon';
 import ExternalIcon from '../assets/ExternalIcon';
+import { useSettingsContext } from './SettingsProvider';
 
 export const Text = styled(EllipsisText)<{textAlign?: string, isUrl?: boolean}>`
 	flex: 1;
 	text-align: ${(props) => props.textAlign || 'left'};
 	color: ${(props) => (props.isUrl ? 'var(--text-color)' : 'white')};
+	margin: 0;
 `;
 
-export const IconContainer = styled.div`
+export const IconContainer = styled.div<{isAtTop?: boolean}>`
   padding-right: 1rem;
 	color: var(--text-color);
+	margin-left: auto;
+	align-self: ${(props) => (props.isAtTop && 'flex-start')};
+	padding-top: ${(props) => (props.isAtTop && '10px')};
 `;
 
-export const Favicon = styled(Avatar)`
+export const Favicon = styled(Avatar)<{isAtTop?: boolean}>`
 	margin-right: 1.5rem;
 	color: white;
 	width: 20px;
 	height: 20px;
+	align-self: ${(props) => (props.isAtTop && 'flex-start')};
+	padding-top: ${(props) => (props.isAtTop && '10px')};
 `;
 
 export const CustomFlex = styled(HStack)`
@@ -42,6 +49,7 @@ export const Container = styled.div<{isScrollable: boolean}>`
 	align-items: flex-start;
 	flex: 1;
 	overflow-y: ${(props) => (props.isScrollable ? 'auto' : 'initial')};
+	overflow-x: ${(props) => (props.isScrollable ? 'hidden' : 'initial')};
 	${scrollbarStyle}
 `;
 
@@ -64,7 +72,54 @@ type PanelProps<T> = {
   onTabHover: (tabId: string) => void;
   selectedTabId: string;
 	headingTitle?: string;
+	expandedTabIds: string[]
 }
+
+const InlineView = ({ title, url }: {title: string, url: string}) => (
+  <CustomFlex>
+    <Text>
+      {title}
+    </Text>
+    <Text textAlign="right" isUrl>
+      {url}
+    </Text>
+  </CustomFlex>
+);
+
+type BlockedViewProps = {title: string, url: string, isExpanded: boolean};
+const BlockView = styled(({
+  title,
+  url,
+  ...rest
+}: BlockedViewProps) => (
+  <div {...rest}>
+    <Text>
+      {title}
+    </Text>
+    <Text textAlign="right" isUrl>
+      {url}
+    </Text>
+  </div>
+))`
+	padding: 11px 0;
+	flex: 1;
+	overflow: hidden;
+
+  > p:first-child {
+		margin-bottom: 10px;
+	}
+
+  > p:nth-child(2) {
+		text-align: left;
+	}
+
+	> p {
+		span {
+			white-space: ${(props) => (props.isExpanded ? 'initial' : 'nowrap')};
+			word-break: ${(props) => (props.isExpanded && 'break-all')};
+		}
+	}
+`;
 
 function Tabs<T extends CommonTab>({
   tabs,
@@ -73,7 +128,11 @@ function Tabs<T extends CommonTab>({
   clickCallbackField,
   headingTitle,
   onTabHover,
+  expandedTabIds,
 }: PanelProps<T>) {
+  const { view } = useSettingsContext();
+
+  const isMinimal = view === 'minimal';
   return (
     <Container isScrollable={!headingTitle}>
       {headingTitle && (<Title>{headingTitle}</Title>)}
@@ -84,20 +143,27 @@ function Tabs<T extends CommonTab>({
           isSelected={selectedTabId === (tab[clickCallbackField] as unknown as string)}
           onClick={() => onTabClicked(tab[clickCallbackField as unknown as string])}
           onMouseEnter={() => onTabHover(tab[clickCallbackField as unknown as string])}
+          isMinimalView={isMinimal && !expandedTabIds.includes(tab.id)}
         >
-          <Favicon src={tab.faviconUrl} name={tab.title} />
-          <CustomFlex>
-            <Text>
-              {tab.title}
-            </Text>
-            <Text textAlign="right" isUrl>
-              {tab.url}
-            </Text>
-          </CustomFlex>
-
+          <Favicon
+            src={tab.faviconUrl}
+            name={tab.title}
+            isAtTop={!isMinimal || expandedTabIds.includes(tab.id)}
+          />
+          {expandedTabIds.includes(tab.id) || !isMinimal
+            ? (
+              <BlockView
+                isExpanded={expandedTabIds.includes(tab.id)}
+                title={tab.title}
+                url={tab.url}
+              />
+            )
+            : (
+              <InlineView title={tab.title} url={tab.url} />
+            )}
           {/* // TODO: implement this, show full link and info about the tab */}
           {/* <Icon as={ChevronDownIcon} color="gray.200" /> */}
-          <IconContainer>
+          <IconContainer isAtTop={!isMinimal || expandedTabIds.includes(tab.id)}>
             {tab.action === 'open' ? (
               <ExternalIcon />
             ) : (

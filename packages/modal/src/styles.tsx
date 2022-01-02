@@ -111,9 +111,11 @@ export const VStack = styled.div<{spacing?: number}>`
 	}
 `;
 
-export const SearchedTab = styled.div<{ isSelected?: boolean }>`
+export const SearchedTab = styled.div<{ isSelected?: boolean, isMinimalView: boolean }>`
 	display: flex;
-	height: 40px;
+	min-height: 40px;
+	height: ${(props) => (props.isMinimalView ? '40px' : 'fit-content')};
+	width: 100%;
 	padding: 0 0.3rem;
 	background: ${(props) => (props.isSelected ? 'var(--input-primary-light)' : 'auto')};
 	user-select: none;
@@ -146,11 +148,11 @@ export const EllipsisTextStyle = styled(Text)`
 `;
 
 export const EllipsisText = ({ children, ...rest }: {children: string}) => (
-		<EllipsisTextStyle {...rest}>
-			<span>
-				{children}
-			</span>
-		</EllipsisTextStyle>
+  <EllipsisTextStyle {...rest}>
+    <span>
+      {children}
+    </span>
+  </EllipsisTextStyle>
 );
 
 export const scrollbarStyle = css`

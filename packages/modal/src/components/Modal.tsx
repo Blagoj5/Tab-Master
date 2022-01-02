@@ -14,32 +14,31 @@ import Tabs from './Tabs';
 import { fuzzySearch, removeDuplicates } from '../utils';
 
 const ModalStyle = styled.div`
-	width: auto;
-	height: 400px;
+  width: auto;
+  height: 400px;
   background: var(--primary-color);
-	border-radius: 0.625rem;
-	padding: 1rem;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-	margin: auto;
+  border-radius: 0.625rem;
+  padding: 1rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
 `;
 
 const TabsContainer = styled((props) => <VStack {...props} spacing="8px" />)`
-	flex: 1;
-	overflow-y: auto;
-	${scrollbarStyle}
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  ${scrollbarStyle}
 `;
 
 type Props = {
-	// eslint-disable-next-line no-unused-vars
-	onChange: (value: string) => void;
-	// eslint-disable-next-line no-unused-vars
-	handleTabSelect: (selectedTabId: string) => void;
-	closeExtension: () => void;
-	transformedOpenedTabs: CommonTab[];
-	transformedRecentOpenedTabs: CommonTab[];
-	showExtension: boolean;
+  onChange: (value: string) => void;
+  handleTabSelect: (selectedTabId: string) => void;
+  closeExtension: () => void;
+  transformedOpenedTabs?: CommonTab[];
+  transformedRecentOpenedTabs?: CommonTab[];
+  showExtension: boolean;
 }
 // IFRAME COMPONENT
 function Modal({
@@ -56,12 +55,14 @@ function Modal({
   const [inputValue, setInputValue] = useState('');
 
   const [selectedTabId, setSelectedTabId] = useState('');
+  // TODO: on search entry refresh state to empty array
+  const [expanded, setExpanded] = useState<string[]>([]);
 
   const [combinedSelectedTabs] = useMemo(
     () => {
       const combinedTabs = [
-        ...transformedOpenedTabs,
-        ...transformedRecentOpenedTabs,
+        ...(transformedOpenedTabs ?? []),
+        ...(transformedRecentOpenedTabs ?? []),
       ];
 
       // TODO: INTO THE SEARCH THE WEIGHT SHOULD BE AFFECTED BY 2 PARAMS, THE TYPE AND VISIT COUNT
@@ -94,12 +95,12 @@ function Modal({
         },
       ];
     },
-	 [transformedRecentOpenedTabs, transformedOpenedTabs, inputValue],
+    [transformedRecentOpenedTabs, transformedOpenedTabs, inputValue],
   );
 
   const combinedSelectedTabIds = useMemo(
     () => combinedSelectedTabs.map(({ id }) => id),
-	 [combinedSelectedTabs],
+    [combinedSelectedTabs],
   );
 
   useEffect(() => {
@@ -114,9 +115,48 @@ function Modal({
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     const selectedTabIndex = combinedSelectedTabIds.findIndex((id) => id === selectedTabId);
 
+    // reserved keys
+    const isReservedKey = e.key === 'Tab' || e.key === 'Shift';
+    if (isReservedKey) {
+      e.preventDefault();
+    }
+
     if (e.key === 'Escape') {
       closeExtension();
       setInputValue('');
+      return;
+    }
+
+    // toggle expand/collapse
+    if (e.key === 'Tab' && selectedTabId) {
+      if (expanded.includes(selectedTabId)) {
+        setExpanded(expanded.filter((id) => id !== selectedTabId));
+      } else {
+        setExpanded([...expanded, selectedTabId]);
+      }
+      return;
+    }
+
+    // expand
+    if (e.shiftKey && e.key === 'ArrowRight' && selectedTabId) {
+      if (expanded.includes(selectedTabId)) return;
+
+      // disallow to move right/left on the input (only used for expanding)
+      e.preventDefault();
+
+      setExpanded([...expanded, selectedTabId]);
+      return;
+    }
+
+    // collapse
+    if (e.shiftKey && e.key === 'ArrowLeft' && selectedTabId) {
+      if (!expanded.includes(selectedTabId)) return;
+
+      // disallow to move right/left on the input (only used for collapsing)
+      e.preventDefault();
+
+      setExpanded(expanded.filter((id) => id !== selectedTabId));
+
       return;
     }
 
@@ -155,7 +195,7 @@ function Modal({
       iFrameDocument.getElementById(nextTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
       setSelectedTabId(nextTabId);
-    } else {
+    } else if (!isReservedKey) {
       setSelectedTabId('');
     }
   };
@@ -184,28 +224,40 @@ function Modal({
               selectedTabId={selectedTabId}
               onTabClicked={handleTabSelect}
               onTabHover={setSelectedTabId}
+              expandedTabIds={expanded}
             />
           )
           : (
             <TabsContainer>
               {/* OPENED TABS */}
-              <Tabs
-                headingTitle="OPENED TABS"
-                tabs={transformedOpenedTabs}
-                clickCallbackField="id"
-                selectedTabId={selectedTabId}
-                onTabClicked={handleTabSelect}
-                onTabHover={setSelectedTabId}
-              />
+              {
+                transformedOpenedTabs
+                && (
+                  <Tabs
+                    headingTitle="OPENED TABS"
+                    tabs={transformedOpenedTabs}
+                    clickCallbackField="id"
+                    selectedTabId={selectedTabId}
+                    onTabClicked={handleTabSelect}
+                    onTabHover={setSelectedTabId}
+                    expandedTabIds={expanded}
+                  />
+                )
+              }
               {/* RECENTLY TABS */}
-              <Tabs
-                headingTitle="RECENT TABS"
-                tabs={transformedRecentOpenedTabs}
-                clickCallbackField="id"
-                selectedTabId={selectedTabId}
-                onTabClicked={handleTabSelect}
-                onTabHover={setSelectedTabId}
-              />
+              {
+                transformedRecentOpenedTabs && (
+                  <Tabs
+                    headingTitle="RECENT TABS"
+                    tabs={transformedRecentOpenedTabs}
+                    clickCallbackField="id"
+                    selectedTabId={selectedTabId}
+                    onTabClicked={handleTabSelect}
+                    onTabHover={setSelectedTabId}
+                    expandedTabIds={expanded}
+                  />
+                )
+              }
             </TabsContainer>
           )}
       </ModalStyle>

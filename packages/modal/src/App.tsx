@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-undef */
 import {
   useEffect, useMemo, useRef, useState,
@@ -16,6 +17,7 @@ import {
   Backdrop, Center,
 } from './styles';
 import Modal from './components/Modal';
+import SettingsProvider from './components/SettingsProvider';
 
 const ModalFrame = styled(Frame)<{ isVisible: boolean }>`
 	width: 650px;
@@ -35,11 +37,11 @@ function App() {
   const [showExtension, setShowExtension] = useState(false);
   const portRef = useRef<chrome.runtime.Port>();
 
-  const [recentOpenedTabs, setRecentOpenedTabs] = useState<RecentOpenedTab[]>([]);
-  const [openedTabs, setOpenedTabs] = useState<OpenedTab[]>([]);
+  const [recentOpenedTabs, setRecentOpenedTabs] = useState<RecentOpenedTab[] | null>([]);
+  const [openedTabs, setOpenedTabs] = useState<OpenedTab[] | null>([]);
 
   // flat map is used for filtering + mapping
-  const transformedOpenedTabs = useMemo(() => openedTabs.flatMap<CommonTab>((tab) => {
+  const transformedOpenedTabs = useMemo(() => openedTabs?.flatMap<CommonTab>((tab) => {
     if (
       !tab.url
 						|| !tab.title
@@ -55,7 +57,7 @@ function App() {
     }];
   }), [openedTabs]);
 
-  const transformedRecentOpenedTabs = useMemo(() => recentOpenedTabs.flatMap<CommonTab>((tab) => {
+  const transformedRecentOpenedTabs = useMemo(() => recentOpenedTabs?.flatMap<CommonTab>((tab) => {
     if (
       !tab.url
 					|| !tab.title
@@ -84,21 +86,31 @@ function App() {
         switch (message.type) {
           case 'open-tab-master':
             setShowExtension(true);
-            setOpenedTabs(message.tabs.open.map((tab) => ({
+            setOpenedTabs(message.tabs.open?.map((tab) => ({
               ...tab,
               virtualId: `${tab.id}-opened-tab`,
-            })));
-            setRecentOpenedTabs(message.tabs.recent.map((tab) => ({
+            })) ?? null);
+            setRecentOpenedTabs(message.tabs.recent?.map((tab) => ({
               ...tab,
               faviconUrl: getFavicon(tab.url || ''),
-            })));
+            })) ?? null);
+            break;
+          case 'current-state':
+            setOpenedTabs(message.tabs.open?.map((tab) => ({
+              ...tab,
+              virtualId: `${tab.id}-opened-tab`,
+            })) ?? null);
+            setRecentOpenedTabs(message.tabs.recent?.map((tab) => ({
+              ...tab,
+              faviconUrl: getFavicon(tab.url || ''),
+            })) ?? null);
             break;
 
           case 'send-recent-tabs':
-            setRecentOpenedTabs(message.tabs.map((tab) => ({
+            setRecentOpenedTabs(message.tabs?.map((tab) => ({
               ...tab,
               faviconUrl: getFavicon(tab.url || ''),
-            })));
+            })) ?? null);
             break;
 
           case 'close-tab-master':
@@ -174,13 +186,13 @@ function App() {
 
   const handleTabSelect = (selectedTabId: string) => {
     // OPENED TABS
-    const openTab = openedTabs.find(({ virtualId }) => virtualId === selectedTabId);
+    const openTab = openedTabs?.find(({ virtualId }) => virtualId === selectedTabId);
     if (openTab?.id) {
       handleSwitchTab(openTab.id);
     }
 
     // RECENT OPENED TABS
-    const recentOpenTab = recentOpenedTabs.find(({ id }) => id === selectedTabId);
+    const recentOpenTab = recentOpenedTabs?.find(({ id }) => id === selectedTabId);
     if (recentOpenTab?.url) {
       handleOpenTab(recentOpenTab.url);
     }
@@ -206,14 +218,16 @@ function App() {
         <FrameContextConsumer>
           {(frameContext: any) => (
             <StyleSheetManager target={frameContext.document.head}>
-              <Modal
-                onChange={handleOnChange}
-                handleTabSelect={handleTabSelect}
-                transformedOpenedTabs={transformedOpenedTabs}
-                transformedRecentOpenedTabs={transformedRecentOpenedTabs}
-                closeExtension={closeExtension}
-                showExtension={showExtension}
-              />
+              <SettingsProvider>
+                <Modal
+                  onChange={handleOnChange}
+                  handleTabSelect={handleTabSelect}
+                  transformedOpenedTabs={transformedOpenedTabs}
+                  transformedRecentOpenedTabs={transformedRecentOpenedTabs}
+                  closeExtension={closeExtension}
+                  showExtension={showExtension}
+                />
+              </SettingsProvider>
             </StyleSheetManager>
           )}
         </FrameContextConsumer>

@@ -4,11 +4,10 @@ export const defaultStorageConfig: StorageConfig = {
   extensionEnabled: true,
   openTabsEnabled: true,
   recentTabsEnabled: true,
+	historyEnabled: false,
   history: {
-    from: -1,
-    to: -1,
-    maxResults: 20,
-  },
+		maxResults: 20,
+	},
   windowSwitchEnabled: false,
   view: 'standard',
 };

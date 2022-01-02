@@ -12,7 +12,37 @@ class TabMaster {
    }
 
    async init() {
+     await DomHelper.loadSettings(async () => {
+       //  TODO: THIS IS DUPLICATION
+       if (!DomHelper.settings.extensionEnabled) return;
+
+       await DomHelper.connectToContentScript();
+
+       this.port = DomHelper.activePorts[DomHelper.currentTabId];
+       if (!this.port) return;
+
+       const openedTabs = await DomHelper.getOpenedTabs();
+       const recentlyOpenedTabs = await DomHelper.getRecentlyOpenedTabs();
+
+       const openMessage: Actions = {
+         type: 'current-state',
+         tabs: {
+           open: openedTabs,
+           recent: recentlyOpenedTabs,
+         },
+       };
+
+       this.port.postMessage(openMessage);
+
+       // Listeners
+       // this.onDisconnect();
+       this.onMessage();
+     });
+
      chrome.commands.onCommand.addListener(async (command) => {
+       //  if extension is disabled from settings
+       if (!DomHelper.settings.extensionEnabled) return;
+
        // CMD + K
        if (command === 'open-tab-master') {
          await DomHelper.connectToContentScript();

@@ -11,7 +11,7 @@ const CheckBoxLabel = styled.label<Props>`
   width: 42px;
   height: 26px;
   border-radius: 15px;
-  background: #bebebe;
+  background: ${(props) => (props.isDisabled ? 'hsl(0, 0%, 30%)' : 'hsl(0, 0%, 74.5%)')};
   cursor: ${(props) => (props.isDisabled ? 'not-allowed' : 'pointer')};
   &::after {
     content: "";
@@ -33,7 +33,7 @@ const CheckBoxInput = styled.input`
   height: 26px;
 	margin: 0;
   &:checked + ${CheckBoxLabel} {
-    background: #4fbe79;
+		background: ${(props) => (props.disabled ? 'hsl(142.7, 46.05%, 30.745%)' : 'hsl(142.7, 46.05%, 52.745%)')};
     &::after {
       content: "";
       display: block;
@@ -61,7 +61,7 @@ function Switch({ isDisabled, onCheck, isChecked = true }: Props) {
 
   return (
     <CheckBoxWrapper>
-      <CheckBoxInput onChange={handleCheck} type="checkbox" checked={isChecked} />
+      <CheckBoxInput onChange={handleCheck} type="checkbox" checked={isChecked} disabled={isDisabled} />
       <CheckBoxLabel onClick={handleCheck} isDisabled={isDisabled} htmlFor="checkbox" />
     </CheckBoxWrapper>
   );

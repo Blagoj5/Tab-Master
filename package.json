@@ -48,7 +48,7 @@
     "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
     "dev": "concurrently \"yarn dev:contentScript\" \"yarn watch\"",
     "build:packages": "NODE_ENV=production yarn workspace @tab-master/background build & yarn workspace @tab-master/common build & yarn workspace @tab-master/modal build & yarn workspace @tab-master/popup build",
-    "build:watch": "nodemon scripts/build.js --verbose --watch ./packages/background --watch ./packages/modal -e ts,tsx --watch ./packages/popup -e ts,tsx --watch ./assets/manifest.json",
+    "build:watch": "nodemon scripts/build.js --verbose --watch ./packages/common --watch ./packages/background --watch ./packages/modal -e ts,tsx --watch ./packages/popup -e ts,tsx --watch ./assets/manifest.json",
     "build": "NODE_ENV=production node scripts/build.js"
   },
   "dependencies": {

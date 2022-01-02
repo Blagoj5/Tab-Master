@@ -6,8 +6,15 @@ export type Actions =
 | {
   type: 'open-tab-master',
   tabs: {
-    open: chrome.tabs.Tab[],
-    recent: chrome.history.HistoryItem[],
+    open: chrome.tabs.Tab[] | null,
+    recent: chrome.history.HistoryItem[] | null,
+  },
+}
+| {
+  type: 'current-state',
+  tabs: {
+    open: chrome.tabs.Tab[] | null,
+    recent: chrome.history.HistoryItem[] | null,
   },
 }
 | {
@@ -24,7 +31,7 @@ export type Actions =
 }
 | {
   type: 'send-recent-tabs',
-  tabs: chrome.history.HistoryItem[],
+  tabs: chrome.history.HistoryItem[] | null,
 };
 
 export type CommonTab = {
@@ -48,9 +55,10 @@ export type StorageConfig = {
 	extensionEnabled: boolean;
 	openTabsEnabled: boolean;
 	recentTabsEnabled: boolean;
-	history?: {
-		from: number;
-		to: number;
+	historyEnabled: boolean;
+	history: {
+		from?: number;
+		to?: number;
 		maxResults: number;
 	};
 	windowSwitchEnabled: boolean;
