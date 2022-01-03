@@ -52,6 +52,7 @@ export type RecentOpenedTab = chrome.history.HistoryItem & {
 };
 
 export type StorageConfig = {
+	showDescription: boolean;
 	extensionEnabled: boolean;
 	openTabsEnabled: boolean;
 	recentTabsEnabled: boolean;

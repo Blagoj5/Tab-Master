@@ -6,6 +6,8 @@ import setChromeStorage from '../utils/setChromeStorage';
 type Action = {
   type: 'toggleExtensionEnable';
 } | {
+  type: 'toggleDescription';
+} | {
   type: 'toggleOpenTabsEnabled';
 } | {
   type: 'toggleRecentTabsEnabled';
@@ -30,6 +32,14 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
       return {
         ...state,
         ...action.state,
+      };
+    }
+
+    case 'toggleDescription': {
+      setChromeStorage({ showDescription: !state.showDescription });
+      return {
+        ...state,
+        showDescription: !state.showDescription,
       };
     }
 
@@ -108,6 +118,7 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
 export default function useSettings() {
   const [settings, dispatch] = useReducer(reducer, defaultStorageConfig);
 
+  const toggleDescription = () => dispatch({ type: 'toggleDescription' });
   const toggleExtensionEnabled = () => dispatch({ type: 'toggleExtensionEnable' });
   const toggleOpenTabsEnabled = () => dispatch({ type: 'toggleOpenTabsEnabled' });
   const toggleRecentTabsEnabled = () => dispatch({ type: 'toggleRecentTabsEnabled' });
@@ -133,6 +144,7 @@ export default function useSettings() {
 
   return {
     settings,
+    toggleDescription,
     toggleExtensionEnabled,
     toggleOpenTabsEnabled,
     toggleRecentTabsEnabled,

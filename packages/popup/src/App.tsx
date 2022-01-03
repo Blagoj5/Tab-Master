@@ -9,6 +9,7 @@ import ToggleableContainer from './components/ToggleableContainer';
 import { SubTitle, Title } from './components/Typography';
 import { GlobalStyle } from './styles';
 import useSettings from './data/useSettings';
+import Description from './components/Description';
 
 const DateContainer = styled.div`
   max-width: 400;
@@ -39,6 +40,7 @@ const ButtonLink = styled.button`
 function App() {
   const {
     settings: {
+      showDescription,
       extensionEnabled,
       openTabsEnabled,
       recentTabsEnabled,
@@ -48,6 +50,7 @@ function App() {
     },
     setHistoryOptions,
     setView,
+    toggleDescription,
     toggleExtensionEnabled,
     toggleHistoryOptions,
     toggleOpenTabsEnabled,
@@ -101,9 +104,19 @@ function App() {
       <GlobalStyle />
       <Container>
         <Option
+          input={<Switch isChecked={showDescription} onCheck={toggleDescription} />}
+          title="Commands And Description"
+          subContent={(
+            <ToggleableContainer show={showDescription}>
+              <Description />
+            </ToggleableContainer>
+					)}
+        />
+        <Option
           input={<Switch isChecked={extensionEnabled} onCheck={toggleExtensionEnabled} />}
           title="Tab Master Active"
-          subContent="Option for turning on and off tab-master. Also can be turned off with key: (<custom key>)</custom>"
+					// TODO: add custom key turn off, ex. cmd + shift + k, turns off this
+          subContent="Option for turning on and off Tab Master."
         />
         <Option
           input={(
@@ -114,7 +127,7 @@ function App() {
             />
           )}
           title="Opened Tabs"
-          subContent="Whenever to include opened tabs when using tab master. The main action is switch"
+          subContent="Whenever to include opened tabs. When this tabs/items are clicked you'll switch to that tab."
         />
         <Option
           input={(
@@ -125,7 +138,7 @@ function App() {
             />
           )}
           title="Recent Opened Tabs"
-          subContent="Whenever to include recently opened tabs (history) when using tab master. The main action is opening tab"
+          subContent="Whenever to include recently opened tabs (history). When this tabs/items are clicked new tab will open to which you'll be directed to."
         />
         {/* TODO: this need to be under single component */}
         <Option
@@ -163,7 +176,7 @@ function App() {
         <Option
           input={<Switch isDisabled isChecked={false} />}
           title="Enable navigation trough windows (SOON)"
-          subContent="If opened tab is in different window it should show and when you click on it it will navigate you to that window"
+          subContent="If opened tab is in different window it should show and when you click on it it will navigate you to that window."
         />
         <Title>View Configuration</Title>
         <MultiOption>
@@ -172,12 +185,12 @@ function App() {
               {
                 id: 'minimal' as const,
                 label: 'Minimal View',
-                description: 'With this option the tab will be inline, on the left the title and on the right the url. If the title and url are too big they will be truncated',
+                description: 'With this option the tab will be inline, on the left the title and on the right the url. If the title and url are too big they will be truncated.',
               },
               {
                 id: 'standard' as const,
                 label: 'Standard View',
-                description: 'With this option enabled the tab will be block, which means on top the title will exist and beneath the title the url will be present',
+                description: 'With this option enabled the tab will be block, which means on top the title will exist and beneath the title the url will be present.',
               },
             ]}
             optionChecked={view}

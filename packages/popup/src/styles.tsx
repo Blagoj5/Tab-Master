@@ -47,11 +47,8 @@ export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
 		padding: 1rem;
 		font-family:  'Uni Sans', Arial, sans-serif;
 		background: var(--primary-color);
+		overflow-y: scroll;
 		${scrollbarStyle}
-	}
-
-	.frame-content, .frame-root, body {
-		overflow: hidden;
 	}
 `;
 

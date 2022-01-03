@@ -1,6 +1,7 @@
 import { StorageConfig } from "./types";
 
 export const defaultStorageConfig: StorageConfig = {
+	showDescription: false,
   extensionEnabled: true,
   openTabsEnabled: true,
   recentTabsEnabled: true,
