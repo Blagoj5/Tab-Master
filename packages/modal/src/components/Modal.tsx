@@ -27,7 +27,7 @@ const ModalStyle = styled.div`
 
 const TabsContainer = styled((props) => <VStack {...props} spacing="8px" />)`
   flex: 1;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
   ${scrollbarStyle}
 `;

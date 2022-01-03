@@ -29,6 +29,8 @@ export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
 	body {
 		margin: 0;
 		font-family:  'Uni Sans', Arial, sans-serif;
+		background: var(--primary-color);
+		border-radius: 0.625rem;
 	}
 
 	.frame-content, .frame-root, body {

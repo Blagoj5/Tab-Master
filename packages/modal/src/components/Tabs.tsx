@@ -48,7 +48,7 @@ export const Container = styled.div<{isScrollable: boolean}>`
 	width: 100%;
 	align-items: flex-start;
 	flex: 1;
-	overflow-y: ${(props) => (props.isScrollable ? 'auto' : 'initial')};
+	overflow-y: ${(props) => (props.isScrollable ? 'scroll' : 'initial')};
 	overflow-x: ${(props) => (props.isScrollable ? 'hidden' : 'initial')};
 	${scrollbarStyle}
 `;
