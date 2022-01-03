@@ -102,9 +102,18 @@ function Description() {
             <code>&#x2190;</code>
           </li>
           <li>
-            Toggle Item/Tab -
+            Toggle Expand/Collapse for Item/Tab -
             {' '}
             <code>TAB</code>
+          </li>
+          <li>
+            Navigate to selected tab -
+            {' '}
+            <code>ENTER</code>
+            {' '}
+            |
+            {' '}
+            <code>LeftMouseClick</code>
           </li>
         </UnorderedList>
       </div>
