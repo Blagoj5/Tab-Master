@@ -43,7 +43,7 @@ function Description() {
             {' '}
             <code>CMD</code>
             {' '}
-            +
+            |
             {' '}
             <code>CTRL</code>
             {' '}
