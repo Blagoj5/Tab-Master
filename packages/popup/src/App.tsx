@@ -60,6 +60,42 @@ function App() {
     });
   };
 
+  const handleFromDateChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    // start at 00:00 always
+    const parsedVal = new Date(e.target.value).toDateString();
+
+    // 00:00:00 of the selected value
+    let newDateVal = new Date(parsedVal).getTime();
+    if (newDateVal > Date.now()) {
+      // console.warn("You can't select date bigger that the current date");
+      // get the 00:00 hour of today
+      newDateVal = new Date(new Date().toDateString()).getTime();
+    }
+
+    setHistoryOptions({ ...history, from: newDateVal });
+  };
+
+  const handleToDate: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+		    // 23 hours
+    const hours = 23 * 60 * 60 * 1000;
+    // 59 mins
+    const mins = 59 * 60 * 1000;
+    // 59 secs
+    const secs = 59 * 1000;
+    // start at 00:00 always
+    const parsedVal = new Date(e.target.value).toDateString();
+
+    // 11:59:59 of the selected value
+    let newDateVal = new Date(parsedVal).getTime() + hours + mins + secs;
+    if (newDateVal > Date.now()) {
+      // console.warn("You can't select date bigger that the current date");
+      // get the 11:59:59 PM of today
+      newDateVal = new Date(new Date().toDateString()).getTime() + hours + mins + secs;
+    }
+
+    setHistoryOptions({ ...history, to: newDateVal });
+  };
+
   return (
     <div>
       <GlobalStyle />
@@ -104,8 +140,16 @@ function App() {
           subContent={(
             <ToggleableContainer show={historyEnabled && recentTabsEnabled}>
               <DateContainer>
-                <DateField label="From" />
-                <DateField label="To" />
+                <DateField
+                  label="From"
+                  onChange={handleFromDateChange}
+                  value={history.from}
+                />
+                <DateField
+                  label="To"
+                  onChange={handleToDate}
+                  value={history.to}
+                />
                 <SelectField
                   label="Max results"
                   options={['10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '200']}

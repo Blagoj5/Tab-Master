@@ -3,7 +3,8 @@ import Field from './Field';
 
 type Props = {
 	label: string;
-	value?: number | string;
+	value?: number;
+	onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 // new Date().toDateString() is the native for value
@@ -19,12 +20,21 @@ const DatePicker = styled.input`
 	}
 `;
 
-function DateField({ label, value }: Props) {
-  const dateValue = value ? new Date(value).toDateString() : undefined;
+function DateField({ label, value, onChange }: Props) {
+  let dateValue = '';
+
+  if (value) {
+    const date = new Date(value);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0'); // January is 0!
+    const yyyy = date.getFullYear();
+    dateValue = `${yyyy}-${mm}-${dd}`;
+  }
+
   return (
     <Field
       label={label}
-      input={<DatePicker type="date" value={dateValue} />}
+      input={<DatePicker type="date" value={dateValue} onChange={onChange} />}
     />
   );
 }
