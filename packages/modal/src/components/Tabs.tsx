@@ -73,6 +73,8 @@ type PanelProps<T> = {
   selectedTabId: string;
 	headingTitle?: string;
 	expandedTabIds: string[]
+	scrollingState: 'arrows' | 'mouse' | undefined;
+	setScrollingState: React.Dispatch<React.SetStateAction<'arrows' | 'mouse' | undefined>>;
 }
 
 const InlineView = ({ title, url }: {title: string, url: string}) => (
@@ -129,6 +131,8 @@ function Tabs<T extends CommonTab>({
   headingTitle,
   onTabHover,
   expandedTabIds,
+  scrollingState,
+  setScrollingState,
 }: PanelProps<T>) {
   const { view } = useSettingsContext();
 
@@ -142,7 +146,13 @@ function Tabs<T extends CommonTab>({
           key={tab.id}
           isSelected={selectedTabId === (tab[clickCallbackField] as unknown as string)}
           onClick={() => onTabClicked(tab[clickCallbackField as unknown as string])}
-          onMouseEnter={() => onTabHover(tab[clickCallbackField as unknown as string])}
+          onMouseEnter={() => {
+            if (scrollingState === 'mouse') {
+              onTabHover(tab[clickCallbackField as unknown as string]);
+              return;
+            }
+            setScrollingState('mouse');
+          }}
           isMinimalView={isMinimal && !expandedTabIds.includes(tab.id)}
         >
           <Favicon

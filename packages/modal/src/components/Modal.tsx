@@ -53,9 +53,9 @@ function Modal({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState('');
+  const [scrollingState, setScrollingState] = useState<'arrows' | 'mouse' | undefined>();
 
   const [selectedTabId, setSelectedTabId] = useState('');
-  // TODO: on search entry refresh state to empty array
   const [expanded, setExpanded] = useState<string[]>([]);
 
   const [combinedSelectedTabs] = useMemo(
@@ -65,7 +65,6 @@ function Modal({
         ...(transformedRecentOpenedTabs ?? []),
       ];
 
-      // TODO: INTO THE SEARCH THE WEIGHT SHOULD BE AFFECTED BY 2 PARAMS, THE TYPE AND VISIT COUNT
       const filteredCombinedTabs = fuzzySearch(
         combinedTabs,
         {
@@ -79,12 +78,24 @@ function Modal({
               weight: 0.4,
             }],
           includeScore: true,
+          ignoreLocation: true,
         },
         inputValue,
-        (result) => result.map((res) => ({
-          ...res,
-          score: res.item.action === 'switch' && res.score ? Math.max(res.score - 0.01, 0) : res.score,
-        })),
+        (result) => result.map((res) => {
+          let score = res.item.action === 'switch' && res.score ? Math.max(res.score - 0.01, 0) : res.score;
+          if (res.item.visitCount && score) {
+            // TODO: discuss with DJ about this
+            // this is constant addition for each visit that affects the score
+            const CONSTANT_ADDITION = 0.0001;
+            const { visitCount } = res.item;
+            score = Math.max(score - visitCount * CONSTANT_ADDITION, 0);
+          }
+
+          return ({
+            ...res,
+            score,
+          });
+        }),
       );
 
       return [
@@ -182,6 +193,7 @@ function Modal({
 
       iFrameDocument.getElementById(prevTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
+      setScrollingState('arrows');
       setSelectedTabId(prevTabId);
     } else if (e.code === 'ArrowDown') {
       const prevSuggestionOrder = selectedTabIndex + 1;
@@ -194,6 +206,7 @@ function Modal({
 
       iFrameDocument.getElementById(nextTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
+      setScrollingState('arrows');
       setSelectedTabId(nextTabId);
     } else if (!isReservedKey) {
       setSelectedTabId('');
@@ -201,6 +214,8 @@ function Modal({
   };
 
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+    // reset expand state on search
+    setExpanded([]);
     setInputValue(e.target.value);
     onChange(e.target.value);
   };
@@ -225,6 +240,8 @@ function Modal({
               onTabClicked={handleTabSelect}
               onTabHover={setSelectedTabId}
               expandedTabIds={expanded}
+              scrollingState={scrollingState}
+              setScrollingState={setScrollingState}
             />
           )
           : (
@@ -241,6 +258,8 @@ function Modal({
                     onTabClicked={handleTabSelect}
                     onTabHover={setSelectedTabId}
                     expandedTabIds={expanded}
+                    scrollingState={scrollingState}
+                    setScrollingState={setScrollingState}
                   />
                 )
               }
@@ -255,6 +274,8 @@ function Modal({
                     onTabClicked={handleTabSelect}
                     onTabHover={setSelectedTabId}
                     expandedTabIds={expanded}
+                    scrollingState={scrollingState}
+                    setScrollingState={setScrollingState}
                   />
                 )
               }

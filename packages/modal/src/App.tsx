@@ -44,8 +44,8 @@ function App() {
   const transformedOpenedTabs = useMemo(() => openedTabs?.flatMap<CommonTab>((tab) => {
     if (
       !tab.url
-						|| !tab.title
-						|| !tab.favIconUrl
+			|| !tab.title
+			|| !tab.favIconUrl
     ) return [];
 
     return [{
@@ -60,8 +60,8 @@ function App() {
   const transformedRecentOpenedTabs = useMemo(() => recentOpenedTabs?.flatMap<CommonTab>((tab) => {
     if (
       !tab.url
-					|| !tab.title
-					|| !tab.url
+			|| !tab.title
+			|| !tab.url
     ) return [];
 
     return [{
@@ -70,6 +70,7 @@ function App() {
       title: tab.title,
       url: tab.url,
       action: 'open',
+      visitCount: tab.visitCount,
     }];
   }), [recentOpenedTabs]);
 

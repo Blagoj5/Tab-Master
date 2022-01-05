@@ -125,9 +125,6 @@ export const SearchedTab = styled.div<{ isSelected?: boolean, isMinimalView: boo
 	overflow: hidden;
 	cursor: pointer;
 	align-items: center;
-	:hover {
-		background: var(--input-primary-light);
-	}
 `;
 
 export const Avatar = styled.img`
