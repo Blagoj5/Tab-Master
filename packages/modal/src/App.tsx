@@ -199,8 +199,6 @@ function App() {
   };
 
   const handleOnChange = (value: string) => {
-    if (!value) return;
-
     const payload: Actions = {
       type: 'search-history',
       keyword: value,
