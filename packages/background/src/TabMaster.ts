@@ -18,7 +18,7 @@ class TabMaster {
 
        await DomHelper.connectToContentScript();
 
-       this.port = DomHelper.activePorts[DomHelper.currentTabId];
+       this.port = DomHelper.activePorts[DomHelper.currentTab.id];
        if (!this.port) return;
 
        const openedTabs = await DomHelper.getOpenedTabs();
@@ -40,14 +40,14 @@ class TabMaster {
      });
 
      chrome.commands.onCommand.addListener(async (command) => {
-       //  if extension is disabled from settings
+       //  if extension is disabled from settings, find a better way for this
        if (!DomHelper.settings.extensionEnabled) return;
 
        // CMD + K
        if (command === 'open-tab-master') {
          await DomHelper.connectToContentScript();
 
-         this.port = DomHelper.activePorts[DomHelper.currentTabId];
+         this.port = DomHelper.activePorts[DomHelper.currentTab.id];
          if (!this.port) return;
 
          const openedTabs = await DomHelper.getOpenedTabs();
@@ -74,7 +74,7 @@ class TabMaster {
          const message: Actions = {
            type: 'close-tab-master',
          };
-         const port = DomHelper.activePorts[DomHelper.currentTabId];
+         const port = DomHelper.activePorts[DomHelper.currentTab.id];
          if (port) { port.postMessage(message); }
        }
      });

@@ -3,7 +3,7 @@ import { StorageConfig } from '@tab-master/common/build/types';
 import { getMsForADay } from './utils';
 
 class DomHelper {
-  static currentTabId = -1;
+  static currentTab: Omit<chrome.tabs.Tab, 'id'> & { id: number };
 
   static loadedTabs: { [tabId: string]: chrome.tabs.Tab } = {};
 
@@ -57,7 +57,7 @@ class DomHelper {
     }
   }
 
-  static async tabIsLoaded(tabId: number) {
+  static async checkTabLoaded(tabId: number) {
     return new Promise<boolean>((res) => {
       try {
         chrome.tabs.get(tabId, (tab) => {
@@ -78,7 +78,10 @@ class DomHelper {
       // url: '',
     };
     const [tab] = await chrome.tabs.query(queryOptions);
-    this.currentTabId = tab.id ?? -1;
+    this.currentTab = {
+      ...tab,
+      id: tab.id ?? -1,
+    };
     return tab;
   }
 
@@ -92,7 +95,9 @@ class DomHelper {
         return;
       }
 
-      if (this.loadedTabs[currentTab.id] || await this.tabIsLoaded(currentTab.id)) {
+      let tabIsLoaded = Boolean(this.loadedTabs[currentTab.id]);
+      if (!tabIsLoaded) tabIsLoaded = await this.checkTabLoaded(currentTab.id);
+      if (tabIsLoaded) {
         const existingPort = this.activePorts[currentTab.id];
         if (existingPort) {
           res(existingPort);
@@ -120,7 +125,9 @@ class DomHelper {
         res(null);
         return;
       }
-      chrome.tabs.query({ currentWindow: true }, (tabs) => res(tabs));
+      chrome.tabs.query({ currentWindow: true }, (tabs) => res(tabs.filter(
+        (item) => item.id !== this.currentTab.id && item.url !== this.currentTab.url,
+      )));
     });
   }
 
@@ -146,9 +153,14 @@ class DomHelper {
         endTime,
         startTime,
         maxResults,
-      }, (historyItems) => (
-        res(historyItems)
-      ));
+      }, (historyItems) => {
+        const filteredHistoryItems = historyItems.filter(
+          // TODO: in future maybe better filtering, by checking if the url points to same content
+          // TODO: dont't show it twice (if it's cannoncial link)
+          (item) => item.id !== String(this.currentTab.id) && item.url !== this.currentTab.url,
+        );
+        return res(filteredHistoryItems);
+      });
     });
   }
 }
