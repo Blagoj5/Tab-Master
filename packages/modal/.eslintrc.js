@@ -36,4 +36,8 @@ module.exports = {
   globals: {
     chrome: true,
   },
+  ignorePatterns: [
+    'build',
+    'node_modules',
+  ],
 };

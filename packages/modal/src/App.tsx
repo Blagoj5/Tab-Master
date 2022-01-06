@@ -9,10 +9,7 @@ import {
   CommonTab, Actions, OpenedTab, RecentOpenedTab,
 } from '@tab-master/common/build/types';
 
-import { isProduction } from './consts';
 import { getFavicon } from './utils';
-import fakeTabs from './devData';
-import recentTabs from './devData/recent-tabs.json';
 import {
   Backdrop, Center,
 } from './styles';
@@ -78,7 +75,6 @@ function App() {
     setShowExtension(false);
   };
 
-  // TODO: move all event keydown listener to the background script
   useEffect(() => {
     const onConnect = (port: chrome.runtime.Port) => {
       portRef.current = port;
@@ -124,25 +120,20 @@ function App() {
       });
     };
 
-    if (isProduction) {
-      chrome.runtime.onConnect.addListener(onConnect);
-    } else {
-      setOpenedTabs(fakeTabs);
-      setRecentOpenedTabs(recentTabs.map((tab) => ({
-        ...tab,
-        faviconUrl: getFavicon(tab.url),
-      })));
-    }
+    chrome.runtime.onConnect.addListener(onConnect);
 
     const onKeyDown = ({
-      repeat, key, ctrlKey, metaKey,
+      repeat,
+      key,
+      // ctrlKey,
+      // metaKey,
     }: KeyboardEvent) => {
       if (repeat) return;
 
       // for Windows and MacOS
-      if (!isProduction && (ctrlKey || metaKey) && key === 'k') {
-        setShowExtension(true);
-      }
+      // if (!isProduction && (ctrlKey || metaKey) && key === 'k') {
+      //   setShowExtension(true);
+      // }
 
       if (key === 'Escape') {
         closeExtension();
@@ -158,8 +149,6 @@ function App() {
   }, []);
 
   const handleSwitchTab = (tabId: number) => {
-    if (!isProduction) return;
-
     const payload: Actions = {
       type: 'switch-tab',
       tabId,
@@ -172,8 +161,6 @@ function App() {
   };
 
   const handleOpenTab = (tabUrl: string) => {
-    if (!isProduction) return;
-
     const payload: Actions = {
       type: 'open-tab',
       newTabUrl: tabUrl,
