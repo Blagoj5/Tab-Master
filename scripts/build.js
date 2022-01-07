@@ -1,4 +1,3 @@
-const ncp = require('ncp').ncp;
 const path = require('path');
 const fse = require('fs-extra');
 const { execSync } = require('child_process');
