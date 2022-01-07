@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "main": "index.js",
   "license": "MIT",
-	"private": true,
+  "private": true,
   "devDependencies": {
     "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.0",
@@ -32,6 +32,7 @@
     "eslint-plugin-react": "^7.27.1",
     "eslint-plugin-react-hooks": "^4.3.0",
     "file-loader": "^6.2.0",
+    "fs-extra": "^10.0.0",
     "html-webpack-plugin": "^5.5.0",
     "json-loader": "^0.5.7",
     "ncp": "^2.0.0",
@@ -62,8 +63,13 @@
     "react-frame-component": "^5.2.1",
     "styled-components": "^5.3.3"
   },
-	"workspaces": { 
-		"packages": ["packages/*"],
-		"nohoist": ["@rollup", "@rollup/**"]
-	 }
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "@rollup",
+      "@rollup/**"
+    ]
+  }
 }

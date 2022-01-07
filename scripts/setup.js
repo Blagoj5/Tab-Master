@@ -1,11 +1,4 @@
-const { copyFile, existsSync, mkdirSync } = require("fs");
-
-const filesToCopy = [
-	'manifest.json', 
-	'icon16.png', 
-	'icon48.png', 
-	'icon128.png'
-];
+const { copySync, existsSync, mkdirSync } = require("fs-extra");
 
 const setup = () => {
 
@@ -13,17 +6,7 @@ const setup = () => {
 		mkdirSync('build');
 	}
 
-	Promise.all(filesToCopy.map((fileName) => new Promise((res, rej) => {
-		copyFile(`assets/${fileName}`, `build/${fileName}`, (err) => {
-			if (err) {
-				rej(err);
-			}
-
-			res(true);
-		});
-	})))
-	.then(() => process.exit(0))
-	.catch((err) => console.error(err));
+	copySync('assets', 'build', { overwrite: true, recursive: true });
 };
 
 setup();

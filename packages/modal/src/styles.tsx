@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import styled, { createGlobalStyle, css } from 'styled-components';
-// TODO: fix the Uni Sans issue, you need to add public folder to config
+import { EXTENSION_ID } from './consts';
 
 export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
   :root {
@@ -13,24 +13,28 @@ export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
 
 
 	@font-face {
-		font-family: 'Uni Sans';
-		src: url('src/common/fonts/uni-sans.heavy-caps.otf') format('opentype');
+		font-family: 'Kumbh Sans';
+		src: url('chrome-extension://${EXTENSION_ID}/fonts/KumbhSans-Bold.ttf');
 		font-style: normal;
 		font-weight: 600;
 	}
 
 	@font-face {
-		font-family: 'Uni Sans';
-		src: url('src/common/fonts/uni-sans.thin-caps.otf') format('opentype');
+		font-family: 'Kumbh Sans';
+		src: url('chrome-extension://${EXTENSION_ID}/fonts/KumbhSans-Regular.ttf');
 		font-style: normal;
 		font-weight: 400;
 	}
 
 	body {
 		margin: 0;
-		font-family:  'Uni Sans', Arial, sans-serif;
+		font-family: 'Kumbh Sans', Arial, sans-serif;
 		background: var(--primary-color);
 		border-radius: 0.625rem;
+	}
+
+	input {
+		font-family: 'Kumbh Sans', Arial, sans-serif;
 	}
 
 	.frame-content, .frame-root, body {
