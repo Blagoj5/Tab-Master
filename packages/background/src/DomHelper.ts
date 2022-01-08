@@ -1,24 +1,24 @@
 import { defaultStorageConfig } from '@tab-master/common';
 import { StorageConfig } from '@tab-master/common/build/types';
-import { getMsForADay } from './utils';
+import { checkTabLoaded, getMsForADay } from './utils';
 
 class DomHelper {
-  static currentTab: Omit<chrome.tabs.Tab, 'id'> & { id: number };
+  currentTab: Omit<chrome.tabs.Tab, 'id'> & { id: number } | undefined;
 
-  static loadedTabs: { [tabId: string]: chrome.tabs.Tab } = {};
+  loadedTabs: { [tabId: string]: chrome.tabs.Tab } = {};
 
-  static activePorts: { [tabId: string ]: chrome.runtime.Port } = {};
+  activePorts: { [tabId: string ]: chrome.runtime.Port } = {};
 
-  static settings: StorageConfig = defaultStorageConfig;
+  settings: StorageConfig = defaultStorageConfig;
 
-  static setSettings(newSettings: Partial<StorageConfig>) {
+  setSettings(newSettings: Partial<StorageConfig>) {
     this.settings = {
       ...this.settings,
       ...newSettings,
     };
   }
 
-  static async loadSettings(onOptionsChanged: () => void) {
+  async loadSettings(onOptionsChanged: () => void) {
     const storageChangeListener = (changes: Record<string, any>, areaName: string) => {
       if (areaName === 'sync') {
         const parsedObject = Object.keys(changes).reduce((obj, change) => ({
@@ -36,41 +36,33 @@ class DomHelper {
     if (persistedSettings) this.setSettings(persistedSettings);
   }
 
-  static listenTabStatus() {
+  listenTabStatus(onOpenExtensionMessage: () => void) {
     const onTabClosed = (tabId: number) => {
       if (this.loadedTabs[tabId]) {
         delete this.loadedTabs[tabId];
       }
     };
 
-    const onContentScriptLoaded = (status: unknown, sender: chrome.runtime.MessageSender) => {
-      if (typeof status === 'string' && status === 'READY') {
+    const onContentScriptLoaded = (message: unknown, sender: chrome.runtime.MessageSender) => {
+      if (typeof message === 'string' && message === 'READY') {
         if (sender.tab?.id) {
           this.loadedTabs[sender.tab.id] = sender.tab;
         }
+      }
+      if (typeof message === 'string' && message === 'open-tab-master') {
+        onOpenExtensionMessage();
       }
     };
 
     if (!chrome.runtime.onMessage.hasListener(onContentScriptLoaded)) {
       chrome.runtime.onMessage.addListener(onContentScriptLoaded);
+    }
+    if (!chrome.tabs.onRemoved.hasListener(onTabClosed)) {
       chrome.tabs.onRemoved.addListener(onTabClosed);
     }
   }
 
-  static async checkTabLoaded(tabId: number) {
-    return new Promise<boolean>((res) => {
-      try {
-        chrome.tabs.get(tabId, (tab) => {
-          if (tab.status === 'complete') return res(true);
-          return res(false);
-        });
-      } catch (error) {
-        res(false);
-      }
-    });
-  }
-
-  static async getCurrentTab() {
+  async getCurrentTab() {
     const queryOptions: chrome.tabs.QueryInfo = {
       active: true,
       currentWindow: true,
@@ -85,7 +77,7 @@ class DomHelper {
     return tab;
   }
 
-  static connectToContentScript() {
+  connectToContentScript() {
     // eslint-disable-next-line no-async-promise-executor
     return new Promise<chrome.runtime.Port>(async (res, reject) => {
       const currentTab = await this.getCurrentTab();
@@ -96,7 +88,7 @@ class DomHelper {
       }
 
       let tabIsLoaded = Boolean(this.loadedTabs[currentTab.id]);
-      if (!tabIsLoaded) tabIsLoaded = await this.checkTabLoaded(currentTab.id);
+      if (!tabIsLoaded) tabIsLoaded = await checkTabLoaded(currentTab.id);
       if (tabIsLoaded) {
         const existingPort = this.activePorts[currentTab.id];
         if (existingPort) {
@@ -119,19 +111,19 @@ class DomHelper {
     });
   }
 
-  static getOpenedTabs() {
+  getOpenedTabs() {
     return new Promise<chrome.tabs.Tab[] | null>((res) => {
       if (!this.settings.openTabsEnabled) {
         res(null);
         return;
       }
       chrome.tabs.query({ currentWindow: true }, (tabs) => res(tabs.filter(
-        (item) => item.id !== this.currentTab.id && item.url !== this.currentTab.url,
+        (item) => item.id !== this.currentTab?.id && item.url !== this.currentTab?.url,
       )));
     });
   }
 
-  static getRecentlyOpenedTabs(text = '') {
+  getRecentlyOpenedTabs(text = '') {
     const historyOptionsEnabled = this.settings.historyEnabled;
     const endTime = historyOptionsEnabled && this.settings.history.to
       ? this.settings.history.to
@@ -157,7 +149,7 @@ class DomHelper {
         const filteredHistoryItems = historyItems.filter(
           // TODO: in future maybe better filtering, by checking if the url points to same content
           // TODO: dont't show it twice (if it's cannoncial link)
-          (item) => item.id !== String(this.currentTab.id) && item.url !== this.currentTab.url,
+          (item) => item.id !== String(this.currentTab?.id) && item.url !== this.currentTab?.url,
         );
         return res(filteredHistoryItems);
       });

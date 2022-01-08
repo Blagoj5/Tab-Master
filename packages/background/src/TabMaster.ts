@@ -1,5 +1,5 @@
 import { Actions } from '@tab-master/common/build/types';
-import DomHelper from './DomHelper';
+import type DomHelper from './DomHelper';
 
 class TabMaster {
    private port: chrome.runtime.Port | undefined;
@@ -7,22 +7,27 @@ class TabMaster {
    // eslint-disable-next-line no-unused-vars
    private onMessageListener: (message: Actions, port: chrome.runtime.Port) => void;
 
-   constructor(onMessageListener: TabMaster['onMessageListener']) {
+   domHelper: DomHelper;
+
+   constructor(domHelper: DomHelper, onMessageListener: TabMaster['onMessageListener']) {
      this.onMessageListener = onMessageListener;
+     this.domHelper = domHelper;
    }
 
    async init() {
-     await DomHelper.loadSettings(async () => {
+     await this.domHelper.loadSettings(async () => {
        //  TODO: THIS IS DUPLICATION
-       if (!DomHelper.settings.extensionEnabled) return;
+       if (!this.domHelper.settings.extensionEnabled) return;
 
-       await DomHelper.connectToContentScript();
+       await this.domHelper.connectToContentScript();
 
-       this.port = DomHelper.activePorts[DomHelper.currentTab.id];
+       if (!this.domHelper.currentTab?.id) return;
+
+       this.port = this.domHelper.activePorts[this.domHelper.currentTab.id];
        if (!this.port) return;
 
-       const openedTabs = await DomHelper.getOpenedTabs();
-       const recentlyOpenedTabs = await DomHelper.getRecentlyOpenedTabs();
+       const openedTabs = await this.domHelper.getOpenedTabs();
+       const recentlyOpenedTabs = await this.domHelper.getRecentlyOpenedTabs();
 
        const openMessage: Actions = {
          type: 'current-state',
@@ -41,31 +46,11 @@ class TabMaster {
 
      chrome.commands.onCommand.addListener(async (command) => {
        //  if extension is disabled from settings, find a better way for this
-       if (!DomHelper.settings.extensionEnabled) return;
+       if (!this.domHelper.settings.extensionEnabled) return;
 
        // CMD + K
        if (command === 'open-tab-master') {
-         await DomHelper.connectToContentScript();
-
-         this.port = DomHelper.activePorts[DomHelper.currentTab.id];
-         if (!this.port) return;
-
-         const openedTabs = await DomHelper.getOpenedTabs();
-         const recentlyOpenedTabs = await DomHelper.getRecentlyOpenedTabs();
-
-         const openMessage: Actions = {
-           type: 'open-tab-master',
-           tabs: {
-             open: openedTabs,
-             recent: recentlyOpenedTabs,
-           },
-         };
-
-         this.port.postMessage(openMessage);
-
-         // Listeners
-         // this.onDisconnect();
-         this.onMessage();
+         await this.openTabMaster();
        }
 
        // TODO: I CAN't FIND ESCAPE FOR chrome.commands, even in chrome://extensions/shortcuts
@@ -74,10 +59,37 @@ class TabMaster {
          const message: Actions = {
            type: 'close-tab-master',
          };
-         const port = DomHelper.activePorts[DomHelper.currentTab.id];
+         if (!this.domHelper.currentTab?.id) return;
+         const port = this.domHelper.activePorts[this.domHelper.currentTab.id];
          if (port) { port.postMessage(message); }
        }
      });
+   }
+
+   async openTabMaster() {
+     await this.domHelper.connectToContentScript();
+
+     if (!this.domHelper.currentTab?.id) return;
+
+     this.port = this.domHelper.activePorts[this.domHelper.currentTab.id];
+     if (!this.port) return;
+
+     const openedTabs = await this.domHelper.getOpenedTabs();
+     const recentlyOpenedTabs = await this.domHelper.getRecentlyOpenedTabs();
+
+     const openMessage: Actions = {
+       type: 'open-tab-master',
+       tabs: {
+         open: openedTabs,
+         recent: recentlyOpenedTabs,
+       },
+     };
+
+     this.port.postMessage(openMessage);
+
+     // Listeners
+     // this.onDisconnect();
+     this.onMessage();
    }
 
    private onMessage() {
@@ -89,7 +101,7 @@ class TabMaster {
 
   //  TODO: implement this logic better
   //  private onDisconnect() {
-  //    const port = DomHelper.activePorts[this.currentTabId];
+  //    const port = this.domHelper.activePorts[this.currentTabId];
 
   //    const cleanup = () => {
   //      port?.onMessage.removeListener(this.onMessageListener);

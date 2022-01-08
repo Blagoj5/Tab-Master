@@ -122,20 +122,18 @@ function App() {
 
     chrome.runtime.onConnect.addListener(onConnect);
 
-    const onKeyDown = ({
-      repeat,
-      key,
-      // ctrlKey,
-      // metaKey,
-    }: KeyboardEvent) => {
-      if (repeat) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.repeat) return;
 
-      // for Windows and MacOS
-      // if (!isProduction && (ctrlKey || metaKey) && key === 'k') {
-      //   setShowExtension(true);
-      // }
+      // for Windows, ctrl + k has native binding
+      if ((event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        chrome.runtime.sendMessage('open-tab-master');
+        setShowExtension(true);
+      }
 
-      if (key === 'Escape') {
+      if (event.key === 'Escape') {
+        event.preventDefault();
         closeExtension();
       }
     };
