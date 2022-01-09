@@ -21,9 +21,7 @@
 		"<all_urls>"
   ],
 	"permissions": [
-    "activeTab",
     "tabs",
-    "scripting",
     "history",
     "storage"
   ],
