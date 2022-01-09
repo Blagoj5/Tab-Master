@@ -135,6 +135,9 @@ function Modal({
     if (e.key === 'Escape') {
       closeExtension();
       setInputValue('');
+      // changing the focus from the iframe to the body, since the main
+      // event listener is there
+      window.focus();
       return;
     }
 
@@ -248,7 +251,7 @@ function Modal({
             <TabsContainer>
               {/* OPENED TABS */}
               {
-                transformedOpenedTabs
+                transformedOpenedTabs?.length
                 && (
                   <Tabs
                     headingTitle="OPENED TABS"
@@ -265,7 +268,7 @@ function Modal({
               }
               {/* RECENTLY TABS */}
               {
-                transformedRecentOpenedTabs && (
+                transformedRecentOpenedTabs?.length && (
                   <Tabs
                     headingTitle="RECENT TABS"
                     tabs={transformedRecentOpenedTabs}

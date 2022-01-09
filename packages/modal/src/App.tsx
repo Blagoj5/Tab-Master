@@ -129,9 +129,9 @@ function App() {
       if ((event.ctrlKey) && event.key === 'k') {
         event.preventDefault();
         chrome.runtime.sendMessage('open-tab-master');
-        setShowExtension(true);
       }
 
+      // TODO: this might be useless, since the focus is in the iframe
       if (event.key === 'Escape') {
         event.preventDefault();
         closeExtension();
