@@ -33,7 +33,9 @@
 	"commands": {
 		"open-tab-master": {
       "suggested_key": {
-        "default": "Ctrl+K",
+				"chromeos": "Ctrl+Shift+K",
+				"windows": "Ctrl+Shift+K",
+        "linux": "Ctrl+K",
         "mac": "Command+K"
       },
       "description": "Open Tab Master Extension"
