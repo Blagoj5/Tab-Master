@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 
 const Container = styled.div`
@@ -13,6 +14,7 @@ const UnorderedList = styled.ul`
 	margin: 0;
 	li {
 		margin-bottom: 10px;
+		line-height: 24px;
 		code {
 			background: hsl(216deg 10% 34%);
 			padding: 3px 6px;
@@ -22,7 +24,43 @@ const UnorderedList = styled.ul`
 	}
 `;
 
+const OsBox = styled.div`
+  display: flex;
+	width: 100%;
+	border-bottom: 1px solid var(--input-primary-light);
+	margin-bottom: 24px;
+	align-items: stretch;
+	h5 {
+		margin-right: 4px;
+	}
+	h5:last-child {
+		margin-right: 0;
+	}
+`;
+
+const OsHeading = styled.h5<{ isActive: boolean }>`
+	background: ${(props) => (props.isActive ? 'hsla(0, 0%, 0%, 0.10)' : 'initial')};
+	flex: 1;
+	height: 100%;
+	text-align: center;
+	cursor: pointer;
+	margin: 0;
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 8px 8px 0 0;
+	transition: background 0.2s;
+	:hover {
+		background: hsla(0, 0%, 0%, 0.10);
+	}
+`;
+
+type Os = 'windows' | 'mac' | 'linux';
+const availableOs = ['Windows', 'Linux', 'Mac'];
 function Description() {
+  const [activeOsDescription, setActiveOsDescription] = useState<Os>('windows');
+
   return (
     <Container>
       <p>
@@ -36,21 +74,56 @@ function Description() {
       </p>
       <div>
         <h4>Commands</h4>
+        <OsBox>
+          {availableOs.map((os) => (
+            <OsHeading
+              key={os}
+              isActive={os.toLowerCase() === activeOsDescription}
+              onClick={() => setActiveOsDescription(os.toLowerCase() as Os)}
+            >
+              {os}
+            </OsHeading>
+          ))}
+        </OsBox>
         <UnorderedList>
-          {/* TODO: add icons, for example CMD + CTRL + K with icons */}
-          <li>
-            Open modal -
-            {' '}
-            <code>CMD</code>
-            {' '}
-            |
-            {' '}
-            <code>CTRL</code>
-            {' '}
-            +
-            {' '}
-            <code>K</code>
-          </li>
+          {/* // TODO: add icons, for example CMD + CTRL + K with icons */}
+          {activeOsDescription === 'mac' ? (
+            <li>
+              Open modal -
+              {' '}
+              <code>CMD</code>
+              {' '}
+              +
+              {' '}
+              <code>K</code>
+            </li>
+          ) : (
+            <>
+              <li>
+                Open modal (native keybinding is overridden which
+                in some site it might cause a weird behavior) -
+                {' '}
+                <code>CTRL</code>
+                {' '}
+                +
+                {' '}
+                <code>K</code>
+              </li>
+              <li>
+                Open modal -
+                {' '}
+                <code>CTRL</code>
+                {' '}
+                +
+                {' '}
+                <code>SHIFT</code>
+                {' '}
+                +
+                {' '}
+                <code>K</code>
+              </li>
+            </>
+          )}
           <li>
             Close modal -
             {' '}
