@@ -9,7 +9,7 @@ import {
   CommonTab, Actions, OpenedTab, RecentOpenedTab,
 } from '@tab-master/common/build/types';
 
-import { getFavicon } from './utils';
+import { getFavicon, removeDuplicates } from './utils';
 import {
   Backdrop, Center,
 } from './styles';
@@ -38,38 +38,46 @@ function App() {
   const [openedTabs, setOpenedTabs] = useState<OpenedTab[] | null>([]);
 
   // flat map is used for filtering + mapping
-  const transformedOpenedTabs = useMemo(() => openedTabs?.flatMap<CommonTab>((tab) => {
-    if (
-      !tab.url
+  const transformedOpenedTabs = useMemo(() => (openedTabs
+    ? removeDuplicates(
+      openedTabs.flatMap<CommonTab>((tab) => {
+        if (
+          !tab.url
 			|| !tab.title
 			|| !tab.favIconUrl
-    ) return [];
+        ) return [];
 
-    return [{
-      faviconUrl: tab.favIconUrl,
-      id: tab.virtualId,
-      title: tab.title,
-      url: tab.url,
-      action: 'switch',
-    }];
-  }), [openedTabs]);
+        return [{
+          faviconUrl: tab.favIconUrl,
+          id: tab.virtualId,
+          title: tab.title,
+          url: tab.url,
+          action: 'switch',
+        }];
+      }),
+    )
+    : []
+  ), [openedTabs]);
 
-  const transformedRecentOpenedTabs = useMemo(() => recentOpenedTabs?.flatMap<CommonTab>((tab) => {
-    if (
-      !tab.url
+  const transformedRecentOpenedTabs = useMemo(() => (recentOpenedTabs
+    ? removeDuplicates(recentOpenedTabs.flatMap<CommonTab>((tab) => {
+      if (
+        !tab.url
 			|| !tab.title
 			|| !tab.url
-    ) return [];
+      ) return [];
 
-    return [{
-      faviconUrl: getFavicon(tab.url),
-      id: tab.id,
-      title: tab.title,
-      url: tab.url,
-      action: 'open',
-      visitCount: tab.visitCount,
-    }];
-  }), [recentOpenedTabs]);
+      return [{
+        faviconUrl: getFavicon(tab.url),
+        id: tab.id,
+        title: tab.title,
+        url: tab.url,
+        action: 'open',
+        visitCount: tab.visitCount,
+      }];
+    }))
+    : []
+  ), [recentOpenedTabs]);
 
   const closeExtension = () => {
     setShowExtension(false);

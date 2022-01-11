@@ -58,7 +58,7 @@ function Modal({
   const [selectedTabId, setSelectedTabId] = useState('');
   const [expanded, setExpanded] = useState<string[]>([]);
 
-  const [combinedSelectedTabs] = useMemo(
+  const [sortedCombinedSelectedTabs, combinedSelectedTabs] = useMemo(
     () => {
       const combinedTabs = [
         ...(transformedOpenedTabs ?? []),
@@ -100,18 +100,18 @@ function Modal({
 
       return [
         removeDuplicates(filteredCombinedTabs),
-        {
-          transformedOpenedTabs,
-          transformedRecentOpenedTabs,
-        },
+        combinedTabs,
       ];
     },
     [transformedRecentOpenedTabs, transformedOpenedTabs, inputValue],
   );
 
-  const combinedSelectedTabIds = useMemo(
-    () => combinedSelectedTabs.map(({ id }) => id),
-    [combinedSelectedTabs],
+  const [sortedCombinedSelectedTabIds, combinedSelectedTabIds] = useMemo(
+    () => [
+      sortedCombinedSelectedTabs.map(({ id }) => id),
+      combinedSelectedTabs.map(({ id }) => id),
+    ],
+    [sortedCombinedSelectedTabs],
   );
 
   useEffect(() => {
@@ -120,11 +120,13 @@ function Modal({
 
   // on new filter always select the firs tab first
   useEffect(() => {
-    setSelectedTabId(combinedSelectedTabIds[0]);
-  }, [combinedSelectedTabIds]);
+    setSelectedTabId(sortedCombinedSelectedTabIds[0]);
+  }, [sortedCombinedSelectedTabIds]);
 
+  // TODO: test this!
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
-    const selectedTabIndex = combinedSelectedTabIds.findIndex((id) => id === selectedTabId);
+    const selectedTabIds = inputValue ? sortedCombinedSelectedTabIds : combinedSelectedTabIds;
+    const selectedTabIndex = selectedTabIds.findIndex((id) => id === selectedTabId);
 
     // reserved keys
     const isReservedKey = e.key === 'Tab' || e.key === 'Shift';
@@ -182,6 +184,7 @@ function Modal({
       return;
     }
 
+    // TODO: not correct it only looks the combinedSelectedTab and not the separate
     // arrow up/down button should select next/previous list element
     if (e.code === 'ArrowUp') {
       e.preventDefault();
@@ -189,10 +192,10 @@ function Modal({
       const nextSuggestionOrder = selectedTabIndex - 1;
       // if the suggestion order goes bellow zero, start over again
       const order = nextSuggestionOrder < 0
-        ? combinedSelectedTabIds.length - 1
+        ? selectedTabIds.length - 1
         : nextSuggestionOrder;
 
-      const prevTabId = combinedSelectedTabIds[order];
+      const prevTabId = selectedTabIds[order];
 
       iFrameDocument.getElementById(prevTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
@@ -201,11 +204,11 @@ function Modal({
     } else if (e.code === 'ArrowDown') {
       const prevSuggestionOrder = selectedTabIndex + 1;
       // suggestion goes above the upper limit
-      const order = prevSuggestionOrder > combinedSelectedTabIds.length - 1
+      const order = prevSuggestionOrder > selectedTabIds.length - 1
         ? 0
         : prevSuggestionOrder;
 
-      const nextTabId = combinedSelectedTabIds[order];
+      const nextTabId = selectedTabIds[order];
 
       iFrameDocument.getElementById(nextTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
@@ -237,7 +240,7 @@ function Modal({
         {inputValue
           ? (
             <Tabs
-              tabs={combinedSelectedTabs}
+              tabs={sortedCombinedSelectedTabs}
               clickCallbackField="id"
               selectedTabId={selectedTabId}
               onTabClicked={handleTabSelect}
