@@ -9,7 +9,7 @@ import {
   CommonTab, Actions, OpenedTab, RecentOpenedTab,
 } from '@tab-master/common/build/types';
 
-import { getFavicon, removeDuplicates } from './utils';
+import { getFaviconURL, removeDuplicates } from './utils';
 import {
   Backdrop, Center,
 } from './styles';
@@ -43,12 +43,11 @@ function App() {
       openedTabs.flatMap<CommonTab>((tab) => {
         if (
           !tab.url
-			|| !tab.title
-			|| !tab.favIconUrl
+					|| !tab.title
         ) return [];
 
         return [{
-          faviconUrl: tab.favIconUrl,
+          faviconUrl: tab.favIconUrl ?? getFaviconURL(tab.url),
           id: tab.virtualId,
           title: tab.title,
           url: tab.url,
@@ -63,12 +62,11 @@ function App() {
     ? removeDuplicates(recentOpenedTabs.flatMap<CommonTab>((tab) => {
       if (
         !tab.url
-			|| !tab.title
-			|| !tab.url
+				|| !tab.title
       ) return [];
 
       return [{
-        faviconUrl: getFavicon(tab.url),
+        faviconUrl: getFaviconURL(tab.url),
         id: tab.id,
         title: tab.title,
         url: tab.url,
@@ -97,7 +95,7 @@ function App() {
             })) ?? null);
             setRecentOpenedTabs(message.tabs.recent?.map((tab) => ({
               ...tab,
-              faviconUrl: getFavicon(tab.url || ''),
+              faviconUrl: getFaviconURL(tab.url || ''),
             })) ?? null);
             break;
           case 'current-state':
@@ -107,14 +105,14 @@ function App() {
             })) ?? null);
             setRecentOpenedTabs(message.tabs.recent?.map((tab) => ({
               ...tab,
-              faviconUrl: getFavicon(tab.url || ''),
+              faviconUrl: getFaviconURL(tab.url || ''),
             })) ?? null);
             break;
 
           case 'send-recent-tabs':
             setRecentOpenedTabs(message.tabs?.map((tab) => ({
               ...tab,
-              faviconUrl: getFavicon(tab.url || ''),
+              faviconUrl: getFaviconURL(tab.url || ''),
             })) ?? null);
             break;
 

@@ -48,7 +48,7 @@ export function removeDuplicates<T extends CommonTab>(
   });
 }
 
-export const getFavicon = (url: string) => {
+export const getFaviconURL = (url: string) => {
   const urlObject = new URL(url);
   return `https://${urlObject.hostname}/favicon.ico`;
 };
