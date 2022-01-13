@@ -255,23 +255,24 @@ function Modal({
               {/* OPENED TABS */}
               {
                 transformedOpenedTabs?.length
-                && (
-                  <Tabs
-                    headingTitle="OPENED TABS"
-                    tabs={transformedOpenedTabs}
-                    clickCallbackField="id"
-                    selectedTabId={selectedTabId}
-                    onTabClicked={handleTabSelect}
-                    onTabHover={setSelectedTabId}
-                    expandedTabIds={expanded}
-                    scrollingState={scrollingState}
-                    setScrollingState={setScrollingState}
-                  />
-                )
+                  ? (
+                    <Tabs
+                      headingTitle="OPENED TABS"
+                      tabs={transformedOpenedTabs}
+                      clickCallbackField="id"
+                      selectedTabId={selectedTabId}
+                      onTabClicked={handleTabSelect}
+                      onTabHover={setSelectedTabId}
+                      expandedTabIds={expanded}
+                      scrollingState={scrollingState}
+                      setScrollingState={setScrollingState}
+                    />
+                  )
+                  : undefined
               }
               {/* RECENTLY TABS */}
               {
-                transformedRecentOpenedTabs?.length && (
+                transformedRecentOpenedTabs?.length ? (
                   <Tabs
                     headingTitle="RECENT TABS"
                     tabs={transformedRecentOpenedTabs}
@@ -284,6 +285,7 @@ function Modal({
                     setScrollingState={setScrollingState}
                   />
                 )
+                  : undefined
               }
             </TabsContainer>
           )}

@@ -88,15 +88,39 @@ function Description() {
         <UnorderedList>
           {/* // TODO: add icons, for example CMD + CTRL + K with icons */}
           {activeOsDescription === 'mac' ? (
-            <li>
-              Open modal -
-              {' '}
-              <code>CMD</code>
-              {' '}
-              +
-              {' '}
-              <code>K</code>
-            </li>
+            <>
+              <li>
+                Open modal -
+                {' '}
+                <code>CMD</code>
+                {' '}
+                +
+                {' '}
+                <code>K</code>
+              </li>
+              <li>
+                Open modal (2) -
+                {' '}
+                <code>CONTROL</code>
+                {' '}
+                +
+                {' '}
+                <code>K</code>
+              </li>
+              <li>
+                Open modal (3) -
+                {' '}
+                <code>COMMAND</code>
+                {' '}
+                +
+                {' '}
+                <code>SHIFT</code>
+                {' '}
+                +
+                {' '}
+                <code>K</code>
+              </li>
+            </>
           ) : (
             <>
               <li>

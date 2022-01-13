@@ -134,7 +134,7 @@ function App() {
       if (event.repeat) return;
 
       // for Windows, ctrl + k has native binding
-      if ((event.ctrlKey) && event.key === 'k') {
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
         event.preventDefault();
         chrome.runtime.sendMessage('open-tab-master');
       }

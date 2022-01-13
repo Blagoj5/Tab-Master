@@ -31,10 +31,10 @@
 	"commands": {
 		"open-tab-master": {
       "suggested_key": {
+        "mac": "Command+Shift+K",
 				"chromeos": "Ctrl+Shift+K",
 				"windows": "Ctrl+Shift+K",
-        "linux": "Ctrl+K",
-        "mac": "Command+K"
+        "linux": "Ctrl+Shift+K"
       },
       "description": "Open Tab Master Extension"
    }
