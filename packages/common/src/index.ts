@@ -10,7 +10,7 @@ export const defaultStorageConfig: StorageConfig = {
 		maxResults: 20,
 	},
   windowSwitchEnabled: false,
-  view: 'standard',
+  view: 'minimal',
 };
 
 export default { defaultStorageConfig };
