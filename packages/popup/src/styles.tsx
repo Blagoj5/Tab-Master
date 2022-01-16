@@ -48,6 +48,7 @@ export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
 		font-family:  'Kumbh Sans', Arial, sans-serif;
 		background: var(--primary-color);
 		overflow-y: scroll;
+		font-size: unset;
 		${scrollbarStyle}
 	}
 `;

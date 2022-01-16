@@ -12,6 +12,7 @@ const Container = styled.div`
 const UnorderedList = styled.ul`
 	padding-left: 30px;
 	margin: 0;
+	font-size: 14px;
 	li {
 		margin-bottom: 10px;
 		line-height: 24px;
