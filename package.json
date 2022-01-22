@@ -16,7 +16,8 @@
     "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
     "build:packages": "NODE_ENV=production yarn workspace @tab-master/background build & yarn workspace @tab-master/common build & yarn workspace @tab-master/modal build & yarn workspace @tab-master/popup build",
     "build:watch": "nodemon scripts/build.js --verbose --watch ./packages/common/src --watch ./packages/background/src --watch ./packages/modal/src -e ts,tsx --watch ./packages/popup/src -e ts,tsx --watch ./assets/manifest.json",
-    "build": "NODE_ENV=production node scripts/build.js"
+    "build": "NODE_ENV=production node scripts/build.js",
+    "zip": "zip -r tab-master.zip build/"
   },
   "dependencies": {},
   "workspaces": {
