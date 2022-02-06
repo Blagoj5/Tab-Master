@@ -11,14 +11,6 @@ const app = (
   </React.StrictMode>
 );
 
-function maxZIndex() {
-  return Array.from(document.querySelectorAll('body *'))
-    .map((a) => parseFloat(window.getComputedStyle(a).zIndex))
-    .filter((a) => !Number.isNaN(a))
-    .sort((a, b) => a - b)
-    .pop();
-}
-
 // This is the content script when running in production
 if (process.env.NODE_ENV === 'production') {
   const dialog = document.createElement('dialog');
@@ -28,20 +20,14 @@ if (process.env.NODE_ENV === 'production') {
   dialog.open = true;
   const dialogAnchor = document.getElementById(ROOT_ID);
   if (dialogAnchor) {
-    dialogAnchor.style.zIndex = String(maxZIndex()) ?? 9999;
+    dialogAnchor.style.zIndex = '2147483647';
     dialogAnchor.style.border = '0';
     dialogAnchor.style.padding = '0';
     dialogAnchor.style.height = 'auto';
     dialogAnchor.style.width = 'auto';
   }
 
-  ReactDOM.render(
-    app,
-    document.getElementById(ROOT_ID),
-  );
+  ReactDOM.render(app, document.getElementById(ROOT_ID));
 } else {
-  ReactDOM.render(
-    app,
-    document.getElementById(ROOT_ID),
-  );
+  ReactDOM.render(app, document.getElementById(ROOT_ID));
 }
