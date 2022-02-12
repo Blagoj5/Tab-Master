@@ -15,7 +15,7 @@ export function fuzzySearch<T>(
   let result = fuse.search(keyWord);
 
   if (onSearchDone) {
-    result = onSearchDone(result);
+    result = onSearchDone?.(result) || result;
     result = result.sort(
       (a, b) => {
         if (a.score === undefined || b.score === undefined) return 0;
