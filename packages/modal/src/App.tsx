@@ -212,8 +212,8 @@ function App() {
                 <Modal
                   onChange={handleOnChange}
                   handleTabSelect={handleTabSelect}
-                  transformedOpenedTabs={transformedOpenedTabs}
-                  transformedRecentOpenedTabs={transformedRecentOpenedTabs}
+                  openedTabs={transformedOpenedTabs}
+                  recentTabs={transformedRecentOpenedTabs}
                   closeExtension={closeExtension}
                   showExtension={showExtension}
                 />

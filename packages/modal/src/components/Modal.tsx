@@ -1,14 +1,12 @@
 import React, {
-  useEffect,
-  useMemo, useRef, useState,
+  useEffect, useMemo, useRef, useState,
 } from 'react';
 import styled from 'styled-components';
 import { useFrame } from 'react-frame-component';
 import { CommonTab } from '@tab-master/common/build/types';
 
 import {
-  GlobalStyle,
-  Input, scrollbarStyle, VStack,
+  GlobalStyle, Input, scrollbarStyle, VStack,
 } from '../styles';
 import Tabs from './Tabs';
 import { fuzzySearch, removeDuplicates } from '../utils';
@@ -36,16 +34,16 @@ type Props = {
   onChange: (value: string) => void;
   handleTabSelect: (selectedTabId: string) => void;
   closeExtension: () => void;
-  transformedOpenedTabs?: CommonTab[];
-  transformedRecentOpenedTabs?: CommonTab[];
+  openedTabs?: CommonTab[];
+  recentTabs?: CommonTab[];
   showExtension: boolean;
-}
+};
 // IFRAME COMPONENT
 function Modal({
   onChange,
   handleTabSelect,
-  transformedOpenedTabs,
-  transformedRecentOpenedTabs,
+  openedTabs = [],
+  recentTabs = [],
   closeExtension,
   showExtension,
 }: Props) {
@@ -58,53 +56,65 @@ function Modal({
   const [selectedTabId, setSelectedTabId] = useState('');
   const [expanded, setExpanded] = useState<string[]>([]);
 
-  const [sortedCombinedSelectedTabs, combinedSelectedTabs] = useMemo(
-    () => {
-      const combinedTabs = [
-        ...(transformedOpenedTabs ?? []),
-        ...(transformedRecentOpenedTabs ?? []),
-      ];
+  const [sortedCombinedSelectedTabs, combinedSelectedTabs] = useMemo(() => {
+    const filteredOpenedTabs = fuzzySearch(
+      openedTabs,
+      {
+        keys: [
+          {
+            name: 'title',
+            weight: 0.6,
+          },
+          {
+            name: 'url',
+            weight: 0.4,
+          },
+        ],
+        includeScore: true,
+        ignoreLocation: true,
+        threshold: 0.25,
+      },
+      inputValue,
+    );
 
-      const filteredCombinedTabs = fuzzySearch(
-        combinedTabs,
-        {
-          keys: [
-            {
-              name: 'title',
-              weight: 0.6,
-            },
-            {
-              name: 'url',
-              weight: 0.4,
-            }],
-          includeScore: true,
-          ignoreLocation: true,
-        },
-        inputValue,
-        (result) => result.map((res) => {
-          let score = res.item.action === 'switch' && res.score ? Math.max(res.score - 0.01, 0) : res.score;
-          if (res.item.visitCount && score) {
-            // TODO: discuss with DJ about this
-            // this is constant addition for each visit that affects the score
-            const CONSTANT_ADDITION = 0.0001;
-            const { visitCount } = res.item;
-            score = Math.max(score - visitCount * CONSTANT_ADDITION, 0);
-          }
+    const filteredRecentTabs = fuzzySearch(
+      recentTabs,
+      {
+        keys: [
+          {
+            name: 'title',
+            weight: 0.6,
+          },
+          {
+            name: 'url',
+            weight: 0.4,
+          },
+        ],
+        includeScore: true,
+        ignoreLocation: true,
+      },
+      inputValue,
+      (result) => result.map((res) => {
+        let { score } = res;
+        if (res.item.visitCount && score) {
+          // TODO: discuss with DJ about this
+          // this is constant addition for each visit that affects the score
+          const CONSTANT_ADDITION = 0.0001;
+          const { visitCount } = res.item;
+          score = Math.max(score - visitCount * CONSTANT_ADDITION, 0);
+        }
 
-          return ({
-            ...res,
-            score,
-          });
-        }),
-      );
+        return {
+          ...res,
+          score,
+        };
+      }),
+    );
 
-      return [
-        removeDuplicates(filteredCombinedTabs),
-        combinedTabs,
-      ];
-    },
-    [transformedRecentOpenedTabs, transformedOpenedTabs, inputValue],
-  );
+    const combinedTabs = [...filteredOpenedTabs, ...filteredRecentTabs];
+
+    return [removeDuplicates(combinedTabs), combinedTabs];
+  }, [recentTabs, openedTabs, inputValue]);
 
   const [sortedCombinedSelectedTabIds, combinedSelectedTabIds] = useMemo(
     () => [
@@ -191,26 +201,26 @@ function Modal({
 
       const nextSuggestionOrder = selectedTabIndex - 1;
       // if the suggestion order goes bellow zero, start over again
-      const order = nextSuggestionOrder < 0
-        ? selectedTabIds.length - 1
-        : nextSuggestionOrder;
+      const order = nextSuggestionOrder < 0 ? selectedTabIds.length - 1 : nextSuggestionOrder;
 
       const prevTabId = selectedTabIds[order];
 
-      iFrameDocument.getElementById(prevTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      iFrameDocument
+        .getElementById(prevTabId)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
       setScrollingState('arrows');
       setSelectedTabId(prevTabId);
     } else if (e.code === 'ArrowDown') {
       const prevSuggestionOrder = selectedTabIndex + 1;
       // suggestion goes above the upper limit
-      const order = prevSuggestionOrder > selectedTabIds.length - 1
-        ? 0
-        : prevSuggestionOrder;
+      const order = prevSuggestionOrder > selectedTabIds.length - 1 ? 0 : prevSuggestionOrder;
 
       const nextTabId = selectedTabIds[order];
 
-      iFrameDocument.getElementById(nextTabId)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      iFrameDocument
+        .getElementById(nextTabId)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 
       setScrollingState('arrows');
       setSelectedTabId(nextTabId);
@@ -237,58 +247,49 @@ function Modal({
           onKeyDown={handleKeyDown}
           onChange={handleOnChange}
         />
-        {inputValue
-          ? (
-            <Tabs
-              tabs={sortedCombinedSelectedTabs}
-              clickCallbackField="id"
-              selectedTabId={selectedTabId}
-              onTabClicked={handleTabSelect}
-              onTabHover={setSelectedTabId}
-              expandedTabIds={expanded}
-              scrollingState={scrollingState}
-              setScrollingState={setScrollingState}
-            />
-          )
-          : (
-            <TabsContainer>
-              {/* OPENED TABS */}
-              {
-                transformedOpenedTabs?.length
-                  ? (
-                    <Tabs
-                      headingTitle="OPENED TABS"
-                      tabs={transformedOpenedTabs}
-                      clickCallbackField="id"
-                      selectedTabId={selectedTabId}
-                      onTabClicked={handleTabSelect}
-                      onTabHover={setSelectedTabId}
-                      expandedTabIds={expanded}
-                      scrollingState={scrollingState}
-                      setScrollingState={setScrollingState}
-                    />
-                  )
-                  : undefined
-              }
-              {/* RECENTLY TABS */}
-              {
-                transformedRecentOpenedTabs?.length ? (
-                  <Tabs
-                    headingTitle="RECENT TABS"
-                    tabs={transformedRecentOpenedTabs}
-                    clickCallbackField="id"
-                    selectedTabId={selectedTabId}
-                    onTabClicked={handleTabSelect}
-                    onTabHover={setSelectedTabId}
-                    expandedTabIds={expanded}
-                    scrollingState={scrollingState}
-                    setScrollingState={setScrollingState}
-                  />
-                )
-                  : undefined
-              }
-            </TabsContainer>
-          )}
+        {inputValue ? (
+          <Tabs
+            tabs={sortedCombinedSelectedTabs}
+            clickCallbackField="id"
+            selectedTabId={selectedTabId}
+            onTabClicked={handleTabSelect}
+            onTabHover={setSelectedTabId}
+            expandedTabIds={expanded}
+            scrollingState={scrollingState}
+            setScrollingState={setScrollingState}
+          />
+        ) : (
+          <TabsContainer>
+            {/* OPENED TABS */}
+            {openedTabs?.length ? (
+              <Tabs
+                headingTitle="OPENED TABS"
+                tabs={openedTabs}
+                clickCallbackField="id"
+                selectedTabId={selectedTabId}
+                onTabClicked={handleTabSelect}
+                onTabHover={setSelectedTabId}
+                expandedTabIds={expanded}
+                scrollingState={scrollingState}
+                setScrollingState={setScrollingState}
+              />
+            ) : undefined}
+            {/* RECENTLY TABS */}
+            {recentTabs?.length ? (
+              <Tabs
+                headingTitle="RECENT TABS"
+                tabs={recentTabs}
+                clickCallbackField="id"
+                selectedTabId={selectedTabId}
+                onTabClicked={handleTabSelect}
+                onTabHover={setSelectedTabId}
+                expandedTabIds={expanded}
+                scrollingState={scrollingState}
+                setScrollingState={setScrollingState}
+              />
+            ) : undefined}
+          </TabsContainer>
+        )}
       </ModalStyle>
     </>
   );
