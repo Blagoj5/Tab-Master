@@ -6,6 +6,7 @@
   "private": true,
   "devDependencies": {
     "@types/node": "^17.0.8",
+    "auto-changelog": "^2.4.0",
     "fs-extra": "^10.0.0",
     "node": "^17.3.0",
     "nodemon": "^2.0.15"
@@ -17,7 +18,8 @@
     "build:packages": "NODE_ENV=production yarn workspace @tab-master/background build & yarn workspace @tab-master/common build & yarn workspace @tab-master/modal build & yarn workspace @tab-master/popup build",
     "build:watch": "nodemon scripts/build.js --verbose --watch ./packages/common/src --watch ./packages/background/src --watch ./packages/modal/src -e ts,tsx --watch ./packages/popup/src -e ts,tsx --watch ./assets/manifest.json",
     "build": "NODE_ENV=production node scripts/build.js",
-    "zip": "zip -r tab-master.zip build/"
+    "zip": "zip -r tab-master.zip build/",
+    "changelog": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {},
   "workspaces": {
