@@ -43,19 +43,24 @@ class DomHelper {
       }
     };
 
-    const onContentScriptLoaded = (message: unknown, sender: chrome.runtime.MessageSender) => {
-      if (typeof message === 'string' && message === 'READY') {
-        if (sender.tab?.id) {
-          this.loadedTabs[sender.tab.id] = sender.tab;
+    const messageListener = (message: unknown, sender: chrome.runtime.MessageSender) => {
+      if (typeof message === 'string') {
+        switch (message) {
+          case 'READY':
+            if (sender.tab?.id) {
+              this.loadedTabs[sender.tab.id] = sender.tab;
+            }
+            break;
+          case 'open-tab-master':
+          default:
+            onOpenExtensionMessage();
+            break;
         }
-      }
-      if (typeof message === 'string' && message === 'open-tab-master') {
-        onOpenExtensionMessage();
       }
     };
 
-    if (!chrome.runtime.onMessage.hasListener(onContentScriptLoaded)) {
-      chrome.runtime.onMessage.addListener(onContentScriptLoaded);
+    if (!chrome.runtime.onMessage.hasListener(messageListener)) {
+      chrome.runtime.onMessage.addListener(messageListener);
     }
     if (!chrome.tabs.onRemoved.hasListener(onTabClosed)) {
       chrome.tabs.onRemoved.addListener(onTabClosed);
