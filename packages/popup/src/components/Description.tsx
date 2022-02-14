@@ -91,7 +91,7 @@ function Description() {
           {activeOsDescription === 'mac' ? (
             <>
               <li>
-                Open modal -
+                Toggle modal -
                 {' '}
                 <code>CMD</code>
                 {' '}
@@ -100,7 +100,7 @@ function Description() {
                 <code>K</code>
               </li>
               <li>
-                Open modal (2) -
+                Toggle modal (2) -
                 {' '}
                 <code>CONTROL</code>
                 {' '}
@@ -125,7 +125,7 @@ function Description() {
           ) : (
             <>
               <li>
-                Open modal (native keybinding is overridden which
+                Toggle modal (native keybinding is overridden which
                 in some site it might cause a weird behavior) -
                 {' '}
                 <code>CTRL</code>

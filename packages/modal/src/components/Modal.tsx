@@ -133,15 +133,18 @@ function Modal({
     setSelectedTabId(sortedCombinedSelectedTabIds[0]);
   }, [sortedCombinedSelectedTabIds]);
 
-  // TODO: test this!
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
+    e.stopPropagation();
     const selectedTabIds = inputValue ? sortedCombinedSelectedTabIds : combinedSelectedTabIds;
     const selectedTabIndex = selectedTabIds.findIndex((id) => id === selectedTabId);
 
-    // reserved keys
-    const isReservedKey = e.key === 'Tab' || e.key === 'Shift';
-    if (isReservedKey) {
-      e.preventDefault();
+    // for Windows, ctrl + k has native binding
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      closeExtension();
+      // changing the focus from the iframe to the body, since the main
+      // event listener is there
+      window.focus();
+      return;
     }
 
     if (e.key === 'Escape') {
@@ -151,6 +154,12 @@ function Modal({
       // event listener is there
       window.focus();
       return;
+    }
+
+    // reserved keys
+    const isReservedKey = e.key === 'Tab' || e.key === 'Shift';
+    if (isReservedKey) {
+      e.preventDefault();
     }
 
     // toggle expand/collapse

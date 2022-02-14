@@ -134,13 +134,7 @@ function App() {
       // for Windows, ctrl + k has native binding
       if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
         event.preventDefault();
-        chrome.runtime.sendMessage('open-tab-master');
-      }
-
-      // TODO: this might be useless, since the focus is in the iframe
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        closeExtension();
+        if (!showExtension) chrome.runtime.sendMessage('open-tab-master');
       }
     };
 
