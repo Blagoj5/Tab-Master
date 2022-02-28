@@ -3,6 +3,7 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import { useFrame } from 'react-frame-component';
+
 import { CommonTab } from '@tab-master/common/build/types';
 
 import {
@@ -214,9 +215,8 @@ function Modal({
 
       const prevTabId = selectedTabIds[order];
 
-      iFrameDocument
-        .getElementById(prevTabId)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      const target = iFrameDocument.getElementById(prevTabId);
+      target?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
 
       setScrollingState('arrows');
       setSelectedTabId(prevTabId);
@@ -227,9 +227,8 @@ function Modal({
 
       const nextTabId = selectedTabIds[order];
 
-      iFrameDocument
-        .getElementById(nextTabId)
-        ?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      const target = iFrameDocument.getElementById(nextTabId);
+      target?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
 
       setScrollingState('arrows');
       setSelectedTabId(nextTabId);
