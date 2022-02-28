@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Master",
-  "version": "1.0.3",
+  "version": "1.0.4",
 	"description": "Navigate freely. Tab Mater provides easy and intuitive way to navigate trough tabs and history",
 	"icons": {  
 		"16": "images/icon16.png",
