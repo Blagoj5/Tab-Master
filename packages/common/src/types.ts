@@ -42,7 +42,6 @@ export type CommonTab = {
   action: 'open' | 'switch';
   visitCount?: number;
 };
-// type ChromeTabWithoutId = Omit<browser.tabs.Tab, 'id'>;
 
 export type OpenedTab = browser.tabs.Tab & {
   virtualId: string;

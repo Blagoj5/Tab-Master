@@ -9,7 +9,9 @@
     "auto-changelog": "^2.4.0",
     "fs-extra": "^10.0.0",
     "node": "^17.3.0",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+		"webextension-polyfill": "^0.8.0",
+		"@types/firefox-webext-browser": "^94.0.1"
   },
   "scripts": {
     "type-check": "tsc --noEmit --pretty packages",

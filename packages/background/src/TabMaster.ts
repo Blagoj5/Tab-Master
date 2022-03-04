@@ -4,9 +4,6 @@ import type DomHelper from './DomHelper';
 class TabMaster {
    private port: browser.runtime.Port | undefined;
 
-   // eslint-disable-next-line no-unused-vars
-   //  private onMessageListener: (message: Actions, port: browser.runtime.Port) => void;
-
    domHelper: DomHelper;
 
    constructor(domHelper: DomHelper) {
