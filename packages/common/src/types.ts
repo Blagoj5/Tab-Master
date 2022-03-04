@@ -6,15 +6,15 @@ export type Actions =
 | {
   type: 'open-tab-master',
   tabs: {
-    open: chrome.tabs.Tab[] | null,
-    recent: chrome.history.HistoryItem[] | null,
+    open: browser.tabs.Tab[] | null,
+    recent: browser.history.HistoryItem[] | null,
   },
 }
 | {
   type: 'current-state',
   tabs: {
-    open: chrome.tabs.Tab[] | null,
-    recent: chrome.history.HistoryItem[] | null,
+    open: browser.tabs.Tab[] | null,
+    recent: browser.history.HistoryItem[] | null,
   },
 }
 | {
@@ -31,7 +31,7 @@ export type Actions =
 }
 | {
   type: 'send-recent-tabs',
-  tabs: chrome.history.HistoryItem[] | null,
+  tabs: browser.history.HistoryItem[] | null,
 };
 
 export type CommonTab = {
@@ -42,13 +42,13 @@ export type CommonTab = {
   action: 'open' | 'switch';
   visitCount?: number;
 };
-// type ChromeTabWithoutId = Omit<chrome.tabs.Tab, 'id'>;
+// type ChromeTabWithoutId = Omit<browser.tabs.Tab, 'id'>;
 
-export type OpenedTab = chrome.tabs.Tab & {
+export type OpenedTab = browser.tabs.Tab & {
   virtualId: string;
 }
 
-export type RecentOpenedTab = chrome.history.HistoryItem & {
+export type RecentOpenedTab = browser.history.HistoryItem & {
   faviconUrl: string;
 };
 

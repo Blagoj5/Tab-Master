@@ -2,15 +2,14 @@ import { Actions } from '@tab-master/common/build/types';
 import type DomHelper from './DomHelper';
 
 class TabMaster {
-   private port: chrome.runtime.Port | undefined;
+   private port: browser.runtime.Port | undefined;
 
    // eslint-disable-next-line no-unused-vars
-   private onMessageListener: (message: Actions, port: chrome.runtime.Port) => void;
+   //  private onMessageListener: (message: Actions, port: browser.runtime.Port) => void;
 
    domHelper: DomHelper;
 
-   constructor(domHelper: DomHelper, onMessageListener: TabMaster['onMessageListener']) {
-     this.onMessageListener = onMessageListener;
+   constructor(domHelper: DomHelper) {
      this.domHelper = domHelper;
    }
 
@@ -40,11 +39,13 @@ class TabMaster {
        this.port.postMessage(openMessage);
 
        // Listeners
-       // this.onDisconnect();
-       this.onMessage();
+       const hasListener = this.port.onMessage.hasListener(this.onMessageListener);
+       if (!hasListener) {
+         this.port.onMessage.addListener(this.onMessageListener);
+       }
      });
 
-     chrome.commands.onCommand.addListener(async (command) => {
+     browser.commands.onCommand.addListener(async (command) => {
        //  if extension is disabled from settings, find a better way for this
        if (!this.domHelper.settings.extensionEnabled) return;
 
@@ -53,7 +54,7 @@ class TabMaster {
          await this.openTabMaster();
        }
 
-       // TODO: I CAN't FIND ESCAPE FOR chrome.commands, even in chrome://extensions/shortcuts
+       // TODO: I CAN't FIND ESCAPE FOR browser.commands, even in chrome://extensions/shortcuts
        // Escape
        if (command === 'close-tab-master') {
          const message: Actions = {
@@ -87,15 +88,39 @@ class TabMaster {
 
      this.port.postMessage(openMessage);
 
-     // Listeners
-     // this.onDisconnect();
-     this.onMessage();
+     const hasListener = this.port.onMessage.hasListener(this.onMessageListener);
+     if (!hasListener) {
+       this.port.onMessage.addListener(this.onMessageListener);
+     }
    }
 
-   private onMessage() {
-     const listenerExists = this.port?.onMessage.hasListener(this.onMessageListener);
-     if (!listenerExists) {
-       this.port?.onMessage.addListener(this.onMessageListener);
+   private onMessageListener(message: object) {
+     const isActions = (data:any): data is Actions => Boolean(data);
+     if (!isActions(message)) return;
+
+     switch (message.type) {
+       case 'switch-tab':
+         browser.tabs.update(message.tabId, { active: true });
+         break;
+       case 'search-history':
+         this.domHelper.getRecentlyOpenedTabs(message.keyword)
+           .then((recentTabs) => {
+             const payload: Actions = {
+               type: 'send-recent-tabs',
+               tabs: recentTabs,
+             };
+             if (!this.port) throw new Error('port does not exist');
+             this.port.postMessage(payload);
+           });
+         break;
+       case 'open-tab':
+         browser.tabs.create({
+           active: true,
+           url: message.newTabUrl,
+         });
+         break;
+       default:
+         break;
      }
    }
 

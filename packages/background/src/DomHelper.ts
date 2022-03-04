@@ -2,12 +2,13 @@ import { defaultStorageConfig } from '@tab-master/common';
 import { StorageConfig } from '@tab-master/common/build/types';
 import { checkTabLoaded, getMsForADay } from './utils';
 
+type Tab = browser.tabs.Tab;
 class DomHelper {
-  currentTab: Omit<chrome.tabs.Tab, 'id'> & { id: number } | undefined;
+  currentTab: Omit<Tab, 'id'> & { id: number } | undefined;
 
-  loadedTabs: { [tabId: string]: chrome.tabs.Tab } = {};
+  loadedTabs: { [tabId: string]: Tab } = {};
 
-  activePorts: { [tabId: string ]: chrome.runtime.Port } = {};
+  activePorts: { [tabId: string ]: browser.runtime.Port } = {};
 
   settings: StorageConfig = defaultStorageConfig;
 
@@ -30,9 +31,9 @@ class DomHelper {
       }
     };
 
-    chrome.storage.onChanged.addListener(storageChangeListener);
+    browser.storage.onChanged.addListener(storageChangeListener);
 
-    const persistedSettings: Partial<StorageConfig> = await chrome.storage.sync.get(null);
+    const persistedSettings: Partial<StorageConfig> = await browser.storage.sync.get();
     if (persistedSettings) this.setSettings(persistedSettings);
   }
 
@@ -43,7 +44,7 @@ class DomHelper {
       }
     };
 
-    const messageListener = (message: unknown, sender: chrome.runtime.MessageSender) => {
+    const messageListener = (message: unknown, sender: browser.runtime.MessageSender) => {
       if (typeof message === 'string') {
         switch (message) {
           case 'READY':
@@ -59,22 +60,22 @@ class DomHelper {
       }
     };
 
-    if (!chrome.runtime.onMessage.hasListener(messageListener)) {
-      chrome.runtime.onMessage.addListener(messageListener);
+    if (!browser.runtime.onMessage.hasListener(messageListener)) {
+      browser.runtime.onMessage.addListener(messageListener);
     }
-    if (!chrome.tabs.onRemoved.hasListener(onTabClosed)) {
-      chrome.tabs.onRemoved.addListener(onTabClosed);
+    if (!browser.tabs.onRemoved.hasListener(onTabClosed)) {
+      browser.tabs.onRemoved.addListener(onTabClosed);
     }
   }
 
   async getCurrentTab() {
-    const queryOptions: chrome.tabs.QueryInfo = {
+    const queryOptions: browser.tabs._QueryQueryInfo = {
       active: true,
       currentWindow: true,
       // title: '',
       // url: '',
     };
-    const [tab] = await chrome.tabs.query(queryOptions);
+    const [tab] = await browser.tabs.query(queryOptions);
     this.currentTab = {
       ...tab,
       id: tab.id ?? -1,
@@ -82,53 +83,47 @@ class DomHelper {
     return tab;
   }
 
-  connectToContentScript() {
+  async connectToContentScript() {
     // eslint-disable-next-line no-async-promise-executor
-    return new Promise<chrome.runtime.Port>(async (res, reject) => {
-      const currentTab = await this.getCurrentTab();
+    const currentTab = await this.getCurrentTab();
 
-      if (!currentTab.id) {
-        reject(new Error('Current tab does not exist'));
-        return;
-      }
+    if (!currentTab.id) throw new Error('Current tab does not exist');
 
-      let tabIsLoaded = Boolean(this.loadedTabs[currentTab.id]);
-      if (!tabIsLoaded) tabIsLoaded = await checkTabLoaded(currentTab.id);
-      if (tabIsLoaded) {
-        const existingPort = this.activePorts[currentTab.id];
-        if (existingPort) {
-          res(existingPort);
-        } else {
-          const port = chrome.tabs.connect(currentTab.id, {
-            name: `init-${currentTab.id}`,
-          });
-          port.onDisconnect.addListener(() => {
-            delete this.activePorts[currentTab.id as number];
-          });
-          this.activePorts[currentTab.id] = port;
-          res(port);
-        }
-      } else {
-        // eslint-disable-next-line no-console
-        console.warn('Content script on open tab is not loaded yet');
-        // reject(new Error('Content script on open tab is not loaded yet'));
+    let tabIsLoaded = Boolean(this.loadedTabs[currentTab.id]);
+    if (!tabIsLoaded) tabIsLoaded = await checkTabLoaded(currentTab.id);
+    if (tabIsLoaded) {
+      const existingPort = this.activePorts[currentTab.id];
+      if (existingPort) {
+        return existingPort;
       }
-    });
+      const port = browser.tabs.connect(currentTab.id, {
+        name: `init-${currentTab.id}`,
+      });
+      port.onDisconnect.addListener(() => {
+        delete this.activePorts[currentTab.id as number];
+      });
+      this.activePorts[currentTab.id] = port;
+      return port;
+    }
+    // eslint-disable-next-line no-console
+    console.warn('Content script on open tab is not loaded yet');
+    return null;
+    // reject(new Error('Content script on open tab is not loaded yet'));
   }
 
-  getOpenedTabs() {
-    return new Promise<chrome.tabs.Tab[] | null>((res) => {
-      if (!this.settings.openTabsEnabled) {
-        res(null);
-        return;
-      }
-      chrome.tabs.query({ currentWindow: true }, (tabs) => res(tabs.filter(
-        (item) => item.id !== this.currentTab?.id && item.url !== this.currentTab?.url,
-      )));
+  async getOpenedTabs() {
+    if (!this.settings.openTabsEnabled) return null;
+
+    const tabs = await browser.tabs.query({
+      currentWindow: true,
     });
+
+    return tabs.filter(
+      (item) => item.id !== this.currentTab?.id && item.url !== this.currentTab?.url,
+    );
   }
 
-  getRecentlyOpenedTabs(text = '') {
+  async getRecentlyOpenedTabs(text = '') {
     const historyOptionsEnabled = this.settings.historyEnabled;
     const endTime = historyOptionsEnabled && this.settings.history.to
       ? this.settings.history.to
@@ -139,26 +134,22 @@ class DomHelper {
     const maxResults = historyOptionsEnabled
       ? this.settings.history.maxResults
       : 20;
-    return new Promise<chrome.history.HistoryItem[] | null>((res) => {
-      if (!this.settings.recentTabsEnabled) {
-        res(null);
-        return;
-      }
 
-      chrome.history.search({
-        text,
-        endTime,
-        startTime,
-        maxResults,
-      }, (historyItems) => {
-        const filteredHistoryItems = historyItems.filter(
-          // TODO: in future maybe better filtering, by checking if the url points to same content
-          // TODO: dont't show it twice (if it's cannoncial link)
-          (item) => item.id !== String(this.currentTab?.id) && item.url !== this.currentTab?.url,
-        );
-        return res(filteredHistoryItems);
-      });
+    if (!this.settings.recentTabsEnabled) return null;
+
+    const historyItems = await browser.history.search({
+      text,
+      endTime,
+      startTime,
+      maxResults,
     });
+
+    const filteredHistoryItems = historyItems.filter(
+      // TODO: in future maybe better filtering, by checking if the url points to same content
+      // TODO: dont't show it twice (if it's cannoncial link)
+      (item) => item.id !== String(this.currentTab?.id) && item.url !== this.currentTab?.url,
+    );
+    return filteredHistoryItems;
   }
 }
 

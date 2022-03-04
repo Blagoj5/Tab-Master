@@ -200,7 +200,7 @@ function App() {
         <SubTitle>
           Options page:
           {' '}
-          <ButtonLink onClick={() => chrome.runtime.openOptionsPage()}>Full Screen</ButtonLink>
+          <ButtonLink onClick={() => browser.runtime.openOptionsPage()}>Full Screen</ButtonLink>
         </SubTitle>
       </Container>
     </div>

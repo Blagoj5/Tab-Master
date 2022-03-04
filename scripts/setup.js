@@ -7,6 +7,11 @@ const setup = () => {
 	}
 
 	copySync('assets', 'build', { overwrite: true, recursive: true });
+	copySync(
+		'node_modules/webextension-polyfill/dist/browser-polyfill.js', 
+		'build/browser-polyfill.js', 
+		{ overwrite: true }
+	);
 };
 
 setup();

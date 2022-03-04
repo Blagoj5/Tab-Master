@@ -1,6 +1,6 @@
 {
   "name": "tab-master-ts",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -12,7 +12,7 @@
     "nodemon": "^2.0.15"
   },
   "scripts": {
-    "type-check": "tsc --noEmit --pretty",
+    "type-check": "tsc --noEmit --pretty packages",
     "copy-files": "ncp assets/manifest.json build/manifest.json",
     "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
     "build:packages": "NODE_ENV=production yarn workspace @tab-master/background build & yarn workspace @tab-master/common build & yarn workspace @tab-master/modal build & yarn workspace @tab-master/popup build",

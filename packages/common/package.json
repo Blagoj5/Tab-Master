@@ -8,10 +8,11 @@
     "@babel/core": "^7.16.5",
     "@babel/preset-env": "^7.16.5",
     "@babel/preset-typescript": "^7.16.5",
+    "@types/firefox-webext-browser": "^94.0.1",
     "typescript": "^4.5.4"
   },
   "scripts": {
     "watch": "babel --watch src ---out-dir build --extensions '.ts,.tsx' && tsc",
-		"build": "babel src --out-dir build --extensions '.ts,.tsx' && tsc"
+    "build": "babel src --out-dir build --extensions '.ts,.tsx' && tsc"
   }
 }
