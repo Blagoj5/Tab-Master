@@ -1,8 +1,9 @@
 /* eslint-disable import/prefer-default-export */
 
-export function getMsForADay(day: number) {
+export function getMsForNDay(day: number) {
   return day * 24 * 60 * 60 * 1000;
 }
+
 export async function checkTabLoaded(tabId: number) {
   const tab = await browser.tabs.get(tabId);
 

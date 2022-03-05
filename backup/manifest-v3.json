@@ -42,7 +42,9 @@
   "action": {
     "default_popup": "popup/index.html"
   },
-  "options_page": "popup/index.html",
+	"options_ui": {
+		"page": "popup/index.html"
+	},
   "web_accessible_resources": [
     {
       "resources": [ "/images/icon16.png" ],
