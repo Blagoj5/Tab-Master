@@ -21,9 +21,10 @@ export const Text = styled(EllipsisText)<{textAlign?: string, isUrl?: boolean}>`
 `;
 
 export const IconContainer = styled.div<{isAtTop?: boolean}>`
+	display: flex;
   padding-right: 1rem;
 	color: var(--text-color);
-	margin-left: auto;
+	margin-left: 10px;
 	align-self: ${(props) => (props.isAtTop && 'flex-start')};
 	padding-top: ${(props) => (props.isAtTop && '10px')};
 `;
