@@ -125,6 +125,10 @@ function Modal({
     [sortedCombinedSelectedTabs],
   );
 
+  const resetScroll = () => {
+    iFrameDocument.getElementById(combinedSelectedTabIds[0])?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
+  };
+
   useEffect(() => {
     inputRef.current?.focus();
   }, [showExtension]);
@@ -142,12 +146,14 @@ function Modal({
     // for Windows, ctrl + k has native binding
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
+      resetScroll();
       closeExtension();
       return;
     }
 
     if (e.key === 'Escape') {
       e.preventDefault();
+      resetScroll();
       closeExtension();
       setInputValue('');
       return;
@@ -195,8 +201,11 @@ function Modal({
     // on enter
     if (e.code === 'Enter' && selectedTabId) {
       e.preventDefault();
+
       handleTabSelect(selectedTabId);
+      resetScroll();
       setInputValue('');
+
       return;
     }
 
