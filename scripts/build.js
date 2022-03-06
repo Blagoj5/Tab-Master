@@ -30,12 +30,12 @@ const config = [
 	},
 ]
 
-const build = () => {
+const build = async () => {
 	// build the packages
 	execSync('yarn build:packages');
 	execSync('node scripts/setup.js');
 
-	return Promise.all(config.map(({dest, source}) => new Promise((res, rej) => {
+	await Promise.all(config.map(({dest, source}) => new Promise((res, rej) => {
 		const dirExists = fse.existsSync(dest.path);
 		// make sure that path exists
 		if (dirExists) {
@@ -53,7 +53,10 @@ const build = () => {
 		if (dest.extraFiles) {
 			dest.extraFiles.forEach((file) => fse.removeSync(path.resolve(dest.path, file)))
 		}
+		res(true)
 	})));
+
+	execSync('node scripts/transfer.js');
 }
 
 build();
