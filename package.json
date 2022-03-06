@@ -5,13 +5,14 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
+    "@types/firefox-webext-browser": "^94.0.1",
     "@types/node": "^17.0.8",
     "auto-changelog": "^2.4.0",
     "fs-extra": "^10.0.0",
     "node": "^17.3.0",
     "nodemon": "^2.0.15",
-		"webextension-polyfill": "^0.8.0",
-		"@types/firefox-webext-browser": "^94.0.1"
+    "rimraf": "^3.0.2",
+    "webextension-polyfill": "^0.8.0"
   },
   "scripts": {
     "type-check": "tsc --noEmit --pretty packages",
@@ -20,7 +21,8 @@
     "build:packages": "NODE_ENV=production yarn workspace @tab-master/background build & yarn workspace @tab-master/common build & yarn workspace @tab-master/modal build & yarn workspace @tab-master/popup build",
     "build:watch": "nodemon scripts/build.js --verbose --watch ./packages/common/src --watch ./packages/background/src --watch ./packages/modal/src -e ts,tsx --watch ./packages/popup/src -e ts,tsx --watch ./assets/manifest.json",
     "build": "NODE_ENV=production node scripts/build.js",
-    "zip": "zip -r tab-master-chrome.zip build-chrome/* & zip -r tab-master-firefox.zip build-firefox/*",
+    "pre:zip": "rimraf tab-master-chrome.zip & rimraf tab-master-firefox.zip",
+    "zip": "zip -r -FS tab-master-chrome.zip build-chrome/* & zip -r -FS tab-master-firefox.zip build-firefox/*",
     "changelog": "auto-changelog -p && git add CHANGELOG.md"
   },
   "dependencies": {},

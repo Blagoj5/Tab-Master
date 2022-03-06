@@ -16,7 +16,9 @@
   - Used for creating the dialog with specific id that react script will use
   - Used for creating and injecting the react script to the previously created dialog with a specific ID
 
-### How to build and test locally
+### Chrome
+
+#### How to build and test locally
 
 - yarn build
 - Go to `chrome://extensions`
@@ -24,7 +26,7 @@
 - Load unpacked
 - Go to any page and press ctrl/cmd + key
 
-### How to use it for dev
+#### How to use it for dev
 
 - yarn build:watch
 - Go to `chrome://extensions`
@@ -33,10 +35,27 @@
 - Go to any page and press ctrl/cmd + key
 - If you do any changes it will automatically build the extension with all the changes, you only have to press on the refresh icon of the extension
 
-### How to use it for dev, individually each package
+#### How to use it for dev, individually each package
 
 - Go to the package you want to run and do `yarn`, followed by `yarn dev`
 - `yarn build` used from inside the package, it will only build that package in the current folder
+
+### Firefox
+
+#### How to build and test locally
+
+- yarn build
+- Go to `about://debugging` -> `This Firefox`
+- Load Temporary Add-on -> Select `build-firefox/manifest.json`
+- Go to any page and press ctrl/cmd + key
+
+#### How to use it for dev
+
+- yarn build:watch
+- Go to `about://debugging` -> `This Firefox`
+- Load Temporary Add-on -> Select `build-firefox/manifest.json`
+- Go to any page and press ctrl/cmd + key
+- If you do any changes it will automatically build the extension with all the changes, you only have to press on the refresh icon of the extension
 
 ### Project Structure
 
