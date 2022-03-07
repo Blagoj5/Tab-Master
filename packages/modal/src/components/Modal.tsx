@@ -125,6 +125,10 @@ function Modal({
     [sortedCombinedSelectedTabs],
   );
 
+  const resetScroll = () => {
+    iFrameDocument.getElementById(combinedSelectedTabIds[0])?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
+  };
+
   useEffect(() => {
     inputRef.current?.focus();
   }, [showExtension]);
@@ -141,19 +145,17 @@ function Modal({
 
     // for Windows, ctrl + k has native binding
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      resetScroll();
       closeExtension();
-      // changing the focus from the iframe to the body, since the main
-      // event listener is there
-      window.focus();
       return;
     }
 
     if (e.key === 'Escape') {
+      e.preventDefault();
+      resetScroll();
       closeExtension();
       setInputValue('');
-      // changing the focus from the iframe to the body, since the main
-      // event listener is there
-      window.focus();
       return;
     }
 
@@ -199,8 +201,11 @@ function Modal({
     // on enter
     if (e.code === 'Enter' && selectedTabId) {
       e.preventDefault();
+
       handleTabSelect(selectedTabId);
+      resetScroll();
       setInputValue('');
+
       return;
     }
 

@@ -29,7 +29,6 @@
 		"resolveJsonModule": true,
 		"allowJs": true,
 		"declaration": true,
-		"emitDeclarationOnly": true,
 		"isolatedModules": false,
 		"jsx": "react-jsx"
 	},

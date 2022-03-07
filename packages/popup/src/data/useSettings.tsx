@@ -1,7 +1,7 @@
 import { defaultStorageConfig } from '@tab-master/common';
 import { StorageConfig } from '@tab-master/common/build/types';
 import { useEffect, useReducer } from 'react';
-import setChromeStorage from '../utils/setChromeStorage';
+import setBrowserStorage from '../utils/setChromeStorage';
 
 type Action = {
   type: 'toggleExtensionEnable';
@@ -36,7 +36,7 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
     }
 
     case 'toggleDescription': {
-      setChromeStorage({ showDescription: !state.showDescription });
+      setBrowserStorage({ showDescription: !state.showDescription });
       return {
         ...state,
         showDescription: !state.showDescription,
@@ -45,7 +45,7 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
 
     case 'toggleExtensionEnable': {
       const newExtensionEnabled = !state.extensionEnabled;
-      setChromeStorage({ extensionEnabled: newExtensionEnabled });
+      setBrowserStorage({ extensionEnabled: newExtensionEnabled });
       return {
         ...state,
         extensionEnabled: newExtensionEnabled,
@@ -59,7 +59,7 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
         : !state.openTabsEnabled;
 
       if (newOpenTabsEnabled === state.openTabsEnabled) return state;
-      setChromeStorage({ openTabsEnabled: newOpenTabsEnabled });
+      setBrowserStorage({ openTabsEnabled: newOpenTabsEnabled });
 
       return {
         ...state,
@@ -74,7 +74,7 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
         : !state.recentTabsEnabled;
 
       if (newRecentTabsEnabled === state.recentTabsEnabled) return state;
-      setChromeStorage({ recentTabsEnabled: newRecentTabsEnabled });
+      setBrowserStorage({ recentTabsEnabled: newRecentTabsEnabled });
 
       return {
         ...state,
@@ -84,7 +84,7 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
 
     case 'toggleHistoryEnabled': {
       const newHistoryEnabled = !state.historyEnabled;
-      setChromeStorage({ historyEnabled: newHistoryEnabled });
+      setBrowserStorage({ historyEnabled: newHistoryEnabled });
       return {
         ...state,
         historyEnabled: newHistoryEnabled,
@@ -94,7 +94,7 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
     case 'setHistoryOptions': {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { type: _, ...newHistory } = action;
-      setChromeStorage({ history: newHistory });
+      setBrowserStorage({ history: newHistory });
       return {
         ...state,
         history: newHistory,
@@ -103,7 +103,7 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
 
     case 'setView': {
       const { view } = action;
-      setChromeStorage({ view });
+      setBrowserStorage({ view });
       return {
         ...state,
         view,
@@ -128,12 +128,12 @@ export default function useSettings() {
 
   useEffect(() => {
     const setInitialSettings = async () => {
-      if (!chrome.storage?.sync) {
+      if (!browser.storage?.sync) {
         // eslint-disable-next-line no-console
         console.warn('Chrome storage not available');
         return;
       }
-      const persistedSettings: Partial<StorageConfig> = await chrome.storage.sync.get(null);
+      const persistedSettings: Partial<StorageConfig> = await browser.storage.sync.get();
       dispatch({
         type: 'setState',
         state: persistedSettings,

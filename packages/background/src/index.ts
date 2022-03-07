@@ -1,24 +1,42 @@
 import { Actions } from '@tab-master/common/build/types';
-import DomHelper from './DomHelper';
-import TabMaster from './TabMaster';
 
-const messageListener = (domHelp: DomHelper) => (message: Actions, port: chrome.runtime.Port) => {
+import connectToTabContentScript from './utils/connectToTabContentScript';
+import getCurrentTab from './utils/getCurrentTab';
+import getRecentlyOpenedTabs from './utils/getRecentlyOpenedTabs';
+import getOpenTabMasterPayload from './utils/openTabMaster';
+import { loadSettings, storageChangeListener } from './utils/storageConfig';
+
+const onActionMessageListener = async (message: object) => {
+  const currentTab = await getCurrentTab();
+
+  if (!currentTab.id) throw new Error('Current tab does not exist');
+
+  const port = await connectToTabContentScript(currentTab.id);
+
+  if (!port) return;
+
+  const isActions = (data:any): data is Actions => Boolean(data);
+  if (!isActions(message)) return;
+  if (!currentTab?.id) throw new Error('No current tab');
+
   switch (message.type) {
     case 'switch-tab':
-      chrome.tabs.update(message.tabId, { active: true });
+      browser.tabs.update(message.tabId, { active: true });
       break;
-    case 'search-history':
-      domHelp.getRecentlyOpenedTabs(message.keyword)
-        .then((recentTabs) => {
-          const payload: Actions = {
-            type: 'send-recent-tabs',
-            tabs: recentTabs,
-          };
-          port.postMessage(payload);
-        });
+    case 'search-history': {
+      const recentTabs = await getRecentlyOpenedTabs({
+        currentTabId: currentTab.id,
+        currentTabUrl: currentTab?.url,
+      }, message.keyword);
+      const payload: Actions = {
+        type: 'send-recent-tabs',
+        tabs: recentTabs,
+      };
+      port?.postMessage(payload);
       break;
+    }
     case 'open-tab':
-      chrome.tabs.create({
+      browser.tabs.create({
         active: true,
         url: message.newTabUrl,
       });
@@ -26,13 +44,46 @@ const messageListener = (domHelp: DomHelper) => (message: Actions, port: chrome.
     default:
       break;
   }
+
+  if (port.onMessage.hasListener(onActionMessageListener)) {
+    port.onMessage.addListener(onActionMessageListener);
+  }
 };
 
-const domHelper = new DomHelper();
+const onMessageListener = async (command: string) => {
+  const config = await loadSettings();
+  const currentTab = await getCurrentTab();
 
-const tabMaster = new TabMaster(domHelper, messageListener(domHelper));
-domHelper.listenTabStatus(() => {
-  tabMaster.openTabMaster();
-});
+  if (!currentTab.id) throw new Error('Current tab does not exist');
 
-tabMaster.init();
+  const port = await connectToTabContentScript(currentTab.id);
+
+  if (!port) return;
+
+  //  if extension is disabled from settings, find a better way for this
+  if (!config.extensionEnabled || !currentTab?.id) return;
+
+  // CMD + K
+  if (command === 'open-tab-master') {
+    const message = await getOpenTabMasterPayload('open-tab-master', currentTab?.id, currentTab?.url);
+    port.postMessage(message);
+  }
+
+  // Escape
+  if (command === 'close-tab-master') {
+    const message = {
+      type: 'close-tab-master',
+    };
+    port.postMessage(message);
+  }
+
+  // console.log('aaaa', port.onMessage.hasListener(onActionMessageListener));
+  if (!port.onMessage.hasListener(onActionMessageListener)) {
+  // console.log('add listener', port);
+    port.onMessage.addListener(onActionMessageListener);
+  }
+};
+
+browser.storage.onChanged.addListener(storageChangeListener);
+browser.commands.onCommand.addListener(onMessageListener);
+browser.runtime.onMessage.addListener(onMessageListener);

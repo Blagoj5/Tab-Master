@@ -1,6 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 import styled, { createGlobalStyle, css } from 'styled-components';
-import { EXTENSION_ID } from './consts';
+import { EXTENSION_ID, isFirefox } from './consts';
 
 export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
   :root {
@@ -14,14 +14,14 @@ export const GlobalStyle = createGlobalStyle<{extensionId?: string}>`
 
 	@font-face {
 		font-family: 'Kumbh Sans';
-		src: url('chrome-extension://${EXTENSION_ID}/fonts/KumbhSans-Bold.ttf');
+		src: local('${isFirefox ? 'moz' : 'chrome'}-extension://${EXTENSION_ID}/fonts/KumbhSans-Bold.ttf');
 		font-style: normal;
 		font-weight: 600;
 	}
 
 	@font-face {
 		font-family: 'Kumbh Sans';
-		src: url('chrome-extension://${EXTENSION_ID}/fonts/KumbhSans-Regular.ttf');
+		src: local('${isFirefox ? 'moz' : 'chrome'}://${EXTENSION_ID}/fonts/KumbhSans-Regular.ttf');
 		font-style: normal;
 		font-weight: 400;
 	}

@@ -32,7 +32,7 @@ const Container = styled(Center)<{ isVisible: boolean }>`
 
 function App() {
   const [showExtension, setShowExtension] = useState(false);
-  const portRef = useRef<chrome.runtime.Port>();
+  const portRef = useRef<browser.runtime.Port>();
 
   const [recentOpenedTabs, setRecentOpenedTabs] = useState<RecentOpenedTab[] | null>([]);
   const [openedTabs, setOpenedTabs] = useState<OpenedTab[] | null>([]);
@@ -78,14 +78,20 @@ function App() {
   ), [recentOpenedTabs]);
 
   const closeExtension = () => {
+    // changing the focus from the iframe to the body, since the main
+    // event listener is there
+    window.focus();
     setShowExtension(false);
   };
 
   useEffect(() => {
-    const onConnect = (port: chrome.runtime.Port) => {
+    const onConnect = (port: browser.runtime.Port) => {
       portRef.current = port;
 
-      port.onMessage.addListener((message: Actions) => {
+      port.onMessage.addListener((message: object) => {
+        const isActions = (data: object): data is Actions => Boolean(data);
+        if (!isActions(message)) return;
+
         switch (message.type) {
           case 'open-tab-master':
             setShowExtension(true);
@@ -126,7 +132,7 @@ function App() {
       });
     };
 
-    chrome.runtime.onConnect.addListener(onConnect);
+    browser.runtime.onConnect.addListener(onConnect);
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.repeat) return;
@@ -134,7 +140,7 @@ function App() {
       // for Windows, ctrl + k has native binding
       if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
         event.preventDefault();
-        if (!showExtension) chrome.runtime.sendMessage('open-tab-master');
+        if (!showExtension) browser.runtime.sendMessage('open-tab-master');
       }
     };
 
@@ -142,7 +148,7 @@ function App() {
 
     return () => {
       document.removeEventListener('keydown', onKeyDown);
-      chrome.runtime.onConnect.removeListener(onConnect);
+      browser.runtime.onConnect.removeListener(onConnect);
     };
   }, []);
 

@@ -33,17 +33,17 @@ function SettingsProvider({ children }: {children: ReactNode}) {
         setSettingsObject(parsedObject);
       }
     };
-    chrome.storage.onChanged.addListener(storageChangeListener);
+    browser.storage.onChanged.addListener(storageChangeListener);
 
     const setInitialSettings = async () => {
-      const persistedSettings: Partial<StorageConfig> = await chrome.storage.sync.get(null);
+      const persistedSettings: Partial<StorageConfig> = await browser.storage.sync.get();
       if (persistedSettings) setSettingsObject(persistedSettings);
     };
     setInitialSettings();
 
     // Umount the listener
     return () => {
-      chrome.storage.onChanged.removeListener(storageChangeListener);
+      browser.storage.onChanged.removeListener(storageChangeListener);
     };
   }, []);
 
