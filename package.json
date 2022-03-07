@@ -21,7 +21,7 @@
     "build:packages": "NODE_ENV=production yarn workspace @tab-master/background build & yarn workspace @tab-master/common build & yarn workspace @tab-master/modal build & yarn workspace @tab-master/popup build",
     "build:watch": "nodemon scripts/build.js --verbose --watch ./packages/common/src --watch ./packages/background/src --watch ./packages/modal/src -e ts,tsx --watch ./packages/popup/src -e ts,tsx --watch ./assets/manifest.json",
     "build": "NODE_ENV=production node scripts/build.js",
-    "pre:zip": "rimraf tab-master-chrome.zip & rimraf tab-master-firefox.zip",
+    "prezip": "rimraf tab-master-chrome.zip & rimraf tab-master-firefox.zip",
     "zip": "zip -r -FS tab-master-chrome.zip build-chrome/* & zip -r -FS tab-master-firefox.zip build-firefox/*",
     "changelog": "auto-changelog -p && git add CHANGELOG.md"
   },
