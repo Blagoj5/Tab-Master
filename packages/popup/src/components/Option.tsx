@@ -3,24 +3,27 @@ import styled from 'styled-components';
 import { SubTitle, Title } from './Typography';
 
 const ActionContainer = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const Container = styled.div`
-	border-bottom: 1px solid var(--input-primary-light);
-	padding: 0.5rem 0;
+  border-bottom: 1px solid var(--input-primary-light);
+  padding: 0.5rem 0;
 `;
 
-const OptionSubTitle = styled(SubTitle)`
+export const OptionSubTitle = styled(SubTitle)`
   margin-top: 0;
+  b {
+    letter-spacing: 1px;
+  }
 `;
 
 type Props = {
-	title: string;
-	subContent?: ReactNode;
-	input: JSX.Element;
+  title: string;
+  subContent?: ReactNode;
+  input: JSX.Element;
 };
 
 function Option({ title, subContent, input }: Props) {

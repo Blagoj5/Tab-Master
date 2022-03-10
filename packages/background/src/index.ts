@@ -8,6 +8,7 @@ import { loadSettings, storageChangeListener } from './utils/storageConfig';
 
 const onActionMessageListener = async (message: object) => {
   const currentTab = await getCurrentTab();
+  const config = await loadSettings();
 
   if (!currentTab.id) throw new Error('Current tab does not exist');
 
@@ -24,6 +25,7 @@ const onActionMessageListener = async (message: object) => {
       browser.tabs.update(message.tabId, { active: true });
       break;
     case 'search-history': {
+      if (!config.recentTabsEnabled) return;
       const recentTabs = await getRecentlyOpenedTabs({
         currentTabId: currentTab.id,
         currentTabUrl: currentTab?.url,

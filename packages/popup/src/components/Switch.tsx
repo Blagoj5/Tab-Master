@@ -2,6 +2,8 @@ import styled from 'styled-components';
 
 const CheckBoxWrapper = styled.div`
   position: relative;
+  --background-checked: hsl(142.7,46.05%,52.745%);
+  --background-checked-disabled: hsl(142.7,46.05%,30.745%);
 `;
 
 const CheckBoxLabel = styled.label<Props>`
@@ -33,7 +35,7 @@ const CheckBoxInput = styled.input`
   height: 26px;
 	margin: 0;
   &:checked + ${CheckBoxLabel} {
-		background: ${(props) => (props.disabled ? 'hsl(142.7, 46.05%, 30.745%)' : 'hsl(142.7, 46.05%, 52.745%)')};
+		background: ${(props) => (props.disabled ? 'var(--background-checked-disabled)' : 'var(--background-checked)')};
     &::after {
       content: "";
       display: block;

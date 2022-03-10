@@ -6,6 +6,8 @@ export const defaultStorageConfig: StorageConfig = {
   openTabsEnabled: true,
   recentTabsEnabled: true,
 	historyEnabled: false,
+	advancedSearchEnabled: true,
+	blackListedWebsites: [],
   history: {
 		maxResults: 20,
 	},
@@ -13,4 +15,8 @@ export const defaultStorageConfig: StorageConfig = {
   view: 'minimal',
 };
 
-export default { defaultStorageConfig };
+export const localStorageKeys = {
+	CURRENT_DOMAIN: 'CURRENT_DOMAIN',
+};
+
+export default { defaultStorageConfig, localStorageKeys };

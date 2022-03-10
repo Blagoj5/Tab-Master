@@ -1,18 +1,29 @@
 import { Actions } from '@tab-master/common/build/types';
 import getOpenedTabs from './getOpenedTabs';
 import getRecentlyOpenedTabs from './getRecentlyOpenedTabs';
+import { loadSettings } from './storageConfig';
 
 const getOpenTabMasterPayload = async (
   type: 'current-state' | 'open-tab-master',
   currentTabId: number,
   currentTabUrl?: string,
 ) => {
-  const openedTabs = await getOpenedTabs(currentTabId, currentTabUrl);
+  const config = await loadSettings();
+  let openedTabs: browser.tabs.Tab[] = [];
+  if (config.openTabsEnabled) {
+    openedTabs = await getOpenedTabs(currentTabId, currentTabUrl);
+  }
 
-  const recentlyOpenedTabs = await getRecentlyOpenedTabs({
-    currentTabId,
-    currentTabUrl,
-  }, '');
+  let recentlyOpenedTabs: browser.history.HistoryItem[] = [];
+  if (config.recentTabsEnabled) {
+    recentlyOpenedTabs = await getRecentlyOpenedTabs(
+      {
+        currentTabId,
+        currentTabUrl,
+      },
+      '',
+    );
+  }
 
   const payload: Actions = {
     type,

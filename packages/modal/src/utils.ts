@@ -5,7 +5,7 @@ import { CommonTab } from '@tab-master/common/build/types';
 export function fuzzySearch<T>(
   items: T[],
   options: Fuse.IFuseOptions<T>,
-  keyWord: string,
+  keyWord: string | Fuse.Expression,
   // eslint-disable-next-line no-unused-vars
   onSearchDone?: (result: Fuse.FuseResult<T>[]) => Fuse.FuseResult<T>[],
 ): T[] {
