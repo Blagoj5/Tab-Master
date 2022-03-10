@@ -41,4 +41,9 @@ export const storageChangeListener = async (changes: Record<string, any>, areaNa
 
     updateSettings(parsedChanges);
   }
+
+  // On CURRENT_DOMAIN change re-run update settings, with empty change so they are updated
+  if (areaName === 'local') {
+    updateSettings({});
+  }
 };
