@@ -85,7 +85,7 @@ function App() {
   };
 
   const handleToDate: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-		    // 23 hours
+    // 23 hours
     const hours = 23 * 60 * 60 * 1000;
     // 59 mins
     const mins = 59 * 60 * 1000;
@@ -114,14 +114,14 @@ function App() {
             <Checkbox
               isChecked={(domain) => blackListedWebsites.includes(domain)}
               onCheck={
-								(checked, domain) => (
-								  checked
-								    ? addPageToBlackList(domain)
-								    : removePageFromBlackList(domain)
-								)
-							}
+                (checked, domain) => (
+                  checked
+                    ? addPageToBlackList(domain)
+                    : removePageFromBlackList(domain)
+                )
+              }
             />
-					)}
+          )}
           title="Blacklist Page"
         />
         <Option
@@ -131,12 +131,12 @@ function App() {
             <ToggleableContainer show={showDescription}>
               <Description />
             </ToggleableContainer>
-					)}
+          )}
         />
         <Option
           input={<Switch isChecked={extensionEnabled} onCheck={toggleExtensionEnabled} />}
           title="Tab Master Active"
-					// TODO: add custom key turn off, ex. cmd + shift + k, turns off this
+          // TODO: add custom key turn off, ex. cmd + shift + k, turns off this
           subContent="Option for turning on and off Tab Master."
         />
         <Option
@@ -208,7 +208,7 @@ function App() {
               {' '}
               <b>Url:Title</b>
             </OptionSubTitle>
-					)}
+          )}
         />
         <Option
           input={<Switch isDisabled isChecked={false} />}
