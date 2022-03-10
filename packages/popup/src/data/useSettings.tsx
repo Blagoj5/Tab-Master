@@ -1,30 +1,53 @@
 import { defaultStorageConfig } from '@tab-master/common';
 import { StorageConfig } from '@tab-master/common/build/types';
 import { useEffect, useReducer } from 'react';
+
 import setBrowserStorage from '../utils/setChromeStorage';
 
 type Action = {
   type: 'toggleExtensionEnable';
-} | {
+}
+| {
   type: 'toggleDescription';
-} | {
+}
+| {
   type: 'toggleOpenTabsEnabled';
-} | {
+}
+| {
   type: 'toggleRecentTabsEnabled';
-} | {
+}
+| {
   type: 'setHistoryOptions';
   maxResults: number;
   from?: number;
   to?: number;
-} | {
+}
+| {
   type: 'setView';
   view: StorageConfig['view']
-} | {
+}
+| {
   type: 'toggleHistoryEnabled';
-} | {
+}
+| {
+  type: 'toggleAdvancedSearch';
+}
+| {
+  type: 'addPageToBlackList';
+  domain: string;
+}
+| {
+  type: 'removePageFromBlackList';
+  domain: string;
+}
+| {
   type: 'setState';
   state: Partial<StorageConfig>
 }
+| {
+  type: 'setState';
+  state: Partial<StorageConfig>
+};
 
 const reducer = (state: StorageConfig, action: Action): StorageConfig => {
   switch (action.type) {
@@ -49,6 +72,38 @@ const reducer = (state: StorageConfig, action: Action): StorageConfig => {
       return {
         ...state,
         extensionEnabled: newExtensionEnabled,
+      };
+    }
+
+    case 'addPageToBlackList': {
+      const uniqBlackListedWebsites = new Set(
+        [...state.blackListedWebsites, action.domain],
+      );
+      const blackListedWebsites = Array.from(uniqBlackListedWebsites);
+      setBrowserStorage({ blackListedWebsites });
+      return {
+        ...state,
+        blackListedWebsites,
+      };
+    }
+
+    case 'removePageFromBlackList': {
+      const blackListedWebsites = state.blackListedWebsites.filter(
+        (page) => page !== action.domain,
+      );
+      setBrowserStorage({ blackListedWebsites });
+      return {
+        ...state,
+        blackListedWebsites,
+      };
+    }
+
+    case 'toggleAdvancedSearch': {
+      const advancedSearchEnabled = !state.advancedSearchEnabled;
+      setBrowserStorage({ advancedSearchEnabled });
+      return {
+        ...state,
+        advancedSearchEnabled,
       };
     }
 
@@ -122,6 +177,9 @@ export default function useSettings() {
   const toggleExtensionEnabled = () => dispatch({ type: 'toggleExtensionEnable' });
   const toggleOpenTabsEnabled = () => dispatch({ type: 'toggleOpenTabsEnabled' });
   const toggleRecentTabsEnabled = () => dispatch({ type: 'toggleRecentTabsEnabled' });
+  const toggleAdvancedSearchEnabled = () => dispatch({ type: 'toggleAdvancedSearch' });
+  const addPageToBlackList = (domain: string) => dispatch({ type: 'addPageToBlackList', domain });
+  const removePageFromBlackList = (domain: string) => dispatch({ type: 'removePageFromBlackList', domain });
   const setHistoryOptions = (historyOptions: StorageConfig['history']) => dispatch({ type: 'setHistoryOptions', ...historyOptions });
   const toggleHistoryOptions = () => dispatch({ type: 'toggleHistoryEnabled' });
   const setView = (view: StorageConfig['view']) => dispatch({ type: 'setView', view });
@@ -148,6 +206,9 @@ export default function useSettings() {
     toggleExtensionEnabled,
     toggleOpenTabsEnabled,
     toggleRecentTabsEnabled,
+    toggleAdvancedSearchEnabled,
+    addPageToBlackList,
+    removePageFromBlackList,
     toggleHistoryOptions,
     setHistoryOptions,
     setView,

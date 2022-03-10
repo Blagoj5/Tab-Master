@@ -3,11 +3,13 @@ import { StorageConfig } from '@tab-master/common/build/types';
 import {
   createContext, ReactNode, useContext, useEffect, useState,
 } from 'react';
+import useStorageSync from '../hooks/useStorageSync';
 
 const SettingsContext = createContext<StorageConfig | undefined>(undefined);
 
 function SettingsProvider({ children }: {children: ReactNode}) {
   const [settings, setSettings] = useState<StorageConfig>(defaultStorageConfig);
+  useStorageSync();
 
   const setSettingsObject = (update: Partial<StorageConfig>) => {
     setSettings({

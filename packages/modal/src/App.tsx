@@ -210,7 +210,7 @@ function App() {
             <StyleSheetManager target={frameContext.document.head}>
               <SettingsProvider>
                 <Modal
-                  onChange={handleOnChange}
+                  searchHistory={handleOnChange}
                   handleTabSelect={handleTabSelect}
                   openedTabs={transformedOpenedTabs}
                   recentTabs={transformedRecentOpenedTabs}

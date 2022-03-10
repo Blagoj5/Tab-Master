@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import Switch from './components/CheckBox';
+import Switch from './components/Switch';
 import DateField from './components/DateField';
-import Option from './components/Option';
+import Option, { OptionSubTitle } from './components/Option';
 import RadioCheckGroup from './components/RadioCheckGroup';
 import SelectField from './components/SelectField';
 import ToggleableContainer from './components/ToggleableContainer';
@@ -10,6 +10,7 @@ import { SubTitle, Title } from './components/Typography';
 import { GlobalStyle } from './styles';
 import useSettings from './data/useSettings';
 import Description from './components/Description';
+import Checkbox from './components/BlacklistCheckbox';
 
 const DateContainer = styled.div`
   max-width: 400;
@@ -47,14 +48,19 @@ function App() {
       view,
       history,
       historyEnabled,
+      advancedSearchEnabled,
+      blackListedWebsites,
     },
     setHistoryOptions,
     setView,
     toggleDescription,
     toggleExtensionEnabled,
     toggleHistoryOptions,
+    toggleAdvancedSearchEnabled,
     toggleOpenTabsEnabled,
     toggleRecentTabsEnabled,
+    addPageToBlackList,
+    removePageFromBlackList,
   } = useSettings();
 
   const handleMaxResultsChange = (maxResults: string) => {
@@ -103,6 +109,21 @@ function App() {
     <div>
       <GlobalStyle />
       <Container>
+        <Option
+          input={(
+            <Checkbox
+              isChecked={(domain) => blackListedWebsites.includes(domain)}
+              onCheck={
+								(checked, domain) => (
+								  checked
+								    ? addPageToBlackList(domain)
+								    : removePageFromBlackList(domain)
+								)
+							}
+            />
+					)}
+          title="Blacklist Page"
+        />
         <Option
           input={<Switch isChecked={showDescription} onCheck={toggleDescription} />}
           title="Commands And Description"
@@ -172,6 +193,22 @@ function App() {
               </DateContainer>
             </ToggleableContainer>
         )}
+        />
+        <Option
+          input={(
+            <Switch
+              onCheck={toggleAdvancedSearchEnabled}
+              isChecked={advancedSearchEnabled}
+            />
+          )}
+          title="Enable Advanced search"
+          subContent={(
+            <OptionSubTitle>
+              You can use the search with following pattern:
+              {' '}
+              <b>Url:Title</b>
+            </OptionSubTitle>
+					)}
         />
         <Option
           input={<Switch isDisabled isChecked={false} />}

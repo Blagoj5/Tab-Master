@@ -57,6 +57,8 @@ export type StorageConfig = {
 	openTabsEnabled: boolean;
 	recentTabsEnabled: boolean;
 	historyEnabled: boolean;
+	advancedSearchEnabled: boolean;
+	blackListedWebsites: string[];
 	history: {
 		from?: number;
 		to?: number;

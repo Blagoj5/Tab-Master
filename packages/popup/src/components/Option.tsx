@@ -13,8 +13,11 @@ const Container = styled.div`
 	padding: 0.5rem 0;
 `;
 
-const OptionSubTitle = styled(SubTitle)`
+export const OptionSubTitle = styled(SubTitle)`
   margin-top: 0;
+	b {
+		letter-spacing: 1px;
+	}
 `;
 
 type Props = {

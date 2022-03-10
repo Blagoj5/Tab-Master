@@ -11,6 +11,7 @@ import {
 } from '../styles';
 import Tabs from './Tabs';
 import { fuzzySearch, removeDuplicates } from '../utils';
+import { useSettingsContext } from './SettingsProvider';
 
 const ModalStyle = styled.div`
   width: auto;
@@ -32,7 +33,7 @@ const TabsContainer = styled((props) => <VStack {...props} spacing="8px" />)`
 `;
 
 type Props = {
-  onChange: (value: string) => void;
+  searchHistory: (value: string) => void;
   handleTabSelect: (selectedTabId: string) => void;
   closeExtension: () => void;
   openedTabs?: CommonTab[];
@@ -41,7 +42,7 @@ type Props = {
 };
 // IFRAME COMPONENT
 function Modal({
-  onChange,
+  searchHistory,
   handleTabSelect,
   openedTabs = [],
   recentTabs = [],
@@ -57,7 +58,10 @@ function Modal({
   const [selectedTabId, setSelectedTabId] = useState('');
   const [expanded, setExpanded] = useState<string[]>([]);
 
+  const { advancedSearchEnabled } = useSettingsContext();
+
   const [sortedCombinedSelectedTabs, combinedSelectedTabs] = useMemo(() => {
+    const [urlKeyword, titleKeyword = inputValue] = advancedSearchEnabled ? inputValue.split(':') : [inputValue];
     const filteredOpenedTabs = fuzzySearch(
       openedTabs,
       {
@@ -75,7 +79,10 @@ function Modal({
         ignoreLocation: true,
         threshold: 0.25,
       },
-      inputValue,
+      {
+        title: titleKeyword,
+        url: urlKeyword,
+      },
     );
 
     const filteredRecentTabs = fuzzySearch(
@@ -93,8 +100,12 @@ function Modal({
         ],
         includeScore: true,
         ignoreLocation: true,
+        threshold: 0.4,
       },
-      inputValue,
+      {
+        title: titleKeyword,
+        url: urlKeyword,
+      },
       (result) => result.map((res) => {
         let { score } = res;
         if (res.item.visitCount && score) {
@@ -246,7 +257,9 @@ function Modal({
     // reset expand state on search
     setExpanded([]);
     setInputValue(e.target.value);
-    onChange(e.target.value);
+    // git:tab-master -> git tab-master in search history
+    const keyword = advancedSearchEnabled ? e.target.value.replace(':', ' ') : e.target.value;
+    searchHistory(keyword);
   };
 
   return (
