@@ -265,7 +265,7 @@ function Modal({
   return (
     <>
       <GlobalStyle />
-      <ModalStyle>
+      <ModalStyle data-testid={showExtension ? 'open-modal' : ''}>
         <Input
           ref={inputRef}
           placeholder="Where would you like to go?"
