@@ -1,10 +1,16 @@
 import { Actions } from '@tab-master/common/build/types';
+import { Context } from './types';
 
 import connectToTabContentScript from './utils/connectToTabContentScript';
 import getCurrentTab from './utils/getCurrentTab';
 import getRecentlyOpenedTabs from './utils/getRecentlyOpenedTabs';
 import getOpenTabMasterPayload from './utils/openTabMaster';
 import { loadSettings, storageChangeListener } from './utils/storageConfig';
+
+const context: Context = {
+  openedTabs: [],
+  recentTabs: [],
+};
 
 const onActionMessageListener = async (message: object) => {
   const currentTab = await getCurrentTab();
@@ -16,7 +22,7 @@ const onActionMessageListener = async (message: object) => {
 
   if (!port) return;
 
-  const isActions = (data:any): data is Actions => Boolean(data);
+  const isActions = (data: any): data is Actions => Boolean(data);
   if (!isActions(message)) return;
   if (!currentTab?.id) throw new Error('No current tab');
 
@@ -26,10 +32,15 @@ const onActionMessageListener = async (message: object) => {
       break;
     case 'search-history': {
       if (!config.recentTabsEnabled) return;
-      const recentTabs = await getRecentlyOpenedTabs({
-        currentTabId: currentTab.id,
-        currentTabUrl: currentTab?.url,
-      }, message.keyword);
+      const recentTabs = await getRecentlyOpenedTabs(
+        {
+          currentTabId: currentTab.id,
+          currentTabUrl: currentTab?.url,
+          openedTabs: context.openedTabs,
+        },
+        message.keyword,
+      );
+      context.recentTabs = recentTabs;
       const payload: Actions = {
         type: 'send-recent-tabs',
         tabs: recentTabs,
@@ -67,7 +78,13 @@ const onMessageListener = async (command: string) => {
 
   // CMD + K
   if (command === 'open-tab-master') {
-    const message = await getOpenTabMasterPayload('open-tab-master', currentTab?.id, currentTab?.url);
+    const message = await getOpenTabMasterPayload(
+      'open-tab-master',
+      currentTab?.id,
+      currentTab?.url,
+    );
+    context.openedTabs = message.tabs.open;
+    context.recentTabs = message.tabs.recent;
     port.postMessage(message);
   }
 
@@ -81,7 +98,7 @@ const onMessageListener = async (command: string) => {
 
   // console.log('aaaa', port.onMessage.hasListener(onActionMessageListener));
   if (!port.onMessage.hasListener(onActionMessageListener)) {
-  // console.log('add listener', port);
+    // console.log('add listener', port);
     port.onMessage.addListener(onActionMessageListener);
   }
 };

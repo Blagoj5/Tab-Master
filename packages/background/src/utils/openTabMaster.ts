@@ -20,18 +20,19 @@ const getOpenTabMasterPayload = async (
       {
         currentTabId,
         currentTabUrl,
+        openedTabs,
       },
       '',
     );
   }
 
-  const payload: Actions = {
+  const payload = {
     type,
     tabs: {
       open: openedTabs,
       recent: recentlyOpenedTabs,
     },
-  };
+  } as const;
 
   return payload;
 };
