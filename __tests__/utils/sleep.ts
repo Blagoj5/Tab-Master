@@ -5,3 +5,5 @@ const sleep = (delay = 2000) => {
     }, delay);
   });
 };
+
+export default sleep;

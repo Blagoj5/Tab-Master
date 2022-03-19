@@ -93,8 +93,7 @@ module.exports = {
   // notifyMode: "failure-change",
 
   // A preset that is used as a base for Jest's configuration
-  "preset": "jest-puppeteer",
-
+  preset: 'jest-puppeteer',
 
   // Run tests from one or more projects
   // projects: undefined,
@@ -148,16 +147,16 @@ module.exports = {
 
   // The glob patterns Jest uses to detect test files
   testMatch: [
-    "**/__tests__/**/*.[jt]s?(x)",
+    '**/__tests__/**/*.[jt]s?(x)',
     // "**/?(*.)+(spec|test).[tj]s?(x)"
   ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   testPathIgnorePatterns: [
-    "/node_modules/",
-    "/__tests__/.eslintrc.js",
-    "/__tests__/utils",
-    "/__tests__/consts"
+    '/node_modules/',
+    '/__tests__/.eslintrc.js',
+    '/__tests__/utils',
+    '/__tests__/data',
   ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
