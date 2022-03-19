@@ -2,33 +2,22 @@
   "manifest_version": 2,
   "name": "Tab Master",
   "version": "1.0.5",
-  "description": "Navigate freely. Tab Mater provides easy and intuitive way to navigate trough tabs and history",
-  "icons": {  
+  "description": "Navigate freely. Tab Master provides easy and intuitive way to navigate trough tabs and history",
+  "icons": {
     "16": "images/icon16.png",
     "48": "images/icon48.png",
-    "128": "images/icon128.png" 
+    "128": "images/icon128.png"
   },
   "background": {
-    "scripts": [
-      "browser-polyfill.js",
-      "background/index.js"
-    ]
+    "scripts": ["browser-polyfill.js", "background/index.js"]
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": [
-        "browser-polyfill.js",
-        "modal/index.js"
-      ]
+      "js": ["browser-polyfill.js", "modal/index.js"]
     }
   ],
-  "permissions": [
-    "<all_urls>",
-    "tabs",
-    "history",
-    "storage"
-  ],
+  "permissions": ["<all_urls>", "tabs", "history", "storage"],
   "content_security_policy": "script-src 'self'; object-src 'self'",
   "commands": {
     "open-tab-master": {
@@ -39,7 +28,7 @@
         "linux": "Ctrl+Shift+K"
       },
       "description": "Open Tab Master Extension"
-   }
+    }
   },
   "browser_action": {
     "default_popup": "popup/index.html"

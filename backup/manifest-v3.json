@@ -2,11 +2,11 @@
   "manifest_version": 3,
   "name": "Tab Master",
   "version": "1.0.4",
-  "description": "Navigate freely. Tab Mater provides easy and intuitive way to navigate trough tabs and history",
-  "icons": {  
+  "description": "Navigate freely. Tab Master provides easy and intuitive way to navigate trough tabs and history",
+  "icons": {
     "16": "images/icon16.png",
     "48": "images/icon48.png",
-    "128": "images/icon128.png" 
+    "128": "images/icon128.png"
   },
   "background": {
     "service_worker": "background/index.js"
@@ -17,14 +17,8 @@
       "js": ["modal/index.js"]
     }
   ],
-  "host_permissions": [
-    "<all_urls>"
-  ],
-  "permissions": [
-    "tabs",
-    "history",
-    "storage"
-  ],
+  "host_permissions": ["<all_urls>"],
+  "permissions": ["tabs", "history", "storage"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   },
@@ -37,26 +31,26 @@
         "linux": "Ctrl+Shift+K"
       },
       "description": "Open Tab Master Extension"
-   }
+    }
   },
   "action": {
     "default_popup": "popup/index.html"
   },
-	"options_ui": {
-		"page": "popup/index.html"
-	},
+  "options_ui": {
+    "page": "popup/index.html"
+  },
   "web_accessible_resources": [
     {
-      "resources": [ "/images/icon16.png" ],
-      "matches": [ "<all_urls>" ]
-    }, 
-    {
-      "resources": [ "/fonts/KumbhSans-Bold.ttf" ],
-      "matches": [ "<all_urls>" ]
+      "resources": ["/images/icon16.png"],
+      "matches": ["<all_urls>"]
     },
     {
-      "resources": [ "/fonts/KumbhSans-Regular.ttf" ],
-      "matches": [ "<all_urls>" ]
+      "resources": ["/fonts/KumbhSans-Bold.ttf"],
+      "matches": ["<all_urls>"]
+    },
+    {
+      "resources": ["/fonts/KumbhSans-Regular.ttf"],
+      "matches": ["<all_urls>"]
     }
   ]
 }
