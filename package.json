@@ -46,7 +46,9 @@
     ],
     "nohoist": [
       "@rollup",
-      "@rollup/**"
+      "@rollup/**",
+      "@types/firefox-webext-browser",
+      "@types/firefox-webext-browser/**"
     ]
   }
 }

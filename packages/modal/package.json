@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "@tab-master/modal",
   "version": "1.0.0",
   "main": "index.js",
@@ -52,5 +53,11 @@
     "react-dom": "^17.0.2",
     "react-frame-component": "^5.2.1",
     "styled-components": "^5.3.3"
+  },
+  "workspaces": {
+    "nohoist": [
+      "@types/firefox-webext-browser",
+      "@types/firefox-webext-browser/**"
+    ]
   }
 }

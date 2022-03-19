@@ -1,4 +1,5 @@
 {
+  "private": true,
   "name": "@tab-master/common",
   "version": "1.0.0",
   "main": "build/index.js",
@@ -14,5 +15,11 @@
   "scripts": {
     "watch": "babel --watch src ---out-dir build --extensions '.ts,.tsx' && tsc",
     "build": "babel src --out-dir build --extensions '.ts,.tsx' && tsc"
+  },
+  "workspaces": {
+    "nohoist": [
+      "@types/firefox-webext-browser",
+      "@types/firefox-webext-browser/**"
+    ]
   }
 }

@@ -1,9 +1,5 @@
 import type { Browser, HTTPResponse, Page } from 'puppeteer';
-import {
-  INTERSECTION_RECENT_TABS_COMPLEMENT,
-  OPEN_TABS,
-  RECENT_TABS,
-} from './consts';
+import { intersectionRecentTabsComplement, openTabs, recentTabs } from './data';
 import { getActivePage } from './utils/getActivePage';
 import closeExtension from './utils/closeTabMaster';
 import {
@@ -175,12 +171,9 @@ describe('Test TAB iteration', () => {
   let currentPage: Page;
   beforeAll(async () => {
     await jestPuppeteer.resetBrowser();
-    // for (const site of RECENT_TABS) {
-    //   await page.goto(site);
-    // }
     const recentPages: Page[] = [];
     const recentPagesPromises: Promise<HTTPResponse>[] = [];
-    for (const site of RECENT_TABS) {
+    for (const site of recentTabs) {
       const newPage = await (browser as unknown as Browser).newPage();
       recentPagesPromises.push(newPage.goto(site));
       recentPages.push(newPage);
@@ -190,7 +183,7 @@ describe('Test TAB iteration', () => {
 
     const openedPages: Page[] = [page];
     const openPagesPromises: Promise<HTTPResponse>[] = [];
-    for (const site of OPEN_TABS) {
+    for (const site of openTabs) {
       // TODO: fix this
       const newPage = await (browser as unknown as Browser).newPage();
       openPagesPromises.push(newPage.goto(site));
@@ -210,8 +203,8 @@ describe('Test TAB iteration', () => {
     const getSelector = (i: number) => `[data-testselected="selected-${i}"`;
     const navigator = new Navigator(
       currentPage,
-      OPEN_TABS.length - 1 + 1, // + 1 for the about tab from puppeteer
-      INTERSECTION_RECENT_TABS_COMPLEMENT.length - 1, // + 1 for the about tab from puppeteer
+      openTabs.length - 1 + 1, // + 1 for the about tab from puppeteer
+      intersectionRecentTabsComplement.length - 1, // + 1 for the about tab from puppeteer
     );
 
     const elementHandle = await currentPage.waitForSelector('iframe');
@@ -219,40 +212,42 @@ describe('Test TAB iteration', () => {
 
     // TOGGLE
     await openExtensionWindowsOrUb(currentPage); // OPEN
-
     await sleep(300);
-    // ↴
-    await navigator.moveDown();
-    let el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+
+    const moveDown = async () => {
+      await navigator.moveDown();
+      const el = await frame.$(getSelector(navigator.index));
+      expect(el).toBeTruthy();
+    };
+
+    const moveUp = async () => {
+      await navigator.moveUp();
+      const el = await frame.$(getSelector(navigator.index));
+      expect(el).toBeTruthy();
+    };
 
     // ↴
-    await navigator.moveDown();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveDown();
+
+    // ↴
+    await moveDown();
 
     // ⤴
-    await navigator.moveUp();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveUp();
 
     // ⤴
-    await navigator.moveUp();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveUp();
 
     // ⤴, the last item should be selected
-    await navigator.moveUp();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveUp();
   });
 
   it('Should use SHIFT + RightKey&LeftKey to toggle collapse/expand', async () => {
     const getSelector = (i: number) => `[data-testexpanded="expanded-${i}"`;
     const navigator = new Navigator(
       currentPage,
-      OPEN_TABS.length - 1 + 1, // + 1 for the about tab from puppeteer
-      INTERSECTION_RECENT_TABS_COMPLEMENT.length - 1, // + 1 for the about tab from puppeteer
+      openTabs.length - 1 + 1, // + 1 for the about tab from puppeteer
+      intersectionRecentTabsComplement.length - 1, // + 1 for the about tab from puppeteer
     );
 
     const elementHandle = await currentPage.waitForSelector('iframe');
@@ -262,63 +257,61 @@ describe('Test TAB iteration', () => {
     await openExtensionWindowsOrUb(currentPage); // OPEN
     await sleep(300);
 
+    const moveDown = async () => {
+      await navigator.moveDownAndExpand();
+      const el = await frame.$(getSelector(navigator.index));
+      expect(el).toBeTruthy();
+    };
+
+    const moveUp = async () => {
+      await navigator.moveUpAndExpand();
+      const el = await frame.$(getSelector(navigator.index));
+      expect(el).toBeTruthy();
+    };
+
+    const collapse = async () => {
+      await navigator.collapse();
+      const el = await frame.$(getSelector(navigator.index));
+      expect(el).toBeNull();
+    };
+
     // ↴
-    await navigator.moveDownAndExpand();
-    let el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveDown();
 
     // collapse
-    await navigator.collapse();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeNull();
+    await collapse();
 
     // ↴
-    await navigator.moveDownAndExpand();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveDown();
 
     // collapse
-    await navigator.collapse();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeNull();
+    await collapse();
 
     // ⤴
-    await navigator.moveUpAndExpand();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveUp();
 
     // collapse
-    await navigator.collapse();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeNull();
+    await collapse();
 
     // ⤴
-    await navigator.moveUpAndExpand();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveUp();
 
     // collapse
-    await navigator.collapse();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeNull();
+    await collapse();
 
     // ⤴, the last item should be selected
-    await navigator.moveUpAndExpand();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveUp();
 
     // collapse
-    await navigator.collapse();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeNull();
+    await collapse();
   });
 
   it('Should use TAB to toggle collapse/expand', async () => {
     const getSelector = (i: number) => `[data-testexpanded="expanded-${i}"`;
     const navigator = new Navigator(
       currentPage,
-      OPEN_TABS.length - 1 + 1, // + 1 for the about tab from puppeteer
-      INTERSECTION_RECENT_TABS_COMPLEMENT.length - 1, // + 1 for the about tab from puppeteer
+      openTabs.length - 1 + 1, // + 1 for the about tab from puppeteer
+      intersectionRecentTabsComplement.length - 1, // + 1 for the about tab from puppeteer
     );
 
     const elementHandle = await currentPage.waitForSelector('iframe');
@@ -328,44 +321,46 @@ describe('Test TAB iteration', () => {
     await openExtensionWindowsOrUb(currentPage); // OPEN
     await sleep(300);
 
+    const moveDown = async () => {
+      await navigator.moveDownAndExpand(true);
+      const el = await frame.$(getSelector(navigator.index));
+      expect(el).toBeTruthy();
+    };
+
+    const moveUp = async () => {
+      await navigator.moveUpAndExpand(true);
+      const el = await frame.$(getSelector(navigator.index));
+      expect(el).toBeTruthy();
+    };
+
+    const toggleCollapse = async () => {
+      await navigator.toggleExpandCollapse();
+      const el = await frame.$(getSelector(navigator.index));
+      expect(el).toBeNull();
+    };
+
     // ↴
-    await navigator.moveDownAndExpand(true);
-    let el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveDown();
 
     // collapse
-    await navigator.toggleExpandCollapse();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeNull();
+    await toggleCollapse();
 
     // ↴
-    await navigator.moveDownAndExpand(true);
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveDown();
 
     // collapse
-    await navigator.toggleExpandCollapse();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeNull();
+    await toggleCollapse();
 
     // ⤴
-    await navigator.moveUpAndExpand(true);
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveUp();
 
     // ⤴
-    await navigator.moveUpAndExpand(true);
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveUp();
 
     // ⤴, the last item should be selected
-    await navigator.moveUpAndExpand(true);
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeTruthy();
+    await moveUp();
 
     // collapse
-    await navigator.toggleExpandCollapse();
-    el = await frame.$(getSelector(navigator.index));
-    expect(el).toBeNull();
+    await toggleCollapse();
   });
 });
