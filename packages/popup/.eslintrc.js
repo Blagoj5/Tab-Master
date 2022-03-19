@@ -15,11 +15,9 @@ module.exports = {
     },
     ecmaVersion: 12,
     sourceType: 'module',
+    project: './packages/popup/tsconfig.json',
   },
-  plugins: [
-    'react',
-    '@typescript-eslint',
-  ],
+  plugins: ['react', '@typescript-eslint'],
   rules: {
     'react/function-component-definition': 'off',
     'react/jsx-filename-extension': 'off',
