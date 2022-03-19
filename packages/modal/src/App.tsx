@@ -1,81 +1,88 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-undef */
-import {
-  useEffect, useMemo, useRef, useState,
-} from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Frame, { FrameContextConsumer } from 'react-frame-component';
 import styled, { StyleSheetManager } from 'styled-components';
 import {
-  CommonTab, Actions, OpenedTab, RecentOpenedTab,
+  CommonTab,
+  Actions,
+  OpenedTab,
+  RecentOpenedTab,
 } from '@tab-master/common/build/types';
 
 import { getFaviconURL, removeDuplicates } from './utils';
-import {
-  Backdrop, Center,
-} from './styles';
+import { Backdrop, Center } from './styles';
 import Modal from './components/Modal';
 import SettingsProvider from './components/SettingsProvider';
 
 const ModalFrame = styled(Frame)<{ isVisible: boolean }>`
-	width: 650px;
-	height: 432px;
-	z-index: 1000;
-	padding: 0;
-	border: 0;
-	overflow: hidden;
-	border-radius: 0.625rem;
+  width: 650px;
+  height: 432px;
+  z-index: 1000;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  border-radius: 0.625rem;
 `;
 
 const Container = styled(Center)<{ isVisible: boolean }>`
-	display: ${(props) => (props.isVisible ? 'flex' : 'none')};
+  display: ${(props) => (props.isVisible ? 'flex' : 'none')};
 `;
 
 function App() {
   const [showExtension, setShowExtension] = useState(false);
   const portRef = useRef<browser.runtime.Port>();
 
-  const [recentOpenedTabs, setRecentOpenedTabs] = useState<RecentOpenedTab[] | null>([]);
+  const [recentOpenedTabs, setRecentOpenedTabs] = useState<
+    RecentOpenedTab[] | null
+  >([]);
   const [openedTabs, setOpenedTabs] = useState<OpenedTab[] | null>([]);
 
   // flat map is used for filtering + mapping
-  const transformedOpenedTabs = useMemo(() => (openedTabs
-    ? removeDuplicates(
-      openedTabs.flatMap<CommonTab>((tab) => {
-        if (
-          !tab.url
-					|| !tab.title
-        ) return [];
+  const transformedOpenedTabs = useMemo(
+    () =>
+      openedTabs
+        ? removeDuplicates(
+            openedTabs.flatMap<CommonTab>((tab) => {
+              if (!tab.url || !tab.title) return [];
 
-        return [{
-          faviconUrl: tab.favIconUrl ?? getFaviconURL(tab.url),
-          id: tab.virtualId,
-          title: tab.title,
-          url: tab.url,
-          action: 'switch',
-        }];
-      }),
-    )
-    : []
-  ), [openedTabs]);
+              return [
+                {
+                  faviconUrl: tab.favIconUrl ?? getFaviconURL(tab.url),
+                  id: tab.virtualId,
+                  title: tab.title,
+                  url: tab.url,
+                  action: 'switch',
+                },
+              ];
+            }),
+          )
+        : [],
+    [openedTabs],
+  );
 
-  const transformedRecentOpenedTabs = useMemo(() => (recentOpenedTabs
-    ? removeDuplicates(recentOpenedTabs.flatMap<CommonTab>((tab) => {
-      if (
-        !tab.url
-				|| !tab.title
-      ) return [];
+  const transformedRecentOpenedTabs = useMemo(
+    () =>
+      recentOpenedTabs
+        ? removeDuplicates(
+            recentOpenedTabs.flatMap<CommonTab>((tab) => {
+              if (!tab.url || !tab.title) return [];
 
-      return [{
-        faviconUrl: getFaviconURL(tab.url),
-        id: tab.id,
-        title: tab.title,
-        url: tab.url,
-        action: 'open',
-        visitCount: tab.visitCount,
-      }];
-    }))
-    : []
-  ), [recentOpenedTabs]);
+              return [
+                {
+                  faviconUrl: getFaviconURL(tab.url),
+                  id: tab.id,
+                  title: tab.title,
+                  url: tab.url,
+                  action: 'open',
+                  visitCount: tab.visitCount,
+                },
+              ];
+            }),
+          )
+        : [],
+    [recentOpenedTabs],
+  );
 
   const closeExtension = () => {
     // changing the focus from the iframe to the body, since the main
@@ -95,31 +102,41 @@ function App() {
         switch (message.type) {
           case 'open-tab-master':
             setShowExtension(true);
-            setOpenedTabs(message.tabs.open?.map((tab) => ({
-              ...tab,
-              virtualId: `${tab.id}-opened-tab`,
-            })) ?? null);
-            setRecentOpenedTabs(message.tabs.recent?.map((tab) => ({
-              ...tab,
-              faviconUrl: getFaviconURL(tab.url || ''),
-            })) ?? null);
+            setOpenedTabs(
+              message.tabs.open?.map((tab) => ({
+                ...tab,
+                virtualId: `${tab.id}-opened-tab`,
+              })) ?? null,
+            );
+            setRecentOpenedTabs(
+              message.tabs.recent?.map((tab) => ({
+                ...tab,
+                faviconUrl: getFaviconURL(tab.url || ''),
+              })) ?? null,
+            );
             break;
           case 'current-state':
-            setOpenedTabs(message.tabs.open?.map((tab) => ({
-              ...tab,
-              virtualId: `${tab.id}-opened-tab`,
-            })) ?? null);
-            setRecentOpenedTabs(message.tabs.recent?.map((tab) => ({
-              ...tab,
-              faviconUrl: getFaviconURL(tab.url || ''),
-            })) ?? null);
+            setOpenedTabs(
+              message.tabs.open?.map((tab) => ({
+                ...tab,
+                virtualId: `${tab.id}-opened-tab`,
+              })) ?? null,
+            );
+            setRecentOpenedTabs(
+              message.tabs.recent?.map((tab) => ({
+                ...tab,
+                faviconUrl: getFaviconURL(tab.url || ''),
+              })) ?? null,
+            );
             break;
 
           case 'send-recent-tabs':
-            setRecentOpenedTabs(message.tabs?.map((tab) => ({
-              ...tab,
-              faviconUrl: getFaviconURL(tab.url || ''),
-            })) ?? null);
+            setRecentOpenedTabs(
+              message.tabs?.map((tab) => ({
+                ...tab,
+                faviconUrl: getFaviconURL(tab.url || ''),
+              })) ?? null,
+            );
             break;
 
           case 'close-tab-master':
@@ -178,13 +195,17 @@ function App() {
 
   const handleTabSelect = (selectedTabId: string) => {
     // OPENED TABS
-    const openTab = openedTabs?.find(({ virtualId }) => virtualId === selectedTabId);
+    const openTab = openedTabs?.find(
+      ({ virtualId }) => virtualId === selectedTabId,
+    );
     if (openTab?.id) {
       handleSwitchTab(openTab.id);
     }
 
     // RECENT OPENED TABS
-    const recentOpenTab = recentOpenedTabs?.find(({ id }) => id === selectedTabId);
+    const recentOpenTab = recentOpenedTabs?.find(
+      ({ id }) => id === selectedTabId,
+    );
     if (recentOpenTab?.url) {
       handleOpenTab(recentOpenTab.url);
     }

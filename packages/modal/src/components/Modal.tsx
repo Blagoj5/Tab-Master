@@ -1,14 +1,10 @@
-import React, {
-  useEffect, useMemo, useRef, useState,
-} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useFrame } from 'react-frame-component';
 
 import { CommonTab } from '@tab-master/common/build/types';
 
-import {
-  GlobalStyle, Input, scrollbarStyle, VStack,
-} from '../styles';
+import { GlobalStyle, Input, scrollbarStyle, VStack } from '../styles';
 import Tabs from './Tabs';
 import { fuzzySearch, removeDuplicates } from '../utils';
 import { useSettingsContext } from './SettingsProvider';
@@ -53,7 +49,9 @@ function Modal({
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState('');
-  const [scrollingState, setScrollingState] = useState<'arrows' | 'mouse' | undefined>();
+  const [scrollingState, setScrollingState] = useState<
+    'arrows' | 'mouse' | undefined
+  >();
 
   const [selectedTabId, setSelectedTabId] = useState('');
   const [expanded, setExpanded] = useState<string[]>([]);
@@ -61,67 +59,74 @@ function Modal({
   const { advancedSearchEnabled } = useSettingsContext();
 
   const [sortedCombinedSelectedTabs, combinedSelectedTabs] = useMemo(() => {
-    const [urlKeyword, titleKeyword = inputValue] = advancedSearchEnabled ? inputValue.split(':') : [inputValue];
-    const filteredOpenedTabs = fuzzySearch(
-      openedTabs,
-      {
-        keys: [
+    const [urlKeyword, titleKeyword = inputValue] = advancedSearchEnabled
+      ? inputValue.split(':')
+      : [inputValue];
+    const filteredOpenedTabs = inputValue
+      ? fuzzySearch(
+          openedTabs,
           {
-            name: 'title',
-            weight: 0.6,
+            keys: [
+              {
+                name: 'title',
+                weight: 0.6,
+              },
+              {
+                name: 'url',
+                weight: 0.4,
+              },
+            ],
+            includeScore: true,
+            ignoreLocation: true,
+            threshold: 0.25,
           },
           {
-            name: 'url',
-            weight: 0.4,
+            title: titleKeyword,
+            url: urlKeyword,
           },
-        ],
-        includeScore: true,
-        ignoreLocation: true,
-        threshold: 0.25,
-      },
-      {
-        title: titleKeyword,
-        url: urlKeyword,
-      },
-    );
+        )
+      : openedTabs;
 
-    const filteredRecentTabs = fuzzySearch(
-      recentTabs,
-      {
-        keys: [
+    const filteredRecentTabs = inputValue
+      ? fuzzySearch(
+          recentTabs,
           {
-            name: 'title',
-            weight: 0.6,
+            keys: [
+              {
+                name: 'title',
+                weight: 0.6,
+              },
+              {
+                name: 'url',
+                weight: 0.4,
+              },
+            ],
+            includeScore: true,
+            ignoreLocation: true,
+            threshold: 0.4,
           },
           {
-            name: 'url',
-            weight: 0.4,
+            title: titleKeyword,
+            url: urlKeyword,
           },
-        ],
-        includeScore: true,
-        ignoreLocation: true,
-        threshold: 0.4,
-      },
-      {
-        title: titleKeyword,
-        url: urlKeyword,
-      },
-      (result) => result.map((res) => {
-        let { score } = res;
-        if (res.item.visitCount && score) {
-          // TODO: discuss with DJ about this
-          // this is constant addition for each visit that affects the score
-          const CONSTANT_ADDITION = 0.0001;
-          const { visitCount } = res.item;
-          score = Math.max(score - visitCount * CONSTANT_ADDITION, 0);
-        }
+          (result) =>
+            result.map((res) => {
+              let { score } = res;
+              if (res.item.visitCount && score) {
+                // TODO: discuss with DJ about this
+                // this is constant addition for each visit that affects the score
+                const CONSTANT_ADDITION = 0.0001;
+                const { visitCount } = res.item;
+                score = Math.max(score - visitCount * CONSTANT_ADDITION, 0);
+              }
 
-        return {
-          ...res,
-          score,
-        };
-      }),
-    );
+              return {
+                ...res,
+                score,
+              };
+            }),
+        )
+      : recentTabs;
 
     const combinedTabs = [...filteredOpenedTabs, ...filteredRecentTabs];
 
@@ -137,7 +142,9 @@ function Modal({
   );
 
   const resetScroll = () => {
-    iFrameDocument.getElementById(combinedSelectedTabIds[0])?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
+    iFrameDocument
+      .getElementById(combinedSelectedTabIds[0])
+      ?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
   };
 
   useEffect(() => {
@@ -151,8 +158,12 @@ function Modal({
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     e.stopPropagation();
-    const selectedTabIds = inputValue ? sortedCombinedSelectedTabIds : combinedSelectedTabIds;
-    const selectedTabIndex = selectedTabIds.findIndex((id) => id === selectedTabId);
+    const selectedTabIds = inputValue
+      ? sortedCombinedSelectedTabIds
+      : combinedSelectedTabIds;
+    const selectedTabIndex = selectedTabIds.findIndex(
+      (id) => id === selectedTabId,
+    );
 
     // for Windows, ctrl + k has native binding
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -227,24 +238,38 @@ function Modal({
 
       const nextSuggestionOrder = selectedTabIndex - 1;
       // if the suggestion order goes bellow zero, start over again
-      const order = nextSuggestionOrder < 0 ? selectedTabIds.length - 1 : nextSuggestionOrder;
+      const order =
+        nextSuggestionOrder < 0
+          ? selectedTabIds.length - 1
+          : nextSuggestionOrder;
 
       const prevTabId = selectedTabIds[order];
 
       const target = iFrameDocument.getElementById(prevTabId);
-      target?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
+      target?.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'start',
+      });
 
       setScrollingState('arrows');
       setSelectedTabId(prevTabId);
     } else if (e.code === 'ArrowDown') {
       const prevSuggestionOrder = selectedTabIndex + 1;
       // suggestion goes above the upper limit
-      const order = prevSuggestionOrder > selectedTabIds.length - 1 ? 0 : prevSuggestionOrder;
+      const order =
+        prevSuggestionOrder > selectedTabIds.length - 1
+          ? 0
+          : prevSuggestionOrder;
 
       const nextTabId = selectedTabIds[order];
 
       const target = iFrameDocument.getElementById(nextTabId);
-      target?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
+      target?.scrollIntoView({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'start',
+      });
 
       setScrollingState('arrows');
       setSelectedTabId(nextTabId);
@@ -258,7 +283,9 @@ function Modal({
     setExpanded([]);
     setInputValue(e.target.value);
     // git:tab-master -> git tab-master in search history
-    const keyword = advancedSearchEnabled ? e.target.value.replace(':', ' ') : e.target.value;
+    const keyword = advancedSearchEnabled
+      ? e.target.value.replace(':', ' ')
+      : e.target.value;
     searchHistory(keyword);
   };
 
