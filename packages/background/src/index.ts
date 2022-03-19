@@ -22,6 +22,7 @@ const onActionMessageListener = async (message: object) => {
 
   if (!port) return;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isActions = (data: any): data is Actions => Boolean(data);
   if (!isActions(message)) return;
   if (!currentTab?.id) throw new Error('No current tab');

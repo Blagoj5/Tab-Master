@@ -1,4 +1,3 @@
-import { Actions } from '@tab-master/common/build/types';
 import getOpenedTabs from './getOpenedTabs';
 import getRecentlyOpenedTabs from './getRecentlyOpenedTabs';
 import { loadSettings } from './storageConfig';
