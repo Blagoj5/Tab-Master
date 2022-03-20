@@ -1,4 +1,6 @@
 import type { Page } from 'puppeteer';
+import { getActivePage } from './getActivePage';
+import sleep from './sleep';
 
 // Example data
 // - open tabs: 0, 1, 2 (lastItemIndex = 3)
@@ -34,17 +36,73 @@ class Navigator {
     }
   };
 
+  startFromOpenTabs = async () => {
+    // start from first item
+    if (this.phase === 1) {
+      while (this.index !== 0) {
+        await this.moveUp();
+      }
+    }
+    while (this.phase !== 1) {
+      await this.moveDown();
+    }
+  };
+
+  startFromRecentTabs = async () => {
+    // start from first item
+    if (this.phase === 2) {
+      while (this.index !== 0) {
+        await this.moveUp();
+      }
+    }
+
+    while (this.phase !== 2) {
+      await this.moveDown();
+    }
+  };
+
   moveDown = async () => {
     await this.page.keyboard.press('ArrowDown');
     this.index += 1;
-    if (this.index >= this.lastItemIndex && this.phase === 1) {
+    if (this.index > this.lastItemIndex && this.phase === 1) {
       this.phase = 2;
       this.index = 0;
     }
-    if (this.index >= this.lastItemIndex2 && this.phase === 2) {
+    if (this.index > this.lastItemIndex2 && this.phase === 2) {
       this.phase = 1;
       this.index = 0;
     }
+  };
+
+  moveDownMultiple = async (times: number) => {
+    for (let index = 0; index < times; index++) {
+      await this.moveDown();
+    }
+  };
+
+  enter = async () => {
+    await this.page.keyboard.press('Enter');
+
+    await sleep(1000);
+
+    this.page = await getActivePage();
+    let title = await this.page.title();
+    if (!title) {
+      this.page = await getActivePage();
+      title = await this.page.title();
+      await sleep(1000);
+    }
+
+    // recent tab was clicked
+    if (this.phase === 2) {
+      this.lastItemIndex += 1; // new tab was open
+      this.lastItemIndex2 -= 1; // recent tab was opened and converted to open tab
+    }
+    // reset
+    this.phase = 1;
+    this.index = 0;
+
+    return this.page;
   };
 
   toggleExpandCollapse = async () => {

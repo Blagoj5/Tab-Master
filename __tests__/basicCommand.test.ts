@@ -191,7 +191,7 @@ describe('Test TAB iteration', () => {
       await sleep(100);
     }
     await Promise.allSettled(openPagesPromises);
-    currentPage = await getActivePage(browser);
+    currentPage = await getActivePage();
     await currentPage.bringToFront();
   });
 
@@ -200,7 +200,7 @@ describe('Test TAB iteration', () => {
   });
 
   it('Should use Arrow Keys to navigate trough tabs', async () => {
-    const getSelector = (i: number) => `[data-testselected="selected-${i}"`;
+    const getSelector = (i: number) => `[data-testselected="selected-${i}"]`;
     const navigator = new Navigator(
       currentPage,
       openTabs.length - 1 + 1, // + 1 for the about tab from puppeteer
@@ -215,6 +215,7 @@ describe('Test TAB iteration', () => {
     await sleep(300);
 
     const moveDown = async () => {
+      debugger;
       await navigator.moveDown();
       const el = await frame.$(getSelector(navigator.index));
       expect(el).toBeTruthy();
@@ -243,7 +244,7 @@ describe('Test TAB iteration', () => {
   });
 
   it('Should use SHIFT + RightKey&LeftKey to toggle collapse/expand', async () => {
-    const getSelector = (i: number) => `[data-testexpanded="expanded-${i}"`;
+    const getSelector = (i: number) => `[data-testexpanded="expanded-${i}"]`;
     const navigator = new Navigator(
       currentPage,
       openTabs.length - 1 + 1, // + 1 for the about tab from puppeteer
@@ -307,7 +308,7 @@ describe('Test TAB iteration', () => {
   });
 
   it('Should use TAB to toggle collapse/expand', async () => {
-    const getSelector = (i: number) => `[data-testexpanded="expanded-${i}"`;
+    const getSelector = (i: number) => `[data-testexpanded="expanded-${i}"]`;
     const navigator = new Navigator(
       currentPage,
       openTabs.length - 1 + 1, // + 1 for the about tab from puppeteer
