@@ -215,7 +215,6 @@ describe('Test TAB iteration', () => {
     await sleep(300);
 
     const moveDown = async () => {
-      debugger;
       await navigator.moveDown();
       const el = await frame.$(getSelector(navigator.index));
       expect(el).toBeTruthy();
