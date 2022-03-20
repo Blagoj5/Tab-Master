@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useFrame } from 'react-frame-component';
 
@@ -21,7 +21,11 @@ const ModalStyle = styled.div`
   margin: auto;
 `;
 
-const TabsContainer = styled((props) => <VStack {...props} spacing="8px" />)`
+const TabsContainer = styled(
+  React.forwardRef<HTMLDivElement, { children: ReactNode }>((props, ref) => (
+    <VStack ref={ref} {...props} spacing="8px" />
+  )),
+)`
   flex: 1;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -46,6 +50,8 @@ function Modal({
   showExtension,
 }: Props) {
   const { document: iFrameDocument } = useFrame();
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [inputValue, setInputValue] = useState('');
@@ -142,13 +148,12 @@ function Modal({
   );
 
   const resetScroll = () => {
-    iFrameDocument
-      .getElementById(combinedSelectedTabIds[0])
-      ?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'start' });
+    containerRef.current?.scroll(0, 0);
   };
 
   useEffect(() => {
     inputRef.current?.focus();
+    resetScroll();
   }, [showExtension]);
 
   // on new filter always select the firs tab first
@@ -168,14 +173,12 @@ function Modal({
     // for Windows, ctrl + k has native binding
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
-      resetScroll();
       closeExtension();
       return;
     }
 
     if (e.key === 'Escape') {
       e.preventDefault();
-      resetScroll();
       closeExtension();
       setInputValue('');
       return;
@@ -224,14 +227,13 @@ function Modal({
     if (e.code === 'Enter' && selectedTabId) {
       e.preventDefault();
 
+      // extension is closed from parent handler
       handleTabSelect(selectedTabId);
-      resetScroll();
       setInputValue('');
 
       return;
     }
 
-    // TODO: not correct it only looks the combinedSelectedTab and not the separate
     // arrow up/down button should select next/previous list element
     if (e.code === 'ArrowUp') {
       e.preventDefault();
@@ -312,7 +314,7 @@ function Modal({
             setScrollingState={setScrollingState}
           />
         ) : (
-          <TabsContainer>
+          <TabsContainer ref={containerRef}>
             {/* OPENED TABS */}
             {openedTabs?.length ? (
               <Tabs

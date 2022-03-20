@@ -223,7 +223,7 @@ function App() {
   // TODO: add font-sizes everywhere
   return (
     <Container isVisible={showExtension}>
-      <Backdrop onClick={() => setShowExtension(false)} />
+      <Backdrop onClick={closeExtension} />
 
       <ModalFrame>
         <FrameContextConsumer>
