@@ -6,7 +6,7 @@ export const recentTabs = [
   'https://facebook.com',
   'https://linkedin.com',
   'https://youtube.com',
-  'https://codepen.io/',
+  // 'https://codepen.io/',
   'https://github.com/Blagoj5/Tab-Master',
   'https://github.com/nikolovlazar/taskie',
   'https://github.com/aacevski/unwrapit.me',

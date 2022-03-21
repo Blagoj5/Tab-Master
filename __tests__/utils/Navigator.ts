@@ -80,7 +80,7 @@ class Navigator {
     }
   };
 
-  enter = async () => {
+  navigate = async () => {
     await this.page.keyboard.press('Enter');
 
     await sleep(1000);

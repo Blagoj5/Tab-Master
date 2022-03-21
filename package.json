@@ -35,7 +35,9 @@
     "build:watch": "nodemon scripts/build.js --verbose --watch ./packages/common/src --watch ./packages/background/src --watch ./packages/modal/src -e ts,tsx --watch ./packages/popup/src -e ts,tsx --watch ./assets/manifest.json",
     "build": "NODE_ENV=production node scripts/build.js",
     "prezip": "rimraf tab-master-chrome.zip & rimraf tab-master-firefox.zip",
-    "zip": "zip -r -FS tab-master-chrome.zip build-chrome/* & zip -r -FS tab-master-firefox.zip build-firefox/*",
+    "zip:chrome": "zip -r -FS tab-master-chrome.zip build-chrome/*",
+    "zip:firefox": "cd build-firefox/ && zip -r -FS ../tab-master-firefox.zip *",
+    "zip": "yarn zip:chrome && yarn zip:firefox",
     "changelog": "auto-changelog -p && git add CHANGELOG.md",
     "test": "jest"
   },
