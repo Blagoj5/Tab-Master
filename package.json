@@ -5,12 +5,25 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "@types/firefox-webext-browser": "^94.0.1",
-    "@types/node": "^17.0.8",
+    "@babel/core": "^7.17.5",
+    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/expect-puppeteer": "^4.4.7",
+    "@types/jest": "^27.4.1",
+    "@types/jest-environment-puppeteer": "^5.0.0",
+    "@types/node": "^17.0.21",
+    "@types/puppeteer": "^5.4.5",
+    "@typescript-eslint/parser": "^5.14.0",
     "auto-changelog": "^2.4.0",
+    "babel-jest": "^27.5.1",
+    "dotenv": "^16.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-jest": "^26.1.1",
     "fs-extra": "^10.0.0",
-    "node": "^17.3.0",
+    "jest": "^27.5.1",
+    "jest-puppeteer": "^6.1.0",
     "nodemon": "^2.0.15",
+    "puppeteer": "^13.5.1",
     "rimraf": "^3.0.2",
     "webextension-polyfill": "^0.8.0"
   },
@@ -22,8 +35,11 @@
     "build:watch": "nodemon scripts/build.js --verbose --watch ./packages/common/src --watch ./packages/background/src --watch ./packages/modal/src -e ts,tsx --watch ./packages/popup/src -e ts,tsx --watch ./assets/manifest.json",
     "build": "NODE_ENV=production node scripts/build.js",
     "prezip": "rimraf tab-master-chrome.zip & rimraf tab-master-firefox.zip",
-    "zip": "zip -r -FS tab-master-chrome.zip build-chrome/* & zip -r -FS tab-master-firefox.zip build-firefox/*",
-    "changelog": "auto-changelog -p && git add CHANGELOG.md"
+    "zip:chrome": "zip -r -FS tab-master-chrome.zip build-chrome/*",
+    "zip:firefox": "cd build-firefox/ && zip -r -FS ../tab-master-firefox.zip *",
+    "zip": "yarn zip:chrome && yarn zip:firefox",
+    "changelog": "auto-changelog -p && git add CHANGELOG.md",
+    "test": "jest"
   },
   "dependencies": {},
   "workspaces": {
@@ -32,7 +48,9 @@
     ],
     "nohoist": [
       "@rollup",
-      "@rollup/**"
+      "@rollup/**",
+      "@types/firefox-webext-browser",
+      "@types/firefox-webext-browser/**"
     ]
   }
 }

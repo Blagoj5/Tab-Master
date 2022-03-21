@@ -3,58 +3,58 @@ import styled from 'styled-components';
 
 const Container = styled.div`
   color: #ffffffd6;
-	h4 {
-		margin-top: 0;
-		margin-bottom: 16px;
-	}
+  h4 {
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
 `;
 
 const UnorderedList = styled.ul`
-	padding-left: 30px;
-	margin: 0;
-	font-size: 14px;
-	li {
-		margin-bottom: 10px;
-		line-height: 24px;
-		code {
-			background: hsl(216deg 10% 34%);
-			padding: 3px 6px;
-			border-radius: 4px;
-			letter-spacing: 1px;
-		}
-	}
+  padding-left: 30px;
+  margin: 0;
+  font-size: 14px;
+  li {
+    margin-bottom: 10px;
+    line-height: 24px;
+    code {
+      background: hsl(216deg 10% 34%);
+      padding: 3px 6px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+    }
+  }
 `;
 
 const OsBox = styled.div`
   display: flex;
-	width: 100%;
-	border-bottom: 1px solid var(--input-primary-light);
-	margin-bottom: 24px;
-	align-items: stretch;
-	h5 {
-		margin-right: 4px;
-	}
-	h5:last-child {
-		margin-right: 0;
-	}
+  width: 100%;
+  border-bottom: 1px solid var(--input-primary-light);
+  margin-bottom: 24px;
+  align-items: stretch;
+  h5 {
+    margin-right: 4px;
+  }
+  h5:last-child {
+    margin-right: 0;
+  }
 `;
 
 const OsHeading = styled.h5<{ isActive: boolean }>`
-	background: ${(props) => (props.isActive ? 'hsla(0, 0%, 0%, 0.10)' : 'initial')};
-	flex: 1;
-	height: 100%;
-	text-align: center;
-	cursor: pointer;
-	margin: 0;
-	height: 60px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 8px 8px 0 0;
-	transition: background 0.2s;
-	:hover {
-		background: hsla(0, 0%, 0%, 0.10);
-	}
+  background: ${(props) => (props.isActive ? 'hsla(0, 0%, 0%, 0.10)' : 'initial')};
+  flex: 1;
+  height: 100%;
+  text-align: center;
+  cursor: pointer;
+  margin: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px 8px 0 0;
+  transition: background 0.2s;
+  :hover {
+    background: hsla(0, 0%, 0%, 0.1);
+  }
 `;
 
 type Os = 'windows' | 'mac' | 'linux';
@@ -65,13 +65,14 @@ function Description() {
   return (
     <Container>
       <p>
-        <b>Tab Mater</b>
+        <b>Tab Master</b>
         {' '}
         is an easy-to-use extension for increasing your
         {' '}
         <b>productivity</b>
         {' '}
-        by providing an easy and intuitive way to navigate trough tabs and history.
+        by providing an easy and intuitive way to navigate
+        trough tabs and history.
       </p>
       <div>
         <h4>Commands</h4>
@@ -125,8 +126,8 @@ function Description() {
           ) : (
             <>
               <li>
-                Toggle modal (native keybinding is overridden which
-                in some site it might cause a weird behavior) -
+                Toggle modal (native keybinding is overridden which in some site
+                it might cause a weird behavior) -
                 {' '}
                 <code>CTRL</code>
                 {' '}
@@ -191,7 +192,6 @@ function Description() {
             <code>SHIFT</code>
             {' '}
             +
-            {' '}
             {' '}
             <code>Arrow Left</code>
             {' '}

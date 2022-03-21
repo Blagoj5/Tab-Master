@@ -7,6 +7,7 @@ module.exports = {
     'plugin:react/recommended',
     'airbnb',
     'plugin:@typescript-eslint/recommended',
+    'prettier',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -15,11 +16,9 @@ module.exports = {
     },
     ecmaVersion: 12,
     sourceType: 'module',
+    project: './packages/modal/tsconfig.json',
   },
-  plugins: [
-    'react',
-    '@typescript-eslint',
-  ],
+  plugins: ['react', '@typescript-eslint'],
   rules: {
     'react/function-component-definition': 'off',
     'react/jsx-filename-extension': 'off',
@@ -36,8 +35,5 @@ module.exports = {
   globals: {
     chrome: true,
   },
-  ignorePatterns: [
-    'build',
-    'node_modules',
-  ],
+  ignorePatterns: ['build', 'node_modules'],
 };

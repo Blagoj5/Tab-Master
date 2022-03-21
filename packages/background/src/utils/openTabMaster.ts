@@ -1,4 +1,3 @@
-import { Actions } from '@tab-master/common/build/types';
 import getOpenedTabs from './getOpenedTabs';
 import getRecentlyOpenedTabs from './getRecentlyOpenedTabs';
 import { loadSettings } from './storageConfig';
@@ -20,18 +19,19 @@ const getOpenTabMasterPayload = async (
       {
         currentTabId,
         currentTabUrl,
+        openedTabs,
       },
       '',
     );
   }
 
-  const payload: Actions = {
+  const payload = {
     type,
     tabs: {
       open: openedTabs,
       recent: recentlyOpenedTabs,
     },
-  };
+  } as const;
 
   return payload;
 };
