@@ -31,12 +31,15 @@
 		"declaration": true,
 		"isolatedModules": false,
 		"jsx": "react-jsx",
-    "types": ["node_modules/@types/jest-environment-puppeteer"]
+    "types": [
+      "../node_modules/@types/jest-environment-puppeteer",
+      "../node_modules/@types/jest",
+    ]
 	},
 	"exclude": [
 		"node_modules"
 	],
 	"include": [
-		"__tests__",
+		"./*",
 	],
 }

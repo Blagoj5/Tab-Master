@@ -3,12 +3,9 @@ module.exports = {
     browser: false,
     es6: true,
     node: true,
+    jest: true,
   },
   parser: '@typescript-eslint/parser',
-  parserOptions: {
-    project: 'tsconfig.jest.json',
-    sourceType: 'module',
-  },
   plugins: ['@typescript-eslint', 'jest'],
   extends: [
     'eslint:recommended',
@@ -18,4 +15,10 @@ module.exports = {
     'prettier',
   ],
   rules: {},
+  globals: {
+    page: true,
+    browser: true,
+    context: true,
+    jestPuppeteer: true,
+  },
 };

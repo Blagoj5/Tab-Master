@@ -31,6 +31,7 @@
     "type-check": "tsc --noEmit --pretty packages",
     "copy-files": "ncp assets/manifest.json build/manifest.json",
     "watch:manifest": "nodemon scripts/setup.js --verbose --watch manifest.json",
+    "build:website": "NODE_ENV=production yarn --cwd website build",
     "build:packages": "NODE_ENV=production yarn workspace @tab-master/background build & yarn workspace @tab-master/common build & yarn workspace @tab-master/modal build & yarn workspace @tab-master/popup build",
     "build:watch": "nodemon scripts/build.js --verbose --watch ./packages/common/src --watch ./packages/background/src --watch ./packages/modal/src -e ts,tsx --watch ./packages/popup/src -e ts,tsx --watch ./assets/manifest.json",
     "build": "NODE_ENV=production node scripts/build.js",
@@ -39,7 +40,7 @@
     "zip:firefox": "cd build-firefox/ && zip -r -FS ../tab-master-firefox.zip *",
     "zip": "yarn zip:chrome && yarn zip:firefox",
     "changelog": "auto-changelog -p && git add CHANGELOG.md",
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "dependencies": {},
   "workspaces": {
