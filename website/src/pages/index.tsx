@@ -95,7 +95,7 @@ const Home: NextPage = () => {
             </a>
           </div>
         </div>
-        <div className="aspect-video relative opacity-60 w-full sm:w-10/12 max-w-[750px] mb-12 xl:mb-0 xl:min-w-[730px] xl:max-w-[800px]">
+        <div className="aspect-video relative opacity-60 w-full sm:w-10/12 max-w-[750px] mb-12 xl:mb-0 xl:min-w-[724px] xl:max-w-[800px]">
           <Image src="/tab-master.gif" alt="No img" layout="fill" />
         </div>
       </div>
