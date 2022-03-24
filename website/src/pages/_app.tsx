@@ -7,6 +7,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <link rel="icon" type="image/png" href="/icon128.png" />
+        <title>Tab Master</title>
       </Head>
       <Component {...pageProps} />
     </>
