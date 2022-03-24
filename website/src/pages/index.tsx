@@ -66,7 +66,7 @@ const Home: NextPage = () => {
         <div className="flex flex-col max-w-2xl text-center xl:text-left space-y-8">
           <h1 className="text-gray-300 text-5xl mb-2 leading-tight">
             Easy and intuitive way to{' '}
-            <span className="text-secondary">navigate</span> trough tabs and
+            <span className="text-secondary">navigate</span> through tabs and
             history
           </h1>
           <p className="text-gray-400 text-xl">
