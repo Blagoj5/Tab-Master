@@ -7,6 +7,9 @@ module.exports = {
         primary: '#2B0246',
         secondary: '#FEB640',
       },
+      minHeight: {
+        50: '25rem',
+      },
     },
   },
   plugins: [],

@@ -1,6 +1,9 @@
+import { detect } from 'detect-browser';
 import type { NextPage } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect } from 'react';
+import { useState } from 'react';
 import GitIcon from '../assets/GitIcon';
 import YoutubeIcon from '../assets/YoutubeIcon';
 
@@ -21,8 +24,21 @@ const links = [
   },
 ];
 const Home: NextPage = () => {
+  const [extensionUrl, setExtensionUrl] = useState(
+    'https://chrome.google.com/webstore/detail/tab-master/homcodpbmcdfhndhlnfnhofdnmlkplaa',
+  );
+  useEffect(() => {
+    const detectedBrowser = detect();
+
+    const url =
+      detectedBrowser?.name === 'firefox'
+        ? 'https://addons.mozilla.org/en-GB/firefox/addon/tab-master-pro/'
+        : 'https://chrome.google.com/webstore/detail/tab-master/homcodpbmcdfhndhlnfnhofdnmlkplaa';
+
+    setExtensionUrl(url);
+  }, []);
   return (
-    <div className="bg-primary h-screen flex flex-col">
+    <div className="bg-primary h-screen min-h-50 flex flex-col">
       <header className="h-14 flex items-center justify-between">
         {/* logo */}
         <Link href="/" passHref>
@@ -61,7 +77,7 @@ const Home: NextPage = () => {
           </p>
           <div className="space-x-4">
             <a
-              href="https://chrome.google.com/webstore/detail/tab-master/homcodpbmcdfhndhlnfnhofdnmlkplaa"
+              href={extensionUrl}
               target="_blank"
               className="bg-secondary py-4 px-14 rounded-md text-xl brown"
               rel="noreferrer"
