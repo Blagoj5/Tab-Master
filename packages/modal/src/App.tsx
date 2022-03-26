@@ -102,7 +102,6 @@ function App() {
 
         switch (message.type) {
           case 'open-tab-master':
-            setShowExtension(true);
             setOpenedTabs(
               message.tabs.open?.map((tab) => ({
                 ...tab,
@@ -115,6 +114,7 @@ function App() {
                 faviconUrl: getFaviconURL(tab.url || ''),
               })) ?? null,
             );
+            setShowExtension(true);
             break;
           case 'current-state':
             setOpenedTabs(

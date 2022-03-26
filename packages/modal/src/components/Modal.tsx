@@ -162,7 +162,8 @@ function Modal({
   // on new filter always select the firs tab first
   useEffect(() => {
     setSelectedTabId(sortedCombinedSelectedTabIds[0]);
-  }, [sortedCombinedSelectedTabIds]);
+    setExpanded([]);
+  }, [showExtension]);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     e.stopPropagation();
@@ -188,19 +189,9 @@ function Modal({
     }
 
     // reserved keys
-    const isReservedKey =
-      e.key === 'Tab' || e.key === 'Shift' || e.metaKey || e.ctrlKey;
+    const isReservedKey = e.key === 'Tab' || e.key === 'Shift';
     if (isReservedKey) {
       e.preventDefault();
-    }
-
-    if (
-      (e.ctrlKey || e.metaKey) &&
-      e.key === 'x' &&
-      openedTabs.map(({ id }) => id).includes(selectedTabId)
-    ) {
-      handleTabClose(Number(selectedTabId.replace(OPENED_TAB_SUFFIX, '')));
-      return;
     }
 
     // toggle expand/collapse
@@ -247,8 +238,7 @@ function Modal({
       return;
     }
 
-    // arrow up/down button should select next/previous list element
-    if (e.code === 'ArrowUp') {
+    const arrowUp = () => {
       e.preventDefault();
 
       const nextSuggestionOrder = selectedTabIndex - 1;
@@ -269,7 +259,9 @@ function Modal({
 
       setScrollingState('arrows');
       setSelectedTabId(prevTabId);
-    } else if (e.code === 'ArrowDown') {
+    };
+
+    const arrowDown = () => {
       const prevSuggestionOrder = selectedTabIndex + 1;
       // suggestion goes above the upper limit
       const order =
@@ -288,8 +280,23 @@ function Modal({
 
       setScrollingState('arrows');
       setSelectedTabId(nextTabId);
-    } else if (!isReservedKey) {
-      setSelectedTabId('');
+    };
+
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      e.key === 'x' &&
+      openedTabs.map(({ id }) => id).includes(selectedTabId)
+    ) {
+      arrowDown();
+      handleTabClose(Number(selectedTabId.replace(OPENED_TAB_SUFFIX, '')));
+      return;
+    }
+
+    // arrow up/down button should select next/previous list element
+    if (e.code === 'ArrowUp') {
+      arrowUp();
+    } else if (e.code === 'ArrowDown') {
+      arrowDown();
     }
   };
 
