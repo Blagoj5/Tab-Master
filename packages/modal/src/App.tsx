@@ -14,6 +14,7 @@ import { getFaviconURL, removeDuplicates } from './utils';
 import { Backdrop, Center } from './styles';
 import Modal from './components/Modal';
 import SettingsProvider from './components/SettingsProvider';
+import { OPENED_TAB_SUFFIX } from './consts';
 
 const ModalFrame = styled(Frame)<{ isVisible: boolean }>`
   width: 650px;
@@ -105,7 +106,7 @@ function App() {
             setOpenedTabs(
               message.tabs.open?.map((tab) => ({
                 ...tab,
-                virtualId: `${tab.id}-opened-tab`,
+                virtualId: `${tab.id}${OPENED_TAB_SUFFIX}`,
               })) ?? null,
             );
             setRecentOpenedTabs(
@@ -119,7 +120,7 @@ function App() {
             setOpenedTabs(
               message.tabs.open?.map((tab) => ({
                 ...tab,
-                virtualId: `${tab.id}-opened-tab`,
+                virtualId: `${tab.id}${OPENED_TAB_SUFFIX}`,
               })) ?? null,
             );
             setRecentOpenedTabs(
@@ -211,6 +212,16 @@ function App() {
     }
   };
 
+  const handleTabClose = (tabId: number) => {
+    const payload: Actions = {
+      type: 'close-tab',
+      tabId,
+    };
+    setOpenedTabs(openedTabs?.filter((tab) => tab.id !== tabId) ?? null);
+
+    portRef.current?.postMessage(payload);
+  };
+
   const handleOnChange = (value: string) => {
     const payload: Actions = {
       type: 'search-history',
@@ -233,6 +244,7 @@ function App() {
                 <Modal
                   searchHistory={handleOnChange}
                   handleTabSelect={handleTabSelect}
+                  handleTabClose={handleTabClose}
                   openedTabs={transformedOpenedTabs}
                   recentTabs={transformedRecentOpenedTabs}
                   closeExtension={closeExtension}

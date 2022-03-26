@@ -8,6 +8,7 @@ import { GlobalStyle, Input, scrollbarStyle, VStack } from '../styles';
 import Tabs from './Tabs';
 import { fuzzySearch, removeDuplicates } from '../utils';
 import { useSettingsContext } from './SettingsProvider';
+import { OPENED_TAB_SUFFIX } from '../consts';
 
 const ModalStyle = styled.div`
   width: auto;
@@ -35,6 +36,7 @@ const TabsContainer = styled(
 type Props = {
   searchHistory: (value: string) => void;
   handleTabSelect: (selectedTabId: string) => void;
+  handleTabClose: (selectedTabId: number) => void;
   closeExtension: () => void;
   openedTabs?: CommonTab[];
   recentTabs?: CommonTab[];
@@ -44,6 +46,7 @@ type Props = {
 function Modal({
   searchHistory,
   handleTabSelect,
+  handleTabClose,
   openedTabs = [],
   recentTabs = [],
   closeExtension,
@@ -185,9 +188,19 @@ function Modal({
     }
 
     // reserved keys
-    const isReservedKey = e.key === 'Tab' || e.key === 'Shift';
+    const isReservedKey =
+      e.key === 'Tab' || e.key === 'Shift' || e.metaKey || e.ctrlKey;
     if (isReservedKey) {
       e.preventDefault();
+    }
+
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      e.key === 'x' &&
+      openedTabs.map(({ id }) => id).includes(selectedTabId)
+    ) {
+      handleTabClose(Number(selectedTabId.replace(OPENED_TAB_SUFFIX, '')));
+      return;
     }
 
     // toggle expand/collapse
