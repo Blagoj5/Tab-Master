@@ -1,45 +1,29 @@
-import { Frame, HTTPResponse, Page } from 'puppeteer';
-import { intersectionRecentTabsComplement, openTabs, recentTabs } from './data';
-import { getActivePage } from './utils/getActivePage';
+import { validateFrame } from './utils/validateFrame';
+import { intersectionRecentTabsComplement, openTabs } from './data';
 import { openExtensionWindowsOrUb } from './utils/openTabMaster';
 import sleep from './utils/sleep';
 import Navigator from './utils/Navigator';
 import getPageCount from './utils/getPageCount';
-import { validateFrame } from './utils/validateFrame';
 import closeExtension from './utils/closeTabMaster';
+import { openRecentTabs } from './utils/openRecentTabs';
+import { openOpenedTabs } from './utils/openOpenedTabs';
 
 describe('Test functionality without keyword', () => {
-  let currentPage: Page;
-  let frame: Frame;
   beforeAll(async () => {
     await jestPuppeteer.resetBrowser();
-
-    const recentPages: Page[] = [];
-    const recentPagesPromises: Promise<HTTPResponse>[] = [];
-    for (const site of recentTabs) {
-      const newPage = await browser.newPage();
-      recentPagesPromises.push(newPage.goto(site));
-      recentPages.push(newPage);
-    }
-    await Promise.all(recentPagesPromises);
-    await Promise.all(recentPages.map((page) => page.close()));
-
-    const openedPages: Page[] = [page];
-    const openPagesPromises: Promise<HTTPResponse>[] = [];
-    for (const site of openTabs) {
-      // TODO: fix this
-      const newPage = await browser.newPage();
-      openPagesPromises.push(newPage.goto(site));
-      openedPages.push(newPage);
-      await sleep(100);
-    }
-    await Promise.allSettled(openPagesPromises);
+    await openRecentTabs();
+    await openOpenedTabs();
   });
 
-  beforeEach(async () => {
-    ({ currentPage, frame } = await validateFrame());
+  afterAll(async () => {
+    const pages = await browser.pages();
+    const closePagesPromises = pages.map((page) => {
+      if (page.url() === 'about:blank')
+        return new Promise<void>((res) => res());
+      return page.close();
+    });
+    Promise.all(closePagesPromises);
   });
-
   test.each([
     ['Five down', 5],
     ['Four down', 4],
@@ -124,6 +108,7 @@ describe('Test functionality without keyword', () => {
       await navigator.moveDownMultiple(movesDown);
 
       const expectSelection = async () => {
+        const { frame } = await validateFrame();
         const selections = await frame.$x(
           `//*${getSelector(navigator.index)}//p`,
         );
@@ -163,31 +148,10 @@ describe('Test functionality without keyword', () => {
 });
 
 describe('Test functionality with keyword', () => {
-  let currentPage: Page;
   beforeAll(async () => {
     await jestPuppeteer.resetBrowser();
-    const recentPages: Page[] = [];
-    const recentPagesPromises: Promise<HTTPResponse>[] = [];
-    for (const site of recentTabs) {
-      const newPage = await browser.newPage();
-      recentPagesPromises.push(newPage.goto(site));
-      recentPages.push(newPage);
-    }
-    await Promise.all(recentPagesPromises);
-    await Promise.all(recentPages.map((page) => page.close()));
-
-    const openedPages: Page[] = [page];
-    const openPagesPromises: Promise<HTTPResponse>[] = [];
-    for (const site of openTabs) {
-      // TODO: fix this
-      const newPage = await browser.newPage();
-      openPagesPromises.push(newPage.goto(site));
-      openedPages.push(newPage);
-      await sleep(100);
-    }
-    await Promise.allSettled(openPagesPromises);
-    currentPage = await getActivePage(browser);
-    await currentPage.bringToFront();
+    await openRecentTabs();
+    await openRecentTabs();
   });
 
   it('Should navigate trough recent opened tabs with keyword: <site>', async () => {});

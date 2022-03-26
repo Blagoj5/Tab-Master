@@ -20,5 +20,6 @@ module.exports = {
     browser: true,
     context: true,
     jestPuppeteer: true,
+    currentPage: true,
   },
 };

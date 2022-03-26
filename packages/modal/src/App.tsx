@@ -236,7 +236,7 @@ function App() {
     <Container isVisible={showExtension}>
       <Backdrop onClick={closeExtension} />
 
-      <ModalFrame>
+      <ModalFrame id="tab-master">
         <FrameContextConsumer>
           {(frameContext: any) => (
             <StyleSheetManager target={frameContext.document.head}>

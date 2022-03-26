@@ -1,6 +1,4 @@
-import type { Browser, HTTPResponse, Page } from 'puppeteer';
-import { intersectionRecentTabsComplement, openTabs, recentTabs } from './data';
-import { getActivePage } from './utils/getActivePage';
+import { intersectionRecentTabsComplement, openTabs } from './data';
 import closeExtension from './utils/closeTabMaster';
 import {
   openExtensionMac,
@@ -10,6 +8,8 @@ import {
 } from './utils/openTabMaster';
 import sleep from './utils/sleep';
 import Navigator from './utils/Navigator';
+import { openRecentTabs } from './utils/openRecentTabs';
+import { openOpenedTabs } from './utils/openOpenedTabs';
 
 describe('Test open commands - MacOS', () => {
   beforeAll(async () => {
@@ -22,13 +22,13 @@ describe('Test open commands - MacOS', () => {
     const selector = '*[data-testid="open-modal"]';
 
     const elementHandle = await page.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
-    let el = await frame.waitForSelector(selector);
+    const frame = await elementHandle?.contentFrame();
+    let el = await frame?.waitForSelector(selector);
 
     expect(el).toBeTruthy();
 
     await openExtensionMac(); // CLOSE
-    el = await frame.$(selector);
+    el = await frame?.$(selector);
     expect(el).toBeNull();
 
     await expect(page.title()).resolves.toMatch('Google');
@@ -39,14 +39,12 @@ describe('Test open commands - MacOS', () => {
     await openExtensionMac(); // OPEN
     const selector = '*[data-testid="open-modal"]';
 
-    const elementHandle = await page.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
-    let el = await frame.waitForSelector(selector);
+    let el = await frame?.waitForSelector(selector);
 
     expect(el).toBeTruthy();
 
     await closeExtension(); // CLOSE
-    el = await frame.$(selector);
+    el = await frame?.$(selector);
     expect(el).toBeNull();
 
     await expect(page.title()).resolves.toMatch('Google');
@@ -57,14 +55,12 @@ describe('Test open commands - MacOS', () => {
     await openExtensionNativeMac(); // OPEN
     const selector = '*[data-testid="open-modal"]';
 
-    const elementHandle = await page.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
-    let el = await frame.waitForSelector(selector);
+    let el = await frame?.waitForSelector(selector);
 
     expect(el).toBeTruthy();
 
     await closeExtension(); // CLOSE
-    el = await frame.$(selector);
+    el = await frame?.$(selector);
     expect(el).toBeNull();
 
     await expect(page.title()).resolves.toMatch('Google');
@@ -75,14 +71,12 @@ describe('Test open commands - MacOS', () => {
     await openExtensionNativeMac(); // OPEN
     const selector = '*[data-testid="open-modal"]';
 
-    const elementHandle = await page.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
-    let el = await frame.waitForSelector(selector);
+    let el = await frame?.waitForSelector(selector);
 
     expect(el).toBeTruthy();
 
     await openExtensionMac(); // CLOSE
-    el = await frame.$(selector);
+    el = await frame?.$(selector);
     expect(el).toBeNull();
 
     await expect(page.title()).resolves.toMatch('Google');
@@ -96,17 +90,15 @@ describe('Test open commands - Rest OS', () => {
 
   it('Should toggle - Control + K', async () => {
     // TOGGLE
-    await openExtensionWindowsOrUb(); // OPEN
+    await openExtensionWindowsOrUb(currentPage); // OPEN
     const selector = '*[data-testid="open-modal"]';
 
-    const elementHandle = await page.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
-    let el = await frame.waitForSelector(selector);
+    let el = await frame?.waitForSelector(selector);
 
     expect(el).toBeTruthy();
 
     await openExtensionWindowsOrUb(); // CLOSE
-    el = await frame.$(selector);
+    el = await frame?.$(selector);
     expect(el).toBeNull();
 
     await expect(page.title()).resolves.toMatch('Google');
@@ -117,14 +109,12 @@ describe('Test open commands - Rest OS', () => {
     await openExtensionWindowsOrUb(); // OPEN
     const selector = '*[data-testid="open-modal"]';
 
-    const elementHandle = await page.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
-    let el = await frame.waitForSelector(selector);
+    let el = await frame?.waitForSelector(selector);
 
     expect(el).toBeTruthy();
 
     await closeExtension(); // CLOSE
-    el = await frame.$(selector);
+    el = await frame?.$(selector);
     expect(el).toBeNull();
 
     await expect(page.title()).resolves.toMatch('Google');
@@ -135,14 +125,12 @@ describe('Test open commands - Rest OS', () => {
     await openExtensionNativeWinOrUb(); // OPEN
     const selector = '*[data-testid="open-modal"]';
 
-    const elementHandle = await page.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
-    let el = await frame.waitForSelector(selector);
+    let el = await frame?.waitForSelector(selector);
 
     expect(el).toBeTruthy();
 
     await closeExtension(); // CLOSE
-    el = await frame.$(selector);
+    el = await frame?.$(selector);
     expect(el).toBeNull();
 
     await expect(page.title()).resolves.toMatch('Google');
@@ -153,14 +141,12 @@ describe('Test open commands - Rest OS', () => {
     await openExtensionNativeWinOrUb(); // OPEN
     const selector = '*[data-testid="open-modal"]';
 
-    const elementHandle = await page.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
-    let el = await frame.waitForSelector(selector);
+    let el = await frame?.waitForSelector(selector);
 
     expect(el).toBeTruthy();
 
     await openExtensionWindowsOrUb(); // CLOSE
-    el = await frame.$(selector);
+    el = await frame?.$(selector);
     expect(el).toBeNull();
 
     await expect(page.title()).resolves.toMatch('Google');
@@ -168,31 +154,10 @@ describe('Test open commands - Rest OS', () => {
 });
 
 describe('Test TAB iteration', () => {
-  let currentPage: Page;
   beforeAll(async () => {
     await jestPuppeteer.resetBrowser();
-    const recentPages: Page[] = [];
-    const recentPagesPromises: Promise<HTTPResponse>[] = [];
-    for (const site of recentTabs) {
-      const newPage = await (browser as unknown as Browser).newPage();
-      recentPagesPromises.push(newPage.goto(site));
-      recentPages.push(newPage);
-    }
-    await Promise.all(recentPagesPromises);
-    await Promise.all(recentPages.map((page) => page.close()));
-
-    const openedPages: Page[] = [page];
-    const openPagesPromises: Promise<HTTPResponse>[] = [];
-    for (const site of openTabs) {
-      // TODO: fix this
-      const newPage = await (browser as unknown as Browser).newPage();
-      openPagesPromises.push(newPage.goto(site));
-      openedPages.push(newPage);
-      await sleep(100);
-    }
-    await Promise.allSettled(openPagesPromises);
-    currentPage = await getActivePage();
-    await currentPage.bringToFront();
+    await openRecentTabs();
+    await openOpenedTabs();
   });
 
   afterEach(async () => {
@@ -208,7 +173,7 @@ describe('Test TAB iteration', () => {
     );
 
     const elementHandle = await currentPage.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
+    const frame = await elementHandle?.contentFrame();
 
     // TOGGLE
     await openExtensionWindowsOrUb(currentPage); // OPEN
@@ -216,13 +181,13 @@ describe('Test TAB iteration', () => {
 
     const moveDown = async () => {
       await navigator.moveDown();
-      const el = await frame.$(getSelector(navigator.index));
+      const el = await frame?.$(getSelector(navigator.index));
       expect(el).toBeTruthy();
     };
 
     const moveUp = async () => {
       await navigator.moveUp();
-      const el = await frame.$(getSelector(navigator.index));
+      const el = await frame?.$(getSelector(navigator.index));
       expect(el).toBeTruthy();
     };
 
@@ -251,7 +216,7 @@ describe('Test TAB iteration', () => {
     );
 
     const elementHandle = await currentPage.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
+    const frame = await elementHandle?.contentFrame();
 
     // TOGGLE
     await openExtensionWindowsOrUb(currentPage); // OPEN
@@ -259,19 +224,19 @@ describe('Test TAB iteration', () => {
 
     const moveDown = async () => {
       await navigator.moveDownAndExpand();
-      const el = await frame.$(getSelector(navigator.index));
+      const el = await frame?.$(getSelector(navigator.index));
       expect(el).toBeTruthy();
     };
 
     const moveUp = async () => {
       await navigator.moveUpAndExpand();
-      const el = await frame.$(getSelector(navigator.index));
+      const el = await frame?.$(getSelector(navigator.index));
       expect(el).toBeTruthy();
     };
 
     const collapse = async () => {
       await navigator.collapse();
-      const el = await frame.$(getSelector(navigator.index));
+      const el = await frame?.$(getSelector(navigator.index));
       expect(el).toBeNull();
     };
 
@@ -315,7 +280,7 @@ describe('Test TAB iteration', () => {
     );
 
     const elementHandle = await currentPage.waitForSelector('iframe');
-    const frame = await elementHandle.contentFrame();
+    const frame = await elementHandle?.contentFrame();
 
     // TOGGLE
     await openExtensionWindowsOrUb(currentPage); // OPEN
@@ -323,19 +288,19 @@ describe('Test TAB iteration', () => {
 
     const moveDown = async () => {
       await navigator.moveDownAndExpand(true);
-      const el = await frame.$(getSelector(navigator.index));
+      const el = await frame?.$(getSelector(navigator.index));
       expect(el).toBeTruthy();
     };
 
     const moveUp = async () => {
       await navigator.moveUpAndExpand(true);
-      const el = await frame.$(getSelector(navigator.index));
+      const el = await frame?.$(getSelector(navigator.index));
       expect(el).toBeTruthy();
     };
 
     const toggleCollapse = async () => {
       await navigator.toggleExpandCollapse();
-      const el = await frame.$(getSelector(navigator.index));
+      const el = await frame?.$(getSelector(navigator.index));
       expect(el).toBeNull();
     };
 
