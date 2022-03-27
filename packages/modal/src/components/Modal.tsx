@@ -157,6 +157,7 @@ function Modal({
   useEffect(() => {
     inputRef.current?.focus();
     resetScroll();
+    setInputValue('');
   }, [showExtension]);
 
   // on new filter always select the firs tab first
