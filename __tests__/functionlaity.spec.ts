@@ -15,15 +15,16 @@ describe('Test functionality without keyword', () => {
     await openOpenedTabs();
   });
 
-  afterAll(async () => {
-    const pages = await browser.pages();
-    const closePagesPromises = pages.map((page) => {
-      if (page.url() === 'about:blank')
-        return new Promise<void>((res) => res());
-      return page.close();
-    });
-    Promise.all(closePagesPromises);
-  });
+  // TODO: implement
+  // afterAll(async () => {
+  //   const pages = await browser.pages();
+  //   const closePagesPromises = pages.map((page) => {
+  //     if (page.url() === 'about:blank')
+  //       return new Promise<void>((res) => res());
+  //     return page.close();
+  //   });
+  //   Promise.all(closePagesPromises);
+  // });
   test.each([
     ['Five down', 5],
     ['Four down', 4],
@@ -149,7 +150,7 @@ describe('Test functionality without keyword', () => {
 
 describe('Test functionality with keyword', () => {
   beforeAll(async () => {
-    await jestPuppeteer.resetBrowser();
+    // await jestPuppeteer.resetBrowser();
     await openRecentTabs();
     await openRecentTabs();
   });

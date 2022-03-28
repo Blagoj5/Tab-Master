@@ -9,6 +9,16 @@ export async function openRecentTabs() {
     recentPagesPromises.push(newPage.goto(site));
     recentPages.push(newPage);
   }
-  await Promise.all(recentPagesPromises);
+
+  // self canceling promise
+  await (async () => {
+    return new Promise<void>((res) => {
+      // Wait for 2.5s at max, then close pages
+      setTimeout(() => res(), 2500);
+      // if pages resolve before 2.5s
+      Promise.all(recentPagesPromises).then(() => res());
+    });
+  })();
+
   await Promise.all(recentPages.map((page) => page.close()));
 }
