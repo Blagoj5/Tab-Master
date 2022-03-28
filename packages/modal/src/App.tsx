@@ -62,6 +62,23 @@ function App() {
     [openedTabs],
   );
 
+  useEffect(() => {
+    const onFocus = () => {
+      if (showExtension) {
+        const el = document.querySelector(
+          'iframe#tab-master',
+        ) as HTMLElement | null;
+        el?.focus();
+      }
+    };
+
+    if (showExtension) document.addEventListener('focus', onFocus, true);
+
+    return () => {
+      document.removeEventListener('focus', onFocus, true);
+    };
+  }, [showExtension]);
+
   const transformedRecentOpenedTabs = useMemo(
     () =>
       recentOpenedTabs

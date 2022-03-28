@@ -163,7 +163,7 @@ function Modal({
 
   const onBlur = useCallback(() => {
     inputRef.current?.focus();
-  }, [inputRef.current]);
+  }, []);
 
   useEffect(() => {
     if (showExtension) iFrameDocument.addEventListener('blur', onBlur, true);
@@ -173,22 +173,27 @@ function Modal({
     };
   }, [showExtension]);
 
-  const closeExt = () => {
+  const handleClose = () => {
     iFrameDocument.removeEventListener('blur', onBlur, true);
     closeExtension();
+  };
+
+  const handleSelect = (tabId: string) => {
+    iFrameDocument.removeEventListener('blur', onBlur, true);
+    handleTabSelect(tabId);
   };
 
   useEffect(() => {
     inputRef.current?.focus();
     resetScroll();
-    setInputValue('');
-  }, [showExtension]);
 
-  // on new filter always select the firs tab first
-  useEffect(() => {
-    setSelectedTabId(sortedCombinedSelectedTabIds[0]);
+    setInputValue('');
     setExpanded([]);
   }, [showExtension]);
+
+  useEffect(() => {
+    setSelectedTabId(sortedCombinedSelectedTabIds[0]);
+  }, [sortedCombinedSelectedTabIds[0]]);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     e.stopPropagation();
@@ -202,13 +207,13 @@ function Modal({
     // for Windows, ctrl + k has native binding
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
-      closeExt();
+      handleClose();
       return;
     }
 
     if (e.key === 'Escape') {
       e.preventDefault();
-      closeExt();
+      handleClose();
       setInputValue('');
       return;
     }
@@ -257,7 +262,7 @@ function Modal({
       e.preventDefault();
 
       // extension is closed from parent handler
-      handleTabSelect(selectedTabId);
+      handleSelect(selectedTabId);
       setInputValue('');
 
       return;
@@ -392,7 +397,7 @@ function Modal({
             tabs={sortedCombinedSelectedTabs}
             clickCallbackField="id"
             selectedTabId={selectedTabId}
-            onTabClicked={handleTabSelect}
+            onTabClicked={handleSelect}
             onTabHover={setSelectedTabId}
             expandedTabIds={expanded}
             scrollingState={scrollingState}
@@ -407,7 +412,7 @@ function Modal({
                 tabs={openedTabs}
                 clickCallbackField="id"
                 selectedTabId={selectedTabId}
-                onTabClicked={handleTabSelect}
+                onTabClicked={handleSelect}
                 onTabHover={setSelectedTabId}
                 expandedTabIds={expanded}
                 scrollingState={scrollingState}
@@ -421,7 +426,7 @@ function Modal({
                 tabs={recentTabs}
                 clickCallbackField="id"
                 selectedTabId={selectedTabId}
-                onTabClicked={handleTabSelect}
+                onTabClicked={handleSelect}
                 onTabHover={setSelectedTabId}
                 expandedTabIds={expanded}
                 scrollingState={scrollingState}
