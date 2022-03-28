@@ -14,6 +14,7 @@ import { getFaviconURL, removeDuplicates } from './utils';
 import { Backdrop, Center } from './styles';
 import Modal from './components/Modal';
 import SettingsProvider from './components/SettingsProvider';
+import { OPENED_TAB_SUFFIX } from './consts';
 
 const ModalFrame = styled(Frame)<{ isVisible: boolean }>`
   width: 650px;
@@ -61,6 +62,23 @@ function App() {
     [openedTabs],
   );
 
+  useEffect(() => {
+    const onFocus = () => {
+      if (showExtension) {
+        const el = document.querySelector(
+          'iframe#tab-master',
+        ) as HTMLElement | null;
+        el?.focus();
+      }
+    };
+
+    if (showExtension) document.addEventListener('focus', onFocus, true);
+
+    return () => {
+      document.removeEventListener('focus', onFocus, true);
+    };
+  }, [showExtension]);
+
   const transformedRecentOpenedTabs = useMemo(
     () =>
       recentOpenedTabs
@@ -101,11 +119,10 @@ function App() {
 
         switch (message.type) {
           case 'open-tab-master':
-            setShowExtension(true);
             setOpenedTabs(
               message.tabs.open?.map((tab) => ({
                 ...tab,
-                virtualId: `${tab.id}-opened-tab`,
+                virtualId: `${tab.id}${OPENED_TAB_SUFFIX}`,
               })) ?? null,
             );
             setRecentOpenedTabs(
@@ -114,12 +131,13 @@ function App() {
                 faviconUrl: getFaviconURL(tab.url || ''),
               })) ?? null,
             );
+            setShowExtension(true);
             break;
           case 'current-state':
             setOpenedTabs(
               message.tabs.open?.map((tab) => ({
                 ...tab,
-                virtualId: `${tab.id}-opened-tab`,
+                virtualId: `${tab.id}${OPENED_TAB_SUFFIX}`,
               })) ?? null,
             );
             setRecentOpenedTabs(
@@ -211,6 +229,16 @@ function App() {
     }
   };
 
+  const handleTabClose = (tabId: number) => {
+    const payload: Actions = {
+      type: 'close-tab',
+      tabId,
+    };
+    setOpenedTabs(openedTabs?.filter((tab) => tab.id !== tabId) ?? null);
+
+    portRef.current?.postMessage(payload);
+  };
+
   const handleOnChange = (value: string) => {
     const payload: Actions = {
       type: 'search-history',
@@ -225,7 +253,7 @@ function App() {
     <Container isVisible={showExtension}>
       <Backdrop onClick={closeExtension} />
 
-      <ModalFrame>
+      <ModalFrame id="tab-master">
         <FrameContextConsumer>
           {(frameContext: any) => (
             <StyleSheetManager target={frameContext.document.head}>
@@ -233,6 +261,7 @@ function App() {
                 <Modal
                   searchHistory={handleOnChange}
                   handleTabSelect={handleTabSelect}
+                  handleTabClose={handleTabClose}
                   openedTabs={transformedOpenedTabs}
                   recentTabs={transformedRecentOpenedTabs}
                   closeExtension={closeExtension}

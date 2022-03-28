@@ -19,6 +19,10 @@ export type Actions =
       newTabUrl: string;
     }
   | {
+      type: 'close-tab';
+      tabId: number;
+    }
+  | {
       type: 'search-history';
       keyword: string;
     }

@@ -1,4 +1,11 @@
-import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 import { useFrame } from 'react-frame-component';
 
@@ -8,6 +15,7 @@ import { GlobalStyle, Input, scrollbarStyle, VStack } from '../styles';
 import Tabs from './Tabs';
 import { fuzzySearch, removeDuplicates } from '../utils';
 import { useSettingsContext } from './SettingsProvider';
+import { OPENED_TAB_SUFFIX } from '../consts';
 
 const ModalStyle = styled.div`
   width: auto;
@@ -35,6 +43,7 @@ const TabsContainer = styled(
 type Props = {
   searchHistory: (value: string) => void;
   handleTabSelect: (selectedTabId: string) => void;
+  handleTabClose: (selectedTabId: number) => void;
   closeExtension: () => void;
   openedTabs?: CommonTab[];
   recentTabs?: CommonTab[];
@@ -44,6 +53,7 @@ type Props = {
 function Modal({
   searchHistory,
   handleTabSelect,
+  handleTabClose,
   openedTabs = [],
   recentTabs = [],
   closeExtension,
@@ -151,15 +161,39 @@ function Modal({
     containerRef.current?.scroll(0, 0);
   };
 
+  const onBlur = useCallback(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (showExtension) iFrameDocument.addEventListener('blur', onBlur, true);
+
+    return () => {
+      iFrameDocument.removeEventListener('blur', onBlur, true);
+    };
+  }, [showExtension]);
+
+  const handleClose = () => {
+    iFrameDocument.removeEventListener('blur', onBlur, true);
+    closeExtension();
+  };
+
+  const handleSelect = (tabId: string) => {
+    iFrameDocument.removeEventListener('blur', onBlur, true);
+    handleTabSelect(tabId);
+  };
+
   useEffect(() => {
     inputRef.current?.focus();
     resetScroll();
+
+    setInputValue('');
+    setExpanded([]);
   }, [showExtension]);
 
-  // on new filter always select the firs tab first
   useEffect(() => {
     setSelectedTabId(sortedCombinedSelectedTabIds[0]);
-  }, [sortedCombinedSelectedTabIds]);
+  }, [sortedCombinedSelectedTabIds[0]]);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     e.stopPropagation();
@@ -173,13 +207,13 @@ function Modal({
     // for Windows, ctrl + k has native binding
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
-      closeExtension();
+      handleClose();
       return;
     }
 
     if (e.key === 'Escape') {
       e.preventDefault();
-      closeExtension();
+      handleClose();
       setInputValue('');
       return;
     }
@@ -228,14 +262,13 @@ function Modal({
       e.preventDefault();
 
       // extension is closed from parent handler
-      handleTabSelect(selectedTabId);
+      handleSelect(selectedTabId);
       setInputValue('');
 
       return;
     }
 
-    // arrow up/down button should select next/previous list element
-    if (e.code === 'ArrowUp') {
+    const arrowUp = () => {
       e.preventDefault();
 
       const nextSuggestionOrder = selectedTabIndex - 1;
@@ -248,15 +281,23 @@ function Modal({
       const prevTabId = selectedTabIds[order];
 
       const target = iFrameDocument.getElementById(prevTabId);
-      target?.scrollIntoView({
-        behavior: 'auto',
-        block: 'nearest',
-        inline: 'start',
-      });
+
+      const isFirstElement = order === 0;
+      if (isFirstElement) {
+        resetScroll();
+      } else {
+        target?.scrollIntoView({
+          behavior: 'auto',
+          block: 'nearest',
+          inline: 'start',
+        });
+      }
 
       setScrollingState('arrows');
       setSelectedTabId(prevTabId);
-    } else if (e.code === 'ArrowDown') {
+    };
+
+    const arrowDown = () => {
       const prevSuggestionOrder = selectedTabIndex + 1;
       // suggestion goes above the upper limit
       const order =
@@ -267,16 +308,65 @@ function Modal({
       const nextTabId = selectedTabIds[order];
 
       const target = iFrameDocument.getElementById(nextTabId);
-      target?.scrollIntoView({
-        behavior: 'auto',
-        block: 'nearest',
-        inline: 'start',
-      });
+
+      const isFirstElement = order === 0;
+      if (isFirstElement) {
+        resetScroll();
+      } else {
+        target?.scrollIntoView({
+          behavior: 'auto',
+          block: 'nearest',
+          inline: 'start',
+        });
+      }
 
       setScrollingState('arrows');
       setSelectedTabId(nextTabId);
-    } else if (!isReservedKey) {
-      setSelectedTabId('');
+    };
+
+    const arrowDownOpenedTabs = () => {
+      const prevSuggestionOrder = selectedTabIndex + 1;
+      // suggestion goes above the upper limit keep it at current
+      const order =
+        prevSuggestionOrder > openedTabs.length - 1
+          ? selectedTabIndex - 1 // current tab index - (minus) the removed tab
+          : prevSuggestionOrder;
+
+      const nextTabId = selectedTabIds[order];
+
+      const target = iFrameDocument.getElementById(nextTabId);
+
+      const isFirstElement = order === 0;
+      // if it's first element scroll at beginning
+      if (isFirstElement) {
+        resetScroll();
+      } else {
+        target?.scrollIntoView({
+          behavior: 'auto',
+          block: 'nearest',
+          inline: 'start',
+        });
+      }
+
+      setScrollingState('arrows');
+      setSelectedTabId(nextTabId);
+    };
+
+    if (
+      (e.ctrlKey || e.metaKey) &&
+      e.key === 'x' &&
+      openedTabs.map(({ id }) => id).includes(selectedTabId)
+    ) {
+      arrowDownOpenedTabs();
+      handleTabClose(Number(selectedTabId.replace(OPENED_TAB_SUFFIX, '')));
+      return;
+    }
+
+    // arrow up/down button should select next/previous list element
+    if (e.code === 'ArrowUp') {
+      arrowUp();
+    } else if (e.code === 'ArrowDown') {
+      arrowDown();
     }
   };
 
@@ -307,7 +397,7 @@ function Modal({
             tabs={sortedCombinedSelectedTabs}
             clickCallbackField="id"
             selectedTabId={selectedTabId}
-            onTabClicked={handleTabSelect}
+            onTabClicked={handleSelect}
             onTabHover={setSelectedTabId}
             expandedTabIds={expanded}
             scrollingState={scrollingState}
@@ -322,7 +412,7 @@ function Modal({
                 tabs={openedTabs}
                 clickCallbackField="id"
                 selectedTabId={selectedTabId}
-                onTabClicked={handleTabSelect}
+                onTabClicked={handleSelect}
                 onTabHover={setSelectedTabId}
                 expandedTabIds={expanded}
                 scrollingState={scrollingState}
@@ -336,7 +426,7 @@ function Modal({
                 tabs={recentTabs}
                 clickCallbackField="id"
                 selectedTabId={selectedTabId}
-                onTabClicked={handleTabSelect}
+                onTabClicked={handleSelect}
                 onTabHover={setSelectedTabId}
                 expandedTabIds={expanded}
                 scrollingState={scrollingState}

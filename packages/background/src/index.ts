@@ -55,6 +55,9 @@ const onActionMessageListener = async (message: object) => {
         url: message.newTabUrl,
       });
       break;
+    case 'close-tab':
+      browser.tabs.remove(message.tabId);
+      break;
     default:
       break;
   }
