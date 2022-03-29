@@ -1,8 +1,9 @@
 ## TAB MASTER
 
-### DEMO/VIDEO
+### Demo video
 
-[https://www.youtube.com/watch?v=v-OYzhYR0s8](VIDEO)
+[![Demo Vide](https://user-images.githubusercontent.com/5396211/160577491-7d593bf5-2cfa-4cc7-9dd3-d9cf02f360d1.png)](https://www.youtube.com/watch?v=v-OYzhYR0s8)
+
 
 ## Architecture
 
