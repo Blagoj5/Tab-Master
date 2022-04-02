@@ -29,12 +29,7 @@
 		"resolveJsonModule": true,
 		"allowJs": true,
 		"declaration": true,
-		"isolatedModules": false,
-		"jsx": "react-jsx",
-    "types": [
-      "../node_modules/@types/jest-environment-puppeteer",
-      "../node_modules/@types/jest",
-    ]
+		"isolatedModules": false
 	},
 	"exclude": [
 		"node_modules"

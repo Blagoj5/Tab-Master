@@ -7,7 +7,7 @@ export async function openOpenedTabs(
   blankPage: Page,
 ) {
   const openedPages: Page[] = [blankPage];
-  const openPagesPromises: Promise<Response>[] = [];
+  const openPagesPromises: Promise<Response | null>[] = [];
   for (const site of openTabs) {
     const newPage = await browserContext.newPage();
     openPagesPromises.push(newPage.goto(site));

@@ -20,11 +20,13 @@ const config = {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
     // },
-    // TODO: also add this
-    // {
-    //   name: 'edge',
-    //   use: { ...devices['Desktop Edge'] },
-    // },
+    {
+      name: 'edge',
+      use: {
+        ...devices['Desktop Edge'],
+        channel: 'msedge',
+      },
+    },
   ],
 };
 

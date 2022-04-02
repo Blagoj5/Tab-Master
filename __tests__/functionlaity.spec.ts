@@ -1,13 +1,4 @@
-import {
-  test as base,
-  BrowserContext,
-  PlaywrightWorkerOptions,
-  chromium,
-  webkit,
-  firefox,
-  expect,
-} from '@playwright/test';
-import path from 'path';
+import { test, expect } from './setup/extension-test';
 
 import { intersectionRecentTabsComplement, openTabs } from './data';
 import { openExtensionWindowsOrUb } from './utils/openTabMaster';
@@ -15,35 +6,6 @@ import Navigator from './utils/Navigator';
 import { openRecentTabs } from './utils/openRecentTabs';
 import { openOpenedTabs } from './utils/openOpenedTabs';
 import sleep from './utils/sleep';
-
-const extensionChromePath = path.resolve(__dirname, '../build-chrome');
-
-let context: BrowserContext;
-const test = base.extend({
-  context: async ({ browserName }, use) => {
-    const browserTypes: Record<
-      PlaywrightWorkerOptions['browserName'],
-      typeof chromium
-    > = { chromium, webkit, firefox };
-    const userDataDir = '/tmp/test-user-data-dir';
-    if (!context) {
-      context = await browserTypes[browserName].launchPersistentContext(
-        userDataDir,
-        {
-          // devtools: true,
-          headless: false,
-          viewport: { width: 1280, height: 720 },
-          args: [
-            `--disable-extensions-except=${extensionChromePath}`,
-            `--load-extension=${extensionChromePath}`,
-          ],
-        },
-      );
-    }
-    await use(context);
-    // await context.close(); // DON'T NEED THIS
-  },
-});
 
 test.describe('Test functionality without keyword', () => {
   test.beforeAll(async ({ page, context }) => {

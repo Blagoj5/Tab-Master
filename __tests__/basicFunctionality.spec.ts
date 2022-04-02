@@ -1,15 +1,4 @@
-/* eslint-disable jest/expect-expect */
-import {
-  test as base,
-  expect,
-  chromium,
-  firefox,
-  webkit,
-  PlaywrightWorkerOptions,
-  Page,
-  BrowserContext,
-} from '@playwright/test';
-import path from 'path';
+import { expect, test } from './setup/extension-test';
 import {
   openExtensionMac,
   openExtensionNativeMac,
@@ -21,62 +10,7 @@ import { openRecentTabs } from './utils/openRecentTabs';
 import { openOpenedTabs } from './utils/openOpenedTabs';
 import Navigator from './utils/Navigator';
 import { intersectionRecentTabsComplement, openTabs } from './data';
-
-const extensionChromePath = path.resolve(__dirname, '../build-chrome');
-// const extensionFirefoxLocation = path.resolve(__dirname, 'build-firefox');
-
-// * This will refresh the context/browser for each test
-// const test = base.extend({
-//   context: async ({ browserName }, use) => {
-//     const browserTypes: Record<
-//       PlaywrightWorkerOptions['browserName'],
-//       typeof chromium
-//     > = { chromium, webkit, firefox };
-//     const userDataDir = '/tmp/test-user-data-dir';
-//     const context = await browserTypes[browserName].launchPersistentContext(
-//       userDataDir,
-//       {
-//         // devtools: true,
-//         headless: false,
-//         viewport: { width: 1280, height: 720 },
-//         args: [
-//           `--disable-extensions-except=${extensionChromePath}`,
-//           `--load-extension=${extensionChromePath}`,
-//         ],
-//       },
-//     );
-//     await use(context);
-//     await context.close();
-//   },
-// });
-
-// ** This keeps the same context without closing it, the closing happens in the last test case
-let context: BrowserContext;
-const test = base.extend({
-  context: async ({ browserName }, use) => {
-    const browserTypes: Record<
-      PlaywrightWorkerOptions['browserName'],
-      typeof chromium
-    > = { chromium, webkit, firefox };
-    const userDataDir = '/tmp/test-user-data-dir';
-    if (!context) {
-      context = await browserTypes[browserName].launchPersistentContext(
-        userDataDir,
-        {
-          // devtools: true,
-          headless: false,
-          viewport: { width: 1280, height: 720 },
-          args: [
-            `--disable-extensions-except=${extensionChromePath}`,
-            `--load-extension=${extensionChromePath}`,
-          ],
-        },
-      );
-    }
-    await use(context);
-    // await context.close(); // DON'T NEED THIS
-  },
-});
+import { Page } from '@playwright/test';
 
 test.afterAll(({ context }) => {
   context.close();

@@ -33,8 +33,7 @@
     "zip:firefox": "cd build-firefox/ && zip -r -FS ../tab-master-firefox.zip *",
     "zip": "yarn zip:chrome && yarn zip:firefox",
     "changelog": "auto-changelog -p && git add CHANGELOG.md",
-    "test": "jest --runInBand",
-    "test:playwright": "playwright test tests/example.spec.ts"
+    "test": "npx playwright test --project=chromium --workers=1"
   },
   "dependencies": {},
   "workspaces": {

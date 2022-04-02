@@ -3,7 +3,7 @@ import { recentTabs } from '../data';
 
 export async function openRecentTabs(browserContext: BrowserContext) {
   const recentPages: Page[] = [];
-  const recentPagesPromises: Promise<Response>[] = [];
+  const recentPagesPromises: Promise<Response | null>[] = [];
   for (const site of recentTabs) {
     const newPage = await browserContext.newPage();
     recentPagesPromises.push(
