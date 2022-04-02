@@ -1,18 +1,19 @@
-import { Browser, Page } from 'puppeteer';
+import { BrowserContext, Page } from '@playwright/test';
 import sleep from './sleep';
 
-export async function getActivePage(
-  argBrowser: Browser = browser,
-): Promise<Page> {
+export async function getActivePage(argBrowser: BrowserContext): Promise<Page> {
   for (let index = 0; index < 10; index++) {
-    const pages = await argBrowser.pages();
+    const pages = argBrowser.pages();
+    console.log(
+      'LOG -> file: getActivePage.ts -> line 7 -> getActivePage -> pages',
+      pages.map((page) => page.url()),
+    );
     const arr: Page[] = [];
     for (const p of pages) {
-      if (
-        await p.evaluate(() => {
-          return document.visibilityState == 'visible';
-        })
-      ) {
+      const isVisible = await p.evaluate(() => {
+        return document?.visibilityState;
+      });
+      if (isVisible) {
         arr.push(p);
       }
     }

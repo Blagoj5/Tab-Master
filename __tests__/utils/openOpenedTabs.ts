@@ -1,15 +1,19 @@
-import { HTTPResponse, Page } from 'puppeteer';
+import { Response, Page, BrowserContext } from '@playwright/test';
 import { openTabs } from '../data';
 import sleep from './sleep';
 
-export async function openOpenedTabs() {
-  const openedPages: Page[] = [page];
-  const openPagesPromises: Promise<HTTPResponse>[] = [];
+export async function openOpenedTabs(
+  browserContext: BrowserContext,
+  blankPage: Page,
+) {
+  const openedPages: Page[] = [blankPage];
+  const openPagesPromises: Promise<Response | null>[] = [];
   for (const site of openTabs) {
-    const newPage = await browser.newPage();
+    const newPage = await browserContext.newPage();
     openPagesPromises.push(newPage.goto(site));
     openedPages.push(newPage);
     await sleep(100);
   }
   await Promise.allSettled(openPagesPromises);
+  return openedPages;
 }

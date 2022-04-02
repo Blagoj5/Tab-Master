@@ -31,7 +31,7 @@ uses a monorepo structure and we each package is different part of the extension
 
 ### Tooling
 
-- [Testing Library](https://jestjs.io/docs/getting-started) jest together with puppeteer for End-to-End (E2E) tests
+- [Testing Library](https://playwright.dev/) Playwright (E-2-E)
 - [Changeset](https://github.com/atlassian/changesets) for changes
   documentation, changelog generation, and release management.
 
@@ -46,7 +46,7 @@ cross-component development and builds all components.
 
 **`yarn zip`**: zips the built directory and it's ready to be published
 
-**`yarn test`**: runs jest + puppeteer to test the extension
+**`yarn test`**: runs playwright to test the extension
 
 ## Think you found a bug?
 

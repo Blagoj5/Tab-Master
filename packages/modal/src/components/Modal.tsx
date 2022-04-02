@@ -69,7 +69,7 @@ function Modal({
     'arrows' | 'mouse' | undefined
   >();
 
-  const [selectedTabId, setSelectedTabId] = useState('');
+  const [selectedTabId, setSelectedTabId] = useState('initial');
   const [expanded, setExpanded] = useState<string[]>([]);
 
   const { advancedSearchEnabled } = useSettingsContext();
@@ -185,6 +185,7 @@ function Modal({
 
   useEffect(() => {
     inputRef.current?.focus();
+    setSelectedTabId('initial');
     resetScroll();
 
     setInputValue('');
@@ -197,12 +198,14 @@ function Modal({
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     e.stopPropagation();
+
     const selectedTabIds = inputValue
       ? sortedCombinedSelectedTabIds
       : combinedSelectedTabIds;
-    const selectedTabIndex = selectedTabIds.findIndex(
-      (id) => id === selectedTabId,
-    );
+    const selectedTabIndex =
+      selectedTabId === 'initial'
+        ? 0
+        : selectedTabIds.findIndex((id) => id === selectedTabId);
 
     // for Windows, ctrl + k has native binding
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -355,10 +358,12 @@ function Modal({
     if (
       (e.ctrlKey || e.metaKey) &&
       e.key === 'x' &&
-      openedTabs.map(({ id }) => id).includes(selectedTabId)
+      selectedTabIds[selectedTabIndex]
     ) {
       arrowDownOpenedTabs();
-      handleTabClose(Number(selectedTabId.replace(OPENED_TAB_SUFFIX, '')));
+      handleTabClose(
+        Number(selectedTabIds[selectedTabIndex].replace(OPENED_TAB_SUFFIX, '')),
+      );
       return;
     }
 
@@ -411,7 +416,11 @@ function Modal({
                 headingTitle="OPENED TABS"
                 tabs={openedTabs}
                 clickCallbackField="id"
-                selectedTabId={selectedTabId}
+                selectedTabId={
+                  selectedTabId === 'initial'
+                    ? openedTabs[0]?.id
+                    : selectedTabId
+                }
                 onTabClicked={handleSelect}
                 onTabHover={setSelectedTabId}
                 expandedTabIds={expanded}
@@ -425,7 +434,11 @@ function Modal({
                 headingTitle="RECENT TABS"
                 tabs={recentTabs}
                 clickCallbackField="id"
-                selectedTabId={selectedTabId}
+                selectedTabId={
+                  selectedTabId === 'initial'
+                    ? openedTabs[0]?.id || recentTabs[0]?.id
+                    : selectedTabId
+                }
                 onTabClicked={handleSelect}
                 onTabHover={setSelectedTabId}
                 expandedTabIds={expanded}

@@ -6,20 +6,15 @@ module.exports = {
     jest: true,
   },
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'jest'],
+  plugins: ['@typescript-eslint'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:jest/recommended',
     'prettier',
   ],
-  rules: {},
-  globals: {
-    page: true,
-    browser: true,
-    context: true,
-    jestPuppeteer: true,
-    currentPage: true,
+  rules: {
+    'jest/no-done-callback': 'off',
   },
+  globals: {},
 };
