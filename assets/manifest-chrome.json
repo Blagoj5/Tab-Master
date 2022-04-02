@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Tab Master",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Navigate freely. Tab Master provides easy and intuitive way to navigate trough tabs and history",
   "icons": {
     "16": "images/icon16.png",
