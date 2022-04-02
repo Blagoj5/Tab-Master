@@ -14,12 +14,8 @@ module.exports = {
     'plugin:jest/recommended',
     'prettier',
   ],
-  rules: {},
-  globals: {
-    page: true,
-    browser: true,
-    context: true,
-    jestPuppeteer: true,
-    currentPage: true,
+  rules: {
+    'jest/no-done-callback': 'off',
   },
+  globals: {},
 };

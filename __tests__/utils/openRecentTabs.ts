@@ -1,24 +1,19 @@
-import { Browser, HTTPResponse, Page } from 'puppeteer';
+import { BrowserContext, Response, Page } from '@playwright/test';
 import { recentTabs } from '../data';
 
-export async function openRecentTabs() {
+export async function openRecentTabs(browserContext: BrowserContext) {
   const recentPages: Page[] = [];
-  const recentPagesPromises: Promise<HTTPResponse>[] = [];
+  const recentPagesPromises: Promise<Response>[] = [];
   for (const site of recentTabs) {
-    const newPage = await (browser as unknown as Browser).newPage();
-    recentPagesPromises.push(newPage.goto(site));
+    const newPage = await browserContext.newPage();
+    recentPagesPromises.push(
+      newPage.goto(site, {
+        timeout: 2500,
+      }),
+    );
     recentPages.push(newPage);
   }
 
-  // self canceling promise
-  await (async () => {
-    return new Promise<void>((res) => {
-      // Wait for 2.5s at max, then close pages
-      setTimeout(() => res(), 2500);
-      // if pages resolve before 2.5s
-      Promise.all(recentPagesPromises).then(() => res());
-    });
-  })();
-
-  await Promise.all(recentPages.map((page) => page.close()));
+  await Promise.allSettled(recentPagesPromises);
+  await Promise.allSettled(recentPages.map((page) => page.close()));
 }

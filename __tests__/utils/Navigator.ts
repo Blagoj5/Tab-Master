@@ -1,4 +1,4 @@
-import type { Page } from 'puppeteer';
+import type { Page } from '@playwright/test';
 import { getActivePage } from './getActivePage';
 import sleep from './sleep';
 
@@ -85,13 +85,13 @@ class Navigator {
 
     await sleep(1000);
 
-    this.page = await getActivePage();
-    let title = await this.page.title();
-    if (!title) {
-      this.page = await getActivePage();
-      title = await this.page.title();
-      await sleep(1000);
-    }
+    // this.page = await getActivePage();
+    // let title = await this.page.title();
+    // if (!title) {
+    //   this.page = await getActivePage();
+    //   title = await this.page.title();
+    //   await sleep(1000);
+    // }
 
     // recent tab was clicked
     if (this.phase === 2) {

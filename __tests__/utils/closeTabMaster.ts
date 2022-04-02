@@ -1,7 +1,7 @@
-import { Page } from 'puppeteer';
+import { Page } from '@playwright/test';
 
 // keyboard: https://github.com/puppeteer/puppeteer/blob/main/src/common/USKeyboardLayout.ts
-const closeExtension = async (currentPage: Page = page) => {
+const closeExtension = async (currentPage: Page) => {
   await currentPage.keyboard.press('Escape');
 };
 

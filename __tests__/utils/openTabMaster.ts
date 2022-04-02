@@ -1,9 +1,9 @@
 // keyboard: https://github.com/puppeteer/puppeteer/blob/main/src/common/USKeyboardLayout.ts
 
-import { Page } from 'puppeteer';
+import { Page } from '@playwright/test';
 
 // CMD + K -> Toggle
-export const openExtensionMac = async (selectedPage: Page = page) => {
+export const openExtensionMac = async (selectedPage: Page) => {
   await selectedPage.keyboard.down('MetaLeft');
   await selectedPage.keyboard.down('k');
   await selectedPage.keyboard.up('k');
@@ -11,7 +11,7 @@ export const openExtensionMac = async (selectedPage: Page = page) => {
 };
 
 // Control + K -> Toggle
-export const openExtensionWindowsOrUb = async (selectedPage: Page = page) => {
+export const openExtensionWindowsOrUb = async (selectedPage: Page) => {
   await selectedPage.keyboard.down('ControlLeft');
   await selectedPage.keyboard.down('k');
   await selectedPage.keyboard.up('k');
@@ -19,7 +19,7 @@ export const openExtensionWindowsOrUb = async (selectedPage: Page = page) => {
 };
 
 // CMD + SHIFT + K -> Only Open
-export const openExtensionNativeMac = async (selectedPage: Page = page) => {
+export const openExtensionNativeMac = async (selectedPage: Page) => {
   await selectedPage.keyboard.down('MetaLeft');
   await selectedPage.keyboard.down('ShiftLeft');
   await selectedPage.keyboard.down('k');
@@ -29,7 +29,7 @@ export const openExtensionNativeMac = async (selectedPage: Page = page) => {
 };
 
 // Control + SHIFT + K -> Only Open
-export const openExtensionNativeWinOrUb = async (selectedPage: Page = page) => {
+export const openExtensionNativeWinOrUb = async (selectedPage: Page) => {
   await selectedPage.keyboard.down('ControlLeft');
   await selectedPage.keyboard.down('ShiftLeft');
   await selectedPage.keyboard.down('k');
