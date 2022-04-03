@@ -73,6 +73,9 @@ function App() {
     };
 
     if (showExtension) document.addEventListener('focus', onFocus, true);
+    // changing the focus from the iframe to the body, since the main
+    // event listener is there
+    if (!showExtension) window.focus();
 
     return () => {
       document.removeEventListener('focus', onFocus, true);
@@ -103,10 +106,10 @@ function App() {
   );
 
   const closeExtension = () => {
-    // changing the focus from the iframe to the body, since the main
-    // event listener is there
-    window.focus();
-    setShowExtension(false);
+    const payload: Actions = {
+      type: 'close-tab-master',
+    };
+    browser.runtime.sendMessage(payload);
   };
 
   useEffect(() => {
