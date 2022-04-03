@@ -1,5 +1,4 @@
-import type { Page } from '@playwright/test';
-import { getActivePage } from './getActivePage';
+import type { FrameLocator, Page } from '@playwright/test';
 import sleep from './sleep';
 
 // Example data
@@ -21,6 +20,46 @@ class Navigator {
     this.lastItemIndex = lastItemIndex;
     this.lastItemIndex2 = lastItemIndex2;
   }
+
+  static getTabsState = async (frameLocator: FrameLocator) => {
+    const tabs = await frameLocator
+      .locator("*[data-testid='tab-master-tabs'] > div")
+      .elementHandles();
+    const tabsIds = await Promise.all(
+      tabs.map(async (tab) => {
+        const id = await tab.getAttribute('id');
+        return id;
+      }),
+    );
+    const openedTabs = tabsIds.filter(
+      (id) => typeof id === 'string' && id.includes('opened-tab'),
+    );
+    const recentTabs = tabsIds.filter(
+      (id) => typeof id === 'string' && !id.includes('opened-tab'),
+    );
+
+    return {
+      openedTabs,
+      recentTabs,
+      openedTabsLength: openedTabs.length,
+      recentTabsLength: recentTabs.length,
+    };
+  };
+
+  static getNavigator = async (
+    currentPage: Page,
+    frameLocator: FrameLocator,
+  ) => {
+    const { openedTabsLength, recentTabsLength } = await this.getTabsState(
+      frameLocator,
+    );
+    const navigator = new Navigator(
+      currentPage,
+      openedTabsLength - 1,
+      recentTabsLength - 1,
+    );
+    return navigator;
+  };
 
   moveUp = async () => {
     await this.page.keyboard.press('ArrowUp');
@@ -84,14 +123,6 @@ class Navigator {
     await this.page.keyboard.press('Enter');
 
     await sleep(1000);
-
-    // this.page = await getActivePage();
-    // let title = await this.page.title();
-    // if (!title) {
-    //   this.page = await getActivePage();
-    //   title = await this.page.title();
-    //   await sleep(1000);
-    // }
 
     // recent tab was clicked
     if (this.phase === 2) {

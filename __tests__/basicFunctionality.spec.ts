@@ -9,7 +9,6 @@ import closeExtension from './utils/closeTabMaster';
 import { openRecentTabs } from './utils/openRecentTabs';
 import { openOpenedTabs } from './utils/openOpenedTabs';
 import Navigator from './utils/Navigator';
-import { intersectionRecentTabsComplement, openTabs } from './data';
 import { Page } from '@playwright/test';
 
 test.afterAll(({ context }) => {
@@ -18,77 +17,79 @@ test.afterAll(({ context }) => {
 
 test.describe('Tab-master - basic commands', () => {
   test.describe('Test open commands - MacOS', () => {
-    test('Should toggle - CMD + K', async ({ page }) => {
-      await basicFuncTest(page, openExtensionMac, openExtensionMac);
-    });
+    const testCases = [
+      ['Should toggle - CMD + K', openExtensionMac, openExtensionMac],
+      [
+        'Should open then close - CMD + K then Escape',
+        openExtensionMac,
+        closeExtension,
+      ],
+      [
+        'Should toggle - CMD + Shift + K',
+        openExtensionNativeMac,
+        openExtensionNativeMac,
+      ],
+      [
+        'Should open then close - CMD + Shift + K then Escape',
+        openExtensionNativeMac,
+        closeExtension,
+      ],
+      [
+        'Should open then close - CMD + Shift + K then CMD + K',
+        openExtensionNativeMac,
+        openExtensionMac,
+      ],
+    ] as const;
 
-    test('Should open then close - CMD + K then Escape', async ({ page }) => {
-      await basicFuncTest(page, openExtensionMac, closeExtension);
-    });
-
-    test('Should toggle - CMD + Shift + K', async ({ page }) => {
-      await basicFuncTest(page, openExtensionNativeMac, openExtensionNativeMac);
-    });
-
-    test('Should open then close - CMD + Shift + K then Escape', async ({
-      page,
-    }) => {
-      await basicFuncTest(page, openExtensionNativeMac, closeExtension);
-    });
-
-    test('Should open then close - CMD + Shift + K then CMD + K', async ({
-      page,
-    }) => {
-      await basicFuncTest(page, openExtensionNativeMac, openExtensionMac);
-    });
+    for (const testCase of testCases) {
+      test(testCase[0], async ({ page, context }) => {
+        const currentPage =
+          context.pages().find((p) => p.url().includes('google')) || page;
+        await currentPage.bringToFront();
+        if (currentPage !== page) await page.close();
+        await basicFuncTest(currentPage, testCase[1], testCase[2]);
+      });
+    }
   });
 
-  // const backgroundPage = browserContext.backgroundPages()[0];
-  // Test the background page as you would any other page.
-  // await page.goto('https://playwright.dev/');
-  // const title = page.locator('.navbar__inner .navbar__title');
-  // await expect(title).toHaveText('Playwright');
-  // await page.waitForTimeout(300000);
-  // await browserContext.close();
-
   test.describe('Test open commands - Rest OS', () => {
-    test('Should toggle - Control + K', async ({ page }) => {
-      await basicFuncTest(
-        page,
+    const testCases = [
+      [
+        'Should toggle - CTRL + K',
         openExtensionWindowsOrUb,
         openExtensionWindowsOrUb,
-      );
-    });
-
-    test('Should open then close - Control + K then Escape', async ({
-      page,
-    }) => {
-      await basicFuncTest(page, openExtensionWindowsOrUb, closeExtension);
-    });
-
-    test('Should Toggle - Control + Shift + K', async ({ page }) => {
-      await basicFuncTest(
-        page,
+      ],
+      [
+        'Should open then close - CTRL + K then Escape',
+        openExtensionWindowsOrUb,
+        closeExtension,
+      ],
+      [
+        'Should toggle - CTRL + Shift + K',
         openExtensionNativeWinOrUb,
         openExtensionNativeWinOrUb,
-      );
-    });
-
-    test('Should open then close - Control + Shift + K then Escape', async ({
-      page,
-    }) => {
-      await basicFuncTest(page, openExtensionNativeWinOrUb, closeExtension);
-    });
-
-    test('Should open then close - Control + Shift + K then Control + K', async ({
-      page,
-    }) => {
-      await basicFuncTest(
-        page,
+      ],
+      [
+        'Should open then close - Control + Shift + K then Escape',
+        openExtensionNativeWinOrUb,
+        closeExtension,
+      ],
+      [
+        'Should open then close - Control + Shift + K then Control + K',
         openExtensionNativeWinOrUb,
         openExtensionWindowsOrUb,
-      );
-    });
+      ],
+    ] as const;
+
+    for (const testCase of testCases) {
+      test(testCase[0], async ({ page, context }) => {
+        const currentPage =
+          context.pages().find((p) => p.url().includes('google')) || page;
+        await currentPage.bringToFront();
+        if (currentPage !== page) await page.close();
+        await basicFuncTest(currentPage, testCase[1], testCase[2]);
+      });
+    }
   });
 });
 
@@ -115,15 +116,12 @@ test.describe('Test TAB iteration', () => {
 
     currentPage.bringToFront();
     const getSelector = (i: number) => `[data-testselected="selected-${i}"]`;
-    const navigator = new Navigator(
-      currentPage,
-      openTabs.length - 1 + 1, // + 1 for the about tab from puppeteer
-      intersectionRecentTabsComplement.length - 1, // + 1 for the about tab from puppeteer
-    );
-    const frameLocator = currentPage.frameLocator('iframe#tab-master');
     // TOGGLE
     await openExtensionWindowsOrUb(currentPage); // OPEN
     await currentPage.waitForTimeout(500);
+
+    const frameLocator = currentPage.frameLocator('iframe#tab-master');
+    const navigator = await Navigator.getNavigator(currentPage, frameLocator);
     const moveDown = async () => {
       await navigator.moveDown();
       const el = await frameLocator
@@ -160,13 +158,9 @@ test.describe('Test TAB iteration', () => {
     currentPage.bringToFront();
 
     const getSelector = (i: number) => `[data-testexpanded="expanded-${i}"]`;
-    const navigator = new Navigator(
-      currentPage,
-      openTabs.length - 1 + 1, // + 1 for the about tab from puppeteer
-      intersectionRecentTabsComplement.length - 1, // + 1 for the about tab from puppeteer
-    );
 
     const frameLocator = currentPage.frameLocator('iframe#tab-master');
+    const navigator = await Navigator.getNavigator(currentPage, frameLocator);
     // TOGGLE
     await openExtensionWindowsOrUb(currentPage); // OPEN
     await currentPage.waitForTimeout(2000);
@@ -220,12 +214,8 @@ test.describe('Test TAB iteration', () => {
     if (!currentPage) throw new Error('No current page');
     currentPage.bringToFront();
     const getSelector = (i: number) => `[data-testexpanded="expanded-${i}"]`;
-    const navigator = new Navigator(
-      currentPage,
-      openTabs.length - 1 + 1, // + 1 for the about tab from puppeteer
-      intersectionRecentTabsComplement.length - 1, // + 1 for the about tab from puppeteer
-    );
     const frameLocator = currentPage.frameLocator('iframe#tab-master');
+    const navigator = await Navigator.getNavigator(currentPage, frameLocator);
     // TOGGLE
     await openExtensionWindowsOrUb(currentPage); // OPEN
     await page.waitForTimeout(300);
@@ -272,8 +262,11 @@ async function basicFuncTest(
   openFn: (selectedPage: Page) => Promise<void>,
   closeFn: (selectedPage: Page) => Promise<void>,
 ) {
-  await page.goto('https://google.com');
-  await page.bringToFront();
+  // initalize only the first time
+  if (!page.url().includes('google.com')) {
+    await page.goto('https://google.com');
+    await page.bringToFront();
+  }
 
   const selector = '*[data-testid="open-modal"]';
   const frameLocator = page.frameLocator('iframe#tab-master');
