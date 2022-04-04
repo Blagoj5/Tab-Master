@@ -1,5 +1,7 @@
+/* eslint-disable react/jsx-one-expression-per-line */
 import { useState } from 'react';
 import styled from 'styled-components';
+import DescriptionItem from './DescriptionItem';
 
 const Container = styled.div`
   color: #ffffffd6;
@@ -40,7 +42,8 @@ const OsBox = styled.div`
 `;
 
 const OsHeading = styled.h5<{ isActive: boolean }>`
-  background: ${(props) => (props.isActive ? 'hsla(0, 0%, 0%, 0.10)' : 'initial')};
+  background: ${(props) =>
+    props.isActive ? 'hsla(0, 0%, 0%, 0.10)' : 'initial'};
   flex: 1;
   height: 100%;
   text-align: center;
@@ -65,13 +68,8 @@ function Description() {
   return (
     <Container>
       <p>
-        <b>Tab Master</b>
-        {' '}
-        is an easy-to-use extension for increasing your
-        {' '}
-        <b>productivity</b>
-        {' '}
-        by providing an easy and intuitive way to navigate
+        <b>Tab Master</b> is an easy-to-use extension for increasing your{' '}
+        <b>productivity</b> by providing an easy and intuitive way to navigate
         trough tabs and history.
       </p>
       <div>
@@ -88,131 +86,60 @@ function Description() {
           ))}
         </OsBox>
         <UnorderedList>
-          {/* // TODO: add icons, for example CMD + CTRL + K with icons */}
           {activeOsDescription === 'mac' ? (
             <>
-              <li>
-                Toggle modal -
-                {' '}
-                <code>CMD</code>
-                {' '}
-                +
-                {' '}
-                <code>K</code>
-              </li>
-              <li>
-                Toggle modal (2) -
-                {' '}
-                <code>CONTROL</code>
-                {' '}
-                +
-                {' '}
-                <code>K</code>
-              </li>
-              <li>
-                Open modal (3) -
-                {' '}
-                <code>COMMAND</code>
-                {' '}
-                +
-                {' '}
-                <code>SHIFT</code>
-                {' '}
-                +
-                {' '}
-                <code>K</code>
-              </li>
+              <DescriptionItem
+                title="Toggle modal (native keybinding)"
+                commands={['CMD', 'SHIFT', 'K']}
+              />
+              <DescriptionItem title="Toggle modal" commands={['CMD', 'K']} />
+              <DescriptionItem title="Toggle modal" commands={['CTRL', 'K']} />
             </>
           ) : (
             <>
-              <li>
-                Toggle modal (native keybinding is overridden which in some site
-                it might cause a weird behavior) -
-                {' '}
-                <code>CTRL</code>
-                {' '}
-                +
-                {' '}
-                <code>K</code>
-              </li>
-              <li>
-                Open modal -
-                {' '}
-                <code>CTRL</code>
-                {' '}
-                +
-                {' '}
-                <code>SHIFT</code>
-                {' '}
-                +
-                {' '}
-                <code>K</code>
-              </li>
+              <DescriptionItem
+                title="Toggle modal (native keybinding is overridden which in some site
+                it might cause a weird behavior)"
+                commands={['Control', 'K']}
+              />
+              <DescriptionItem
+                title="Toggle modal (native keybinding)"
+                commands={['CTRL', 'SHIFT', 'K']}
+              />
             </>
           )}
-          <li>
-            Close modal -
-            {' '}
-            <code>ESCAPE</code>
-          </li>
-          <li>
-            Next Item/Tab -
-            {' '}
-            <code>ArrowDown</code>
-            {' '}
-            |
-            {' '}
-            <code>&#x2193;</code>
-          </li>
-          <li>
-            Previous Item/Tab -
-            {' '}
-            <code>ArrowUp</code>
-            {' '}
-            |
-            {' '}
-            <code>&#x2191;</code>
-          </li>
-          <li>
-            Expand Item -
-            {' '}
-            <code>SHIFT</code>
-            {' '}
-            +
-            {' '}
-            <code>ArrowRight</code>
-            {' '}
-            |
-            {' '}
-            <code>&#x2192;</code>
-          </li>
-          <li>
-            Collapse Item
-            {' '}
-            <code>SHIFT</code>
-            {' '}
-            +
-            {' '}
-            <code>Arrow Left</code>
-            {' '}
-            |
-            {' '}
-            <code>&#x2190;</code>
-          </li>
-          <li>
-            Toggle Expand/Collapse for Item/Tab -
-            {' '}
-            <code>TAB</code>
-          </li>
-          <li>
-            Navigate to selected tab -
-            {' '}
-            <code>ENTER</code>
-            {' '}
-            |
-            {' '}
-            <code>LeftMouseClick</code>
-          </li>
+          <DescriptionItem title="Close modal" commands={['ESCAPE']} />
+          <DescriptionItem title="Next Item/Tab">
+            <>
+              <code>ArrowDown</code> | <code>&#x2193;</code>
+            </>
+          </DescriptionItem>
+          <DescriptionItem title="Previous Item/Tab">
+            <>
+              <code>ArrowUp</code> | <code>&#x2191;</code>
+            </>
+          </DescriptionItem>
+          <DescriptionItem title="Expand Item/Tab">
+            <>
+              <code>SHIFT</code> + <code>ArrowRight</code> |{' '}
+              <code>&#x2192;</code>
+            </>
+          </DescriptionItem>
+          <DescriptionItem title="Collapse Item/Tab">
+            <>
+              <code>SHIFT</code> + <code>Arrow Left</code> |{' '}
+              <code>&#x2190;</code>
+            </>
+          </DescriptionItem>
+          <DescriptionItem
+            title="Toggle Expand/Collapse for Item/Tab"
+            commands={['TAB']}
+          />
+          <DescriptionItem title="Navigate to selected tab">
+            <>
+              <code>ENTER</code> | <code>LeftMouseClick</code>
+            </>
+          </DescriptionItem>
         </UnorderedList>
       </div>
     </Container>

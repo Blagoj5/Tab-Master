@@ -10,6 +10,7 @@ import { loadSettings, storageChangeListener } from './utils/storageConfig';
 const context: Context = {
   openedTabs: [],
   recentTabs: [],
+  isOpen: false,
 };
 
 const onActionMessageListener = async (message: object) => {
@@ -80,8 +81,8 @@ const onMessageListener = async (command: string) => {
   //  if extension is disabled from settings, find a better way for this
   if (!config.extensionEnabled || !currentTab?.id) return;
 
-  // CMD + K
-  if (command === 'open-tab-master') {
+  // CMD + K, CMD + SHIFT + K
+  if (command === 'open-tab-master' && !context.isOpen) {
     const message = await getOpenTabMasterPayload(
       'open-tab-master',
       currentTab?.id,
@@ -90,14 +91,13 @@ const onMessageListener = async (command: string) => {
     context.openedTabs = message.tabs.open;
     context.recentTabs = message.tabs.recent;
     port.postMessage(message);
-  }
-
-  // Escape
-  if (command === 'close-tab-master') {
+    context.isOpen = true;
+  } else if (command === 'close-tab-master' || context.isOpen) {
     const message = {
       type: 'close-tab-master',
     };
     port.postMessage(message);
+    context.isOpen = false;
   }
 
   // console.log('aaaa', port.onMessage.hasListener(onActionMessageListener));

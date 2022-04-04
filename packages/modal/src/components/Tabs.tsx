@@ -131,7 +131,7 @@ function Tabs<T extends CommonTab>({
 
   const isMinimal = view === 'minimal';
   return (
-    <Container isScrollable={!headingTitle}>
+    <Container data-testid="tab-master-tabs" isScrollable={!headingTitle}>
       {headingTitle && <Title>{headingTitle}</Title>}
       {tabs.map((tab, i) => (
         <SearchedTab
