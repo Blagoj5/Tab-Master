@@ -46,9 +46,9 @@ export const CustomFlex = styled(HStack)`
 export const Container = styled.div<{ isScrollable: boolean }>`
   width: 100%;
   align-items: flex-start;
-  flex: 1;
-  overflow-y: ${(props) => (props.isScrollable ? 'scroll' : 'initial')};
-  overflow-x: ${(props) => (props.isScrollable ? 'hidden' : 'initial')};
+  flex: 0 0 auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
   ${scrollbarStyle}
 `;
 

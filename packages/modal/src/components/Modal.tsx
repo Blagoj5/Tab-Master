@@ -397,57 +397,59 @@ function Modal({
           onKeyDown={handleKeyDown}
           onChange={handleOnChange}
         />
-        {inputValue ? (
-          <Tabs
-            tabs={sortedCombinedSelectedTabs}
-            clickCallbackField="id"
-            selectedTabId={selectedTabId}
-            onTabClicked={handleSelect}
-            onTabHover={setSelectedTabId}
-            expandedTabIds={expanded}
-            scrollingState={scrollingState}
-            setScrollingState={setScrollingState}
-          />
-        ) : (
-          <TabsContainer ref={containerRef}>
-            {/* OPENED TABS */}
-            {openedTabs?.length ? (
-              <Tabs
-                headingTitle="OPENED TABS"
-                tabs={openedTabs}
-                clickCallbackField="id"
-                selectedTabId={
-                  selectedTabId === 'initial'
-                    ? openedTabs[0]?.id
-                    : selectedTabId
-                }
-                onTabClicked={handleSelect}
-                onTabHover={setSelectedTabId}
-                expandedTabIds={expanded}
-                scrollingState={scrollingState}
-                setScrollingState={setScrollingState}
-              />
-            ) : undefined}
-            {/* RECENTLY TABS */}
-            {recentTabs?.length ? (
-              <Tabs
-                headingTitle="RECENT TABS"
-                tabs={recentTabs}
-                clickCallbackField="id"
-                selectedTabId={
-                  selectedTabId === 'initial'
-                    ? openedTabs[0]?.id || recentTabs[0]?.id
-                    : selectedTabId
-                }
-                onTabClicked={handleSelect}
-                onTabHover={setSelectedTabId}
-                expandedTabIds={expanded}
-                scrollingState={scrollingState}
-                setScrollingState={setScrollingState}
-              />
-            ) : undefined}
-          </TabsContainer>
-        )}
+        <TabsContainer ref={containerRef}>
+          {inputValue ? (
+            <Tabs
+              tabs={sortedCombinedSelectedTabs}
+              clickCallbackField="id"
+              selectedTabId={selectedTabId}
+              onTabClicked={handleSelect}
+              onTabHover={setSelectedTabId}
+              expandedTabIds={expanded}
+              scrollingState={scrollingState}
+              setScrollingState={setScrollingState}
+            />
+          ) : (
+            <>
+              {/* OPENED TABS */}
+              {openedTabs?.length ? (
+                <Tabs
+                  headingTitle="OPENED TABS"
+                  tabs={openedTabs}
+                  clickCallbackField="id"
+                  selectedTabId={
+                    selectedTabId === 'initial'
+                      ? openedTabs[0]?.id
+                      : selectedTabId
+                  }
+                  onTabClicked={handleSelect}
+                  onTabHover={setSelectedTabId}
+                  expandedTabIds={expanded}
+                  scrollingState={scrollingState}
+                  setScrollingState={setScrollingState}
+                />
+              ) : undefined}
+              {/* RECENTLY TABS */}
+              {recentTabs?.length ? (
+                <Tabs
+                  headingTitle="RECENT TABS"
+                  tabs={recentTabs}
+                  clickCallbackField="id"
+                  selectedTabId={
+                    selectedTabId === 'initial'
+                      ? openedTabs[0]?.id || recentTabs[0]?.id
+                      : selectedTabId
+                  }
+                  onTabClicked={handleSelect}
+                  onTabHover={setSelectedTabId}
+                  expandedTabIds={expanded}
+                  scrollingState={scrollingState}
+                  setScrollingState={setScrollingState}
+                />
+              ) : undefined}
+            </>
+          )}
+        </TabsContainer>
       </ModalStyle>
     </>
   );
