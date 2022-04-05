@@ -1,6 +1,6 @@
 {
   "name": "tab-master",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -35,7 +35,10 @@
     "zip": "yarn zip:chrome && yarn zip:firefox",
     "changelog": "auto-changelog -p && git add CHANGELOG.md",
     "test": "npx playwright test --project=chromium --workers=1",
-    "version": "bump"
+    "version:bump": "bump && yarn build",
+    "version:patch": "bump patch && yarn build",
+    "version:minor": "bump minor && yarn build",
+    "version:major": "bump major && yarn build"
   },
   "dependencies": {},
   "workspaces": {
