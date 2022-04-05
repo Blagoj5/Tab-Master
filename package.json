@@ -1,6 +1,6 @@
 {
   "name": "tab-master",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "index.js",
   "license": "MIT",
   "private": true,
@@ -18,6 +18,7 @@
     "fs-extra": "^10.0.0",
     "nodemon": "^2.0.15",
     "rimraf": "^3.0.2",
+    "version-bump-prompt": "^6.1.0",
     "webextension-polyfill": "^0.8.0"
   },
   "scripts": {
@@ -33,7 +34,8 @@
     "zip:firefox": "cd build-firefox/ && zip -r -FS ../tab-master-firefox.zip *",
     "zip": "yarn zip:chrome && yarn zip:firefox",
     "changelog": "auto-changelog -p && git add CHANGELOG.md",
-    "test": "npx playwright test --project=chromium --workers=1"
+    "test": "npx playwright test --project=chromium --workers=1",
+    "version": "bump"
   },
   "dependencies": {},
   "workspaces": {
