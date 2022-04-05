@@ -22,8 +22,8 @@ const setup = async () => {
   const currentPackageVersion = packageJson.version;
   manifestChrome.version = currentPackageVersion;
   manifestFirefox.version = currentPackageVersion;
-  writeFileSync(manifestChromePath, JSON.stringify(manifestChrome, null, 4));
-  writeFileSync(manifestFirefoxPath, JSON.stringify(manifestFirefox, null, 4));
+  writeFileSync(manifestChromePath, JSON.stringify(manifestChrome, null, 2));
+  writeFileSync(manifestFirefoxPath, JSON.stringify(manifestFirefox, null, 2));
 
   copySync('assets', 'build', { overwrite: true, recursive: true });
   copySync(

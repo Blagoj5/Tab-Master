@@ -1,57 +1,57 @@
 {
-    "manifest_version": 2,
-    "name": "Tab Master",
-    "version": "1.0.9",
-    "description": "Navigate freely. Tab Master provides easy and intuitive way to navigate trough tabs and history",
-    "icons": {
-        "16": "images/icon16.png",
-        "48": "images/icon48.png",
-        "128": "images/icon128.png"
-    },
-    "background": {
-        "scripts": [
-            "browser-polyfill.js",
-            "background/index.js"
-        ]
-    },
-    "content_scripts": [
-        {
-            "matches": [
-                "<all_urls>"
-            ],
-            "js": [
-                "browser-polyfill.js",
-                "modal/index.js"
-            ]
-        }
-    ],
-    "permissions": [
-        "<all_urls>",
-        "tabs",
-        "history",
-        "storage"
-    ],
-    "content_security_policy": "script-src 'self'; object-src 'self'",
-    "commands": {
-        "open-tab-master": {
-            "suggested_key": {
-                "mac": "Command+Shift+K",
-                "chromeos": "Ctrl+Shift+K",
-                "windows": "Ctrl+Shift+K",
-                "linux": "Ctrl+Shift+K"
-            },
-            "description": "Open Tab Master Extension"
-        }
-    },
-    "browser_action": {
-        "default_popup": "popup/index.html"
-    },
-    "options_ui": {
-        "page": "popup/index.html"
-    },
-    "web_accessible_resources": [
-        "/images/icon16.png",
-        "/fonts/KumbhSans-Bold.ttf",
-        "/fonts/KumbhSans-Regular.ttf"
+  "manifest_version": 2,
+  "name": "Tab Master",
+  "version": "1.0.9",
+  "description": "Navigate freely. Tab Master provides easy and intuitive way to navigate trough tabs and history",
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
+  },
+  "background": {
+    "scripts": [
+      "browser-polyfill.js",
+      "background/index.js"
     ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "browser-polyfill.js",
+        "modal/index.js"
+      ]
+    }
+  ],
+  "permissions": [
+    "<all_urls>",
+    "tabs",
+    "history",
+    "storage"
+  ],
+  "content_security_policy": "script-src 'self'; object-src 'self'",
+  "commands": {
+    "open-tab-master": {
+      "suggested_key": {
+        "mac": "Command+Shift+K",
+        "chromeos": "Ctrl+Shift+K",
+        "windows": "Ctrl+Shift+K",
+        "linux": "Ctrl+Shift+K"
+      },
+      "description": "Open Tab Master Extension"
+    }
+  },
+  "browser_action": {
+    "default_popup": "popup/index.html"
+  },
+  "options_ui": {
+    "page": "popup/index.html"
+  },
+  "web_accessible_resources": [
+    "/images/icon16.png",
+    "/fonts/KumbhSans-Bold.ttf",
+    "/fonts/KumbhSans-Regular.ttf"
+  ]
 }
