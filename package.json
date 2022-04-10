@@ -33,7 +33,7 @@
     "zip:chrome": "zip -r -FS tab-master-chrome.zip build-chrome/*",
     "zip:firefox": "cd build-firefox/ && zip -r -FS ../tab-master-firefox.zip *",
     "zip": "yarn zip:chrome && yarn zip:firefox",
-    "changelog": "auto-changelog -p && git add CHANGELOG.md",
+    "changelog": "auto-changelog -p && auto-changelog --template json --output ./website/changelog.json && git add CHANGELOG.md && git add ./website/changelog.json",
     "test": "npx playwright test --project=chromium --workers=1",
     "version:bump": "bump && yarn build",
     "version:patch": "bump patch && yarn build",
