@@ -69,7 +69,9 @@ function App() {
     });
   };
 
-  const handleFromDateChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
+  const handleFromDateChange: React.ChangeEventHandler<HTMLInputElement> = (
+    e,
+  ) => {
     // start at 00:00 always
     const parsedVal = new Date(e.target.value).toDateString();
 
@@ -113,19 +115,17 @@ function App() {
           input={(
             <Checkbox
               isChecked={(domain) => blackListedWebsites.includes(domain)}
-              onCheck={
-                (checked, domain) => (
-                  checked
-                    ? addPageToBlackList(domain)
-                    : removePageFromBlackList(domain)
-                )
-              }
+              onCheck={(checked, domain) => (checked
+                ? addPageToBlackList(domain)
+                : removePageFromBlackList(domain))}
             />
           )}
           title="Blacklist Page"
         />
         <Option
-          input={<Switch isChecked={showDescription} onCheck={toggleDescription} />}
+          input={
+            <Switch isChecked={showDescription} onCheck={toggleDescription} />
+          }
           title="Commands And Description"
           subContent={(
             <ToggleableContainer show={showDescription}>
@@ -134,7 +134,12 @@ function App() {
           )}
         />
         <Option
-          input={<Switch isChecked={extensionEnabled} onCheck={toggleExtensionEnabled} />}
+          input={(
+            <Switch
+              isChecked={extensionEnabled}
+              onCheck={toggleExtensionEnabled}
+            />
+          )}
           title="Tab Master Active"
           // TODO: add custom key turn off, ex. cmd + shift + k, turns off this
           subContent="Option for turning on and off Tab Master."
@@ -161,7 +166,6 @@ function App() {
           title="Recent Opened Tabs"
           subContent="Whenever to include recently opened tabs (history). When this tabs/items are clicked new tab will open to which you'll be directed to."
         />
-        {/* TODO: this need to be under single component */}
         <Option
           input={(
             <Switch
@@ -186,13 +190,25 @@ function App() {
                 />
                 <SelectField
                   label="Max results"
-                  options={['10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '200']}
+                  options={[
+                    '10',
+                    '20',
+                    '30',
+                    '40',
+                    '50',
+                    '60',
+                    '70',
+                    '80',
+                    '90',
+                    '100',
+                    '200',
+                  ]}
                   value={String(history.maxResults)}
                   onChange={handleMaxResultsChange}
                 />
               </DateContainer>
             </ToggleableContainer>
-        )}
+          )}
         />
         <Option
           input={(
@@ -222,12 +238,14 @@ function App() {
               {
                 id: 'minimal' as const,
                 label: 'Minimal View',
-                description: 'With this option the tab will be inline, on the left the title and on the right the url. If the title and url are too big they will be truncated.',
+                description:
+                  'With this option the tab will be inline, on the left the title and on the right the url. If the title and url are too big they will be truncated.',
               },
               {
                 id: 'standard' as const,
                 label: 'Standard View',
-                description: 'With this option enabled the tab will be block, which means on top the title will exist and beneath the title the url will be present.',
+                description:
+                  'With this option enabled the tab will be block, which means on top the title will exist and beneath the title the url will be present.',
               },
             ]}
             optionChecked={view}
@@ -237,7 +255,9 @@ function App() {
         <SubTitle>
           Options page:
           {' '}
-          <ButtonLink onClick={() => browser.runtime.openOptionsPage()}>Full Screen</ButtonLink>
+          <ButtonLink onClick={() => browser.runtime.openOptionsPage()}>
+            Full Screen
+          </ButtonLink>
         </SubTitle>
       </Container>
     </div>

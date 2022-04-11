@@ -1,4 +1,4 @@
-import { Actions } from '@tab-master/common/build/types';
+import { Actions, isValidCommand } from '@tab-master/common/build/types';
 import { Context } from './types';
 
 import connectToTabContentScript from './utils/connectToTabContentScript';
@@ -26,7 +26,8 @@ const onActionMessageListener = async (message: object) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isActions = (data: any): data is Actions => Boolean(data);
   if (!isActions(message)) return;
-  if (!currentTab?.id) throw new Error('No current tab');
+  if (!currentTab?.id || !isValidCommand(message.type))
+    throw new Error('No current tab');
 
   switch (message.type) {
     case 'switch-tab':
@@ -79,7 +80,8 @@ const onMessageListener = async (command: string) => {
   if (!port) return;
 
   //  if extension is disabled from settings, find a better way for this
-  if (!config.extensionEnabled || !currentTab?.id) return;
+  if (!config.extensionEnabled || !currentTab?.id || !isValidCommand(command))
+    return;
 
   // CMD + K, CMD + SHIFT + K
   if (command === 'open-tab-master' && !context.isOpen) {
