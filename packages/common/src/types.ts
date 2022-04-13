@@ -31,6 +31,20 @@ export type Actions =
       tabs: browser.history.HistoryItem[] | null;
     };
 
+export type Command = Actions['type'];
+const validCommands = [
+  'close-tab',
+  'close-tab-master',
+  'current-state',
+  'open-tab',
+  'open-tab-master',
+  'search-history',
+  'send-recent-tabs',
+  'switch-tab',
+] as const;
+export const isValidCommand = (data: any): data is Command =>
+  Boolean(data && validCommands.includes(data));
+
 export type CommonTab = {
   id: string;
   url: string;

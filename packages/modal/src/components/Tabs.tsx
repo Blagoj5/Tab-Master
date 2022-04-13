@@ -174,8 +174,6 @@ function Tabs<T extends CommonTab>({
           ) : (
             <InlineView title={tab.title} url={tab.url} />
           )}
-          {/* // TODO: implement this, show full link and info about the tab */}
-          {/* <Icon as={ChevronDownIcon} color="gray.200" /> */}
           <IconContainer
             isAtTop={!isMinimal || expandedTabIds.includes(tab.id)}
           >
