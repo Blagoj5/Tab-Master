@@ -1,22 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-undef */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Frame, { FrameContextConsumer } from 'react-frame-component';
-import styled, { StyleSheetManager } from 'styled-components';
+import styled from 'styled-components';
 import {
   CommonTab,
   Actions,
   OpenedTab,
   RecentOpenedTab,
 } from '@tab-master/common/build/types';
-
+//
 import { getFaviconURL, removeDuplicates } from './utils';
-import { Backdrop, Center } from './styles';
+import { Backdrop, Center, GlobalStyle } from './styles';
 import Modal from './components/Modal';
 import SettingsProvider from './components/SettingsProvider';
 import { OPENED_TAB_SUFFIX } from './consts';
 
-const ModalFrame = styled(Frame)<{ isVisible: boolean }>`
+const ModalPane = styled.div`
   width: 650px;
   height: 432px;
   z-index: 1000;
@@ -26,12 +23,11 @@ const ModalFrame = styled(Frame)<{ isVisible: boolean }>`
   border-radius: 0.625rem;
 `;
 
-const Container = styled(Center)<{ isVisible: boolean }>`
-  display: ${(props) => (props.isVisible ? 'flex' : 'none')};
+const Container = styled(Center)`
+  display: flex;
 `;
 
 function App() {
-  const [showExtension, setShowExtension] = useState(false);
   const portRef = useRef<browser.runtime.Port>();
 
   const [recentOpenedTabs, setRecentOpenedTabs] = useState<
@@ -62,26 +58,6 @@ function App() {
     [openedTabs],
   );
 
-  useEffect(() => {
-    const onFocus = () => {
-      if (showExtension) {
-        const el = document.querySelector(
-          'iframe#tab-master',
-        ) as HTMLElement | null;
-        el?.focus();
-      }
-    };
-
-    if (showExtension) document.addEventListener('focus', onFocus, true);
-    // changing the focus from the iframe to the body, since the main
-    // event listener is there
-    if (!showExtension) window.focus();
-
-    return () => {
-      document.removeEventListener('focus', onFocus, true);
-    };
-  }, [showExtension]);
-
   const transformedRecentOpenedTabs = useMemo(
     () =>
       recentOpenedTabs
@@ -106,18 +82,17 @@ function App() {
   );
 
   const closeExtension = () => {
-    const payload: Actions = {
-      type: 'close-tab-master',
-    };
-    portRef.current?.postMessage(payload);
+    window.close();
   };
 
   useEffect(() => {
     const port = browser.runtime.connect();
     portRef.current = port;
-    // port.onDisconnect.addListener(() => {
-    //   console.log('***disconnected');
-    // });
+
+    const timeout = setTimeout(() => {
+      port.postMessage({ type: 'init-extension' });
+      clearTimeout(timeout);
+    }, 10);
 
     const onMessageListener = (message: object) => {
       const isActions = (data: object): data is Actions => Boolean(data);
@@ -137,7 +112,6 @@ function App() {
               faviconUrl: getFaviconURL(tab.url || ''),
             })) ?? null,
           );
-          setShowExtension(true);
           break;
         case 'current-state':
           setOpenedTabs(
@@ -164,7 +138,6 @@ function App() {
           break;
 
         case 'close-tab-master':
-          setShowExtension(false);
           break;
 
         default:
@@ -174,25 +147,7 @@ function App() {
 
     port.onMessage.addListener(onMessageListener);
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.repeat) return;
-
-      // for Windows, ctrl + k has native binding
-      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
-        event.preventDefault();
-        if (!showExtension) {
-          const payload: Actions = {
-            type: 'init-extension',
-          };
-          portRef.current?.postMessage(payload);
-        }
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-
     return () => {
-      document.removeEventListener('keydown', onKeyDown);
       portRef.current?.onMessage.removeListener(onMessageListener);
     };
   }, []);
@@ -257,32 +212,30 @@ function App() {
 
     portRef.current?.postMessage(payload);
   };
-
-  // TODO: add font-sizes everywhere
   return (
-    <Container isVisible={showExtension}>
-      <Backdrop onClick={closeExtension} />
+    <>
+      <GlobalStyle />
+      <a href={browser.runtime.getURL('/fonts/KumbhSans-Regular.ttf')}>
+        click me
+      </a>
+      <Container>
+        <Backdrop onClick={closeExtension} />
 
-      <ModalFrame id="tab-master">
-        <FrameContextConsumer>
-          {(frameContext: any) => (
-            <StyleSheetManager target={frameContext.document.head}>
-              <SettingsProvider>
-                <Modal
-                  searchHistory={handleOnChange}
-                  handleTabSelect={handleTabSelect}
-                  handleTabClose={handleTabClose}
-                  openedTabs={transformedOpenedTabs}
-                  recentTabs={transformedRecentOpenedTabs}
-                  closeExtension={closeExtension}
-                  showExtension={showExtension}
-                />
-              </SettingsProvider>
-            </StyleSheetManager>
-          )}
-        </FrameContextConsumer>
-      </ModalFrame>
-    </Container>
+        <ModalPane id="tab-master">
+          <SettingsProvider>
+            <Modal
+              searchHistory={handleOnChange}
+              handleTabSelect={handleTabSelect}
+              handleTabClose={handleTabClose}
+              openedTabs={transformedOpenedTabs}
+              recentTabs={transformedRecentOpenedTabs}
+              closeExtension={closeExtension}
+              showExtension
+            />
+          </SettingsProvider>
+        </ModalPane>
+      </Container>
+    </>
   );
 }
 

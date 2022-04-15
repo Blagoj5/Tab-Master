@@ -1,6 +1,9 @@
 /* eslint-disable no-undef */
 export type Actions =
   | {
+      type: 'init-extension';
+    }
+  | {
       type: 'close-tab-master';
     }
   | {
@@ -41,6 +44,7 @@ const validCommands = [
   'search-history',
   'send-recent-tabs',
   'switch-tab',
+  'init-extension',
 ] as const;
 export const isValidCommand = (data: any): data is Command =>
   Boolean(data && validCommands.includes(data));

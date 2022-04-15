@@ -1,10 +1,9 @@
 import { Actions, isValidCommand } from '@tab-master/common/build/types';
+import { closeTabMaster, openTabMaster } from './commands/openTabMaster';
 import { Context } from './types';
 
-import connectToTabContentScript from './utils/connectToTabContentScript';
-import getCurrentTab from './utils/getCurrentTab';
 import getRecentlyOpenedTabs from './utils/getRecentlyOpenedTabs';
-import getOpenTabMasterPayload from './utils/openTabMaster';
+import PortController from './utils/PortController';
 import { loadSettings, storageChangeListener } from './utils/storageConfig';
 
 const context: Context = {
@@ -13,25 +12,35 @@ const context: Context = {
   isOpen: false,
 };
 
-const onActionMessageListener = async (message: object) => {
-  const currentTab = await getCurrentTab();
+const onActionMessageListener = async (
+  message: object,
+  port: browser.runtime.Port,
+  currentTab: Omit<browser.tabs.Tab, 'id'> & { id: number },
+) => {
   const config = await loadSettings();
 
-  if (!currentTab.id) throw new Error('Current tab does not exist');
-
-  const port = await connectToTabContentScript(currentTab.id);
-
-  if (!port) return;
-
+  // TODO: fix isActions
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isActions = (data: any): data is Actions => Boolean(data);
   if (!isActions(message)) return;
-  if (!currentTab?.id || !isValidCommand(message.type))
-    throw new Error('No current tab');
+  if (!isValidCommand(message.type)) throw new Error('Command is not valid');
 
   switch (message.type) {
+    case 'init-extension': {
+      const {
+        tabs: { open, recent },
+      } = await openTabMaster(currentTab, port);
+      context.openedTabs = open;
+      context.recentTabs = recent;
+      break;
+    }
+    case 'close-tab-master':
+      await closeTabMaster(port);
+      context.isOpen = false;
+      break;
     case 'switch-tab':
       browser.tabs.update(message.tabId, { active: true });
+      context.isOpen = false;
       break;
     case 'search-history': {
       if (!config.recentTabsEnabled) return;
@@ -56,6 +65,7 @@ const onActionMessageListener = async (message: object) => {
         active: true,
         url: message.newTabUrl,
       });
+      context.isOpen = false;
       break;
     case 'close-tab':
       browser.tabs.remove(message.tabId);
@@ -63,52 +73,54 @@ const onActionMessageListener = async (message: object) => {
     default:
       break;
   }
-
-  if (port.onMessage.hasListener(onActionMessageListener)) {
-    port.onMessage.addListener(onActionMessageListener);
-  }
 };
+
+const portController = new PortController(onActionMessageListener);
 
 const onMessageListener = async (command: string) => {
   const config = await loadSettings();
-  const currentTab = await getCurrentTab();
-
-  if (!currentTab.id) throw new Error('Current tab does not exist');
-
-  const port = await connectToTabContentScript(currentTab.id);
-
-  if (!port) return;
+  const port = await portController.getPort();
+  const currentTab = await portController.getCurrentTab();
 
   //  if extension is disabled from settings, find a better way for this
-  if (!config.extensionEnabled || !currentTab?.id || !isValidCommand(command))
+  if (!config.extensionEnabled || !isValidCommand(command)) return;
+
+  if (!port) {
+    // TODO: setPopup as special modal if content script not loaded yet or not existing
+    const createdTab = await browser.tabs.create({
+      url: '', // TODO: causes small flickering
+      active: true,
+    });
+    if (!createdTab.id) throw new Error('Created popup tab has no id');
+
+    // for the new popup tab set the correct popup
+    await browser.browserAction.setPopup({
+      tabId: createdTab.id,
+      popup: 'popup-modal/index.html',
+    });
+
+    const url = await browser.browserAction.getPopup({
+      tabId: createdTab.id,
+    });
+    await browser.tabs.update(createdTab.id, { active: true, url });
+    // TODO: if user selects something just do window.close on modal to turn it off
     return;
+  }
 
   // CMD + K, CMD + SHIFT + K
   if (command === 'open-tab-master' && !context.isOpen) {
-    const message = await getOpenTabMasterPayload(
-      'open-tab-master',
-      currentTab?.id,
-      currentTab?.url,
-    );
-    context.openedTabs = message.tabs.open;
-    context.recentTabs = message.tabs.recent;
-    port.postMessage(message);
+    const {
+      tabs: { open, recent },
+    } = await openTabMaster(currentTab, port);
+
+    context.openedTabs = open;
+    context.recentTabs = recent;
     context.isOpen = true;
   } else if (command === 'close-tab-master' || context.isOpen) {
-    const message = {
-      type: 'close-tab-master',
-    };
-    port.postMessage(message);
+    await closeTabMaster(port);
     context.isOpen = false;
-  }
-
-  // console.log('aaaa', port.onMessage.hasListener(onActionMessageListener));
-  if (!port.onMessage.hasListener(onActionMessageListener)) {
-    // console.log('add listener', port);
-    port.onMessage.addListener(onActionMessageListener);
   }
 };
 
 browser.storage.onChanged.addListener(storageChangeListener);
 browser.commands.onCommand.addListener(onMessageListener);
-browser.runtime.onMessage.addListener(onMessageListener);

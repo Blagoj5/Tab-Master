@@ -28,6 +28,14 @@ const config = [
       path: path.resolve(__dirname, '../build/popup'),
     },
   },
+  {
+    source: {
+      path: path.resolve(__dirname, '../packages/popup-modal/build'),
+    },
+    dest: {
+      path: path.resolve(__dirname, '../build/popup-modal'),
+    },
+  },
 ];
 
 const build = async () => {

@@ -13,6 +13,8 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   rules: {
     'import/extensions': 'off',
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': 'error',
   },
   globals: {
     chrome: true,

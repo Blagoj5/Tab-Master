@@ -1,7 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import styled, { createGlobalStyle, css } from 'styled-components';
 
-export const GlobalStyle = createGlobalStyle<{ extensionId?: string }>`
+export const GlobalStyle = createGlobalStyle`
   :root {
 		--primary-color: hsl(216, 10.204081632653061%, 19.215686274509803%);
 		--text-color: hsl(210.0000000000001, 3.3613445378151265%, 53.33333333333334%);
@@ -134,6 +134,7 @@ export const SearchedTab = styled.div<{
   overflow: hidden;
   cursor: pointer;
   align-items: center;
+  font-size: 1rem;
 `;
 
 export const Avatar = styled.img`

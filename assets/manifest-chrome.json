@@ -33,6 +33,11 @@
   ],
   "content_security_policy": "script-src 'self'; object-src 'self'",
   "commands": {
+    "_execute_browser_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+U"
+      }
+    },
     "open-tab-master": {
       "suggested_key": {
         "mac": "Command+Shift+K",
