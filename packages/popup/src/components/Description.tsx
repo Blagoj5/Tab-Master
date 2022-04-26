@@ -60,6 +60,12 @@ const OsHeading = styled.h5<{ isActive: boolean }>`
   }
 `;
 
+const SubListItemHeader = styled.p`
+  color: #ffffffd6;
+  margin: 0.2rem 0;
+  padding-left: 15px;
+`;
+
 type Os = 'windows' | 'mac' | 'linux';
 const availableOs = ['Windows', 'Linux', 'Mac'];
 function Description() {
@@ -91,20 +97,55 @@ function Description() {
               <DescriptionItem
                 title="Toggle modal (native keybinding)"
                 commands={['CMD', 'SHIFT', 'K']}
-              />
+              >
+                <SubListItemHeader>
+                  Should be the <b>preferred</b> way for opening/closing modal:
+                </SubListItemHeader>
+                <UnorderedList>
+                  <li>
+                    If the content script is not loaded (e.g. your internet
+                    connection is slow, you&rsquo;re on pages that do not allow
+                    content script like a new page or chrome page), with this
+                    command and a new temporary modal will be open in a new tab
+                    replacing the not yet loaded modal in the main page
+                  </li>
+                  <li>
+                    It&rsquo;s smoother overall since it&rsquo;s native
+                    keybinding and not an event listener
+                  </li>
+                </UnorderedList>
+              </DescriptionItem>
               <DescriptionItem title="Toggle modal" commands={['CMD', 'K']} />
               <DescriptionItem title="Toggle modal" commands={['CTRL', 'K']} />
             </>
           ) : (
             <>
               <DescriptionItem
+                title="Toggle modal (native keybinding)"
+                commands={['CTRL', 'SHIFT', 'K']}
+              >
+                <SubListItemHeader>
+                  Should be the <b>preferred</b> way for opening/closing modal:
+                </SubListItemHeader>
+                <UnorderedList>
+                  <li>
+                    If the content script is not loaded (e.g. your internet
+                    connection is slow, you&rsquo;re on pages that do not allow
+                    content script like a new page or chrome page), with this
+                    command and a new temporary modal will be open in a new tab
+                    replacing the not yet loaded modal in the main page
+                  </li>
+                  <li>
+                    It&rsquo;s smoother overall since it&rsquo;s native
+                    keybinding and not an event listener
+                  </li>
+                </UnorderedList>
+              </DescriptionItem>
+
+              <DescriptionItem
                 title="Toggle modal (native keybinding is overridden which in some site
                 it might cause a weird behavior)"
                 commands={['Control', 'K']}
-              />
-              <DescriptionItem
-                title="Toggle modal (native keybinding)"
-                commands={['CTRL', 'SHIFT', 'K']}
               />
             </>
           )}

@@ -17,7 +17,7 @@ const ListItem = styled.li`
 type Props = {
   title: string;
   commands?: string[];
-  children?: JSX.Element;
+  children?: JSX.Element | JSX.Element[];
 };
 function DescriptionItem({ title, commands, children }: Props) {
   return (
