@@ -15,20 +15,19 @@ class PortController {
   constructor(onMessageListener?: MessageListener) {
     this.activePorts = {};
     browser.runtime.onConnect.addListener(async (port) => {
-      const currentTab = await getCurrentTab();
-      if (!isCurrentTab(currentTab)) throw new Error('No current tab');
-      const currentTabId = currentTab.id;
+      const tabForConnection = port.sender?.tab;
+      if (!isCurrentTab(tabForConnection)) throw new Error('No current tab');
 
       this.activePorts = {
         ...this.activePorts,
-        [currentTabId]: port,
+        [tabForConnection.id]: port,
       };
 
-      const listener = (message: object) =>
-        onMessageListener?.(message, port, currentTab);
+      const listener = async (message: object) =>
+        onMessageListener?.(message, port, tabForConnection);
 
       port.onDisconnect.addListener(() => {
-        delete this.activePorts[currentTabId];
+        delete this.activePorts[tabForConnection.id];
         if (onMessageListener) port.onMessage.removeListener(listener);
       });
 

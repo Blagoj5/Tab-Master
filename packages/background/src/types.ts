@@ -5,6 +5,6 @@ export type Context = {
 };
 
 export const isCurrentTab = (
-  data: browser.tabs.Tab,
+  data?: browser.tabs.Tab,
 ): data is Omit<browser.tabs.Tab, 'id'> & { id: number } =>
   Boolean(data && !!data.id);
